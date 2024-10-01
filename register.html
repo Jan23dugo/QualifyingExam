@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="register-body">
+    <div class="navbar">
+        <img src="ccislogo.png" alt="Left Logo" class="ccislogo">
+        <nav>
+            <ul>
+                <li><a href=index.html>HOME</a></li>
+                <li><a href=about.html>ABOUT EXAM</a></li>
+                <li><a href=eligibilitychecker.html>ELIGIBILITY CHECKER</a></li>
+                <li><a href="contactus.html">CONTACT US</a></li>
+                <li><a href=takeanexam.html>TAKE AN EXAM</a></li>
+                <li><a href=register.html>REGISTER</a></li>
+            </ul>
+        </nav>
+    </div>
+    <section class="form-section">
+        <div class="form-group head"> 
+            <h1>Student Registration and Requirements Submission</h1>
+            <img src="puplogo.png" alt="Right Logo" class="puplogo">
+        </div>                
+        
+        <form action="#" method="POST" enctype="multipart/form-data">
+            <fieldset>
+                <legend>Student Personal Information</legend>
+                <div class="form-group name-gender">
+                    <div class="form-field">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" name="last-name">
+                    </div>
+                    <div class="form-field">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" name="first-name">
+                    </div>
+                    <div class="form-field">
+                        <label for="middle-initial">M.I.</label>
+                        <input type="text" id="middle-initial" name="middle-initial">
+                    </div>
+                    <div class="form-field">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">--Select Gender--</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="prefernot">Prefer Not To Say</option>
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="form-group contact">
+                    <div class="form-field">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="nationality">Nationality</label>
+                        <input type="text" id="nationality" name="nationality" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>        
+                    </div>
+                    <div class="form-field">
+                        <label for="contact-number">Contact Number</label>
+                        <input type="text" id="contact-number" name="contact-number" required>
+                    </div>
+                </div>
+
+                <div class="form-group address1">
+                    <div class="form-field">
+                        <label for="address-street">Street</label>
+                        <input type="text" id="address-street" name="address-street" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="barangay">Barangay</label>
+                        <input type="text" id="barangay" name="barangay" required>
+                    </div>
+                    <div class="form-field">    
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-field">    
+                        <label for="province">Province/Region</label>
+                        <input type="text" id="province" name="province" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="zip-code">Zip Code</label>
+                        <input type="text" id="zip-code" name="zip-code" required>
+                    </div>
+                </div>
+            </fieldset>
+                
+            <fieldset>
+                <legend>Student Academic Information</legend>
+                <div class="form-group school">
+                    <div class="form-field">
+                    <label for="student-type">Student Type</label>
+                    <select id="student-type" name="student-type" required>
+                        <option value="">-- Student Type --</option>
+                        <option value="transferee">Transferee</option>
+                        <option value="shiftee">Shiftee</option>
+                        <option value="ladderized">Ladderized</option>
+                    </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="previous-school">Name of Previous School</label>
+                        <input type="text" id="previous-school" name="previous-school" required>
+                    </div>
+                    <div class="form-field">    
+                        <label for="year-level">Current Year Level</label>
+                        <input type="text" id="year-level" name="year-level" required>
+                    </div>    
+                </div>
+                    
+                <div class="form-group desired">
+                    <div class="form-field">
+                        <label for="previous-program">Previous Program</label>
+                        <input type="text" id="previous-program" name="previous-program" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="desired-program">Desired Program:</label>
+                        <select id="desired-program" name="desired-program" required>
+                            <option value="">-- Select Desired Program --</option>
+                            <option value="bscs">Bachelor of Science in Computer Science (BSCS)</option>
+                            <option value="bsit">Bachelor of Science in Information Technology (BSIT)</option>
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="form-group upload">
+                    <div class="form-field">
+                        <label for="tor">Upload Copy of TOR</label>
+                        <input type="file" id="tor" name="tor" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="school-id">Upload Copy of School ID</label>
+                        <input type="file" id="school-id" name="school-id" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="birth-certificate">Upload Copy of Birth Certificate</label>
+                        <input type="file" id="birth-certificate" name="birth-certificate" required>
+                    </div>  
+                </div>
+            </fieldset>
+            <button type="submit">SUBMIT</button>
+        </form>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+            <div class="footer-social">
+                <a href="#"><img src="facebook-icon.png" alt="Facebook"></a>
+                <a href="#"><img src="twitter-icon.png" alt="Twitter"></a>
+                <a href="#"><img src="instagram-icon.png" alt="Instagram"></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
