@@ -1,5 +1,5 @@
 <div class="navbar">
-        <img src="ccislogo.png" alt="Left Logo" class="ccislogo">
+        <img src="assets/img/PUP_CCIS_logo.png" alt="Left Logo" class="ccislogo">
 <nav>
     <ul>
         <li><a href="index.php">Home</a></li>
