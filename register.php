@@ -45,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = "Please fill out all required fields.";
     }
 
+      // Generate a unique Reference ID
+      $reference_id = uniqid('STU-'); // This will generate something like STU-605c1c1c7a7f7
+
     // If no errors, process the form data
     if (count($errors) == 0) {
         // Move uploaded files to the designated directory
@@ -52,14 +55,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         move_uploaded_file($_FILES['school_id']['tmp_name'], $upload_dir . $school_id);
         move_uploaded_file($_FILES['birth_certificate']['tmp_name'], $upload_dir . $birth_certificate);
 
-        // Insert data into the database
-        $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate)
-                VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor', '$school_id', '$birth_certificate')";
+         // Insert the data along with the generated Reference ID into the database
+        $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate, reference_id)
+                VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor', '$school_id', '$birth_certificate', '$reference_id')";
 
-        if (mysqli_query($conn, $sql)) {
-            $success = "Registration successful!";
-        } else {
-            $errors[] = "Error: " . mysqli_error($conn);
+    if (mysqli_query($conn, $sql)) {
+    // Send confirmation email to the user
+    $to = $email;
+    $subject = "Your Registration is Successful!";
+    $message = "Dear $first_name $last_name, \n\nYou have successfully registered. Your Reference ID is: $reference_id.\nPlease keep this ID for future reference.\n\nThank you!";
+    $headers = "From: admin@yourdomain.com";
+
+    mail($to, $subject, $message, $headers);
+
+    // Redirect to success page with reference ID
+    header("Location: success.php?refid=$reference_id");
+    exit();
+} else {
+    $errors[] = "Error: " . mysqli_error($conn);
         }
     }
 }
@@ -71,14 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Registration</title>
-    <style>
-        /* Add your CSS styling here, or include from external file */
-    </style>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-
-    <div class="container">
+<section class="form-section">
+        <div class="form-group head"> 
         <h1>Student Registration and Requirements Submission</h1>
+        <img src="puplogo.png" alt="Right Logo" class="puplogo">
+        </div>       
 
         <!-- Display errors or success message -->
         <?php if (!empty($errors)): ?>
@@ -97,25 +110,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <!-- Form -->
         <form action="register.php" method="POST" enctype="multipart/form-data">
-            <!-- Personal Information -->
-            <h3>Student Personal Information</h3>
-            <!-- Add input fields for personal info like in the HTML version -->
-            <div class="form-group">
-                <label for="last_name">Last Name:</label>
-                <input type="text" id="last_name" name="last_name" required>
+        <fieldset>
+        <legend>Student Personal Information</legend>
+        <div class="form-group name-gender">
+            <div class="form-field">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last-name" required>
             </div>
-
-            <div class="form-group">
+            <div class="form-field">
                 <label for="first_name">First Name:</label>
                 <input type="text" id="first_name" name="first_name" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="middle_initial">Middle Initial:</label>
                 <input type="text" id="middle_initial" name="middle_initial">
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="gender">Gender:</label>
                 <select id="gender" name="gender" required>
                     <option value="" disabled selected>-- Select Gender --</option>
@@ -124,58 +136,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </select>
             </div>
 
-            <div class="form-group">
+            </div>
+
+        <div class="form-group contact">
+            <div class="form-field">
                 <label for="dob">Date of Birth:</label>
                 <input type="date" id="dob" name="dob" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="nationality">Nationality:</label>
                 <input type="text" id="nationality" name="nationality" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="email">Email Address:</label>
                 <input type="email" id="email" name="email" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="contact_number">Contact Number:</label>
                 <input type="text" id="contact_number" name="contact_number" required>
             </div>
+        </div>
 
             <!-- Address -->
-            <!-- Add input fields for address -->
-            <h3>Address</h3>
-            <div class="form-group">
+            <div class="form-group address1">
+            <div class="form-field">
                 <label for="street">Street:</label>
                 <input type="text" id="street" name="street" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="barangay">Barangay:</label>
                 <input type="text" id="barangay" name="barangay" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="city">City:</label>
                 <input type="text" id="city" name="city" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="province">Province/Region:</label>
                 <input type="text" id="province" name="province" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="zip_code">Zip Code:</label>
                 <input type="text" id="zip_code" name="zip_code" required>
             </div>
-            
+        </div>
+        </fieldset>
+
             <!-- Academic Information -->
-            <!-- Add input fields for academic info -->
-            <h3>Student Academic Information</h3>
-            <div class="form-group">
+        <fieldset>
+            <legend>Student Academic Information</legend>
+            <div class="form-group school">
+            <div class="form-field">
                 <label for="student_type">Student Type:</label>
                 <select id="student_type" name="student_type" required>
                     <option value="" disabled selected>-- Select Student Type --</option>
@@ -185,22 +203,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="previous_school">Name of Previous School:</label>
                 <input type="text" id="previous_school" name="previous_school" required>
             </div>
 
-            <div class="form-group">
-                <label for="year_level">Year Level:</label>
+            <div class="form-field">
+                <label for="year_level">Current Year Level</label>
                 <input type="text" id="year_level" name="year_level" required>
             </div>
+            </div>
 
-            <div class="form-group">
+            <div class="form-group desired">
+            <div class="form-field">
                 <label for="previous_program">Previous Program:</label>
                 <input type="text" id="previous_program" name="previous_program">
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <label for="desired_program">Desired Program:</label>
                 <select id="desired_program" name="desired_program" required>
                     <option value="" disabled selected>-- Select Desired Program --</option>
@@ -209,25 +229,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <option value="bsce">BS in Civil Engineering</option>
                 </select>
             </div>
+            </div>
+            
             
             <!-- File Uploads -->
-            <div class="form-group">
+            <div class="form-group upload">
+            <div class="form-field">
                 <label for="tor">Upload Copy of TOR:</label>
                 <input type="file" id="tor" name="tor" required>
             </div>
-            <div class="form-group">
+            <div class="form-field">
                 <label for="school_id">Upload Copy of School ID:</label>
                 <input type="file" id="school_id" name="school_id" required>
             </div>
-            <div class="form-group">
+            <div class="form-field">
                 <label for="birth_certificate">Upload Copy of Birth Certificate:</label>
                 <input type="file" id="birth_certificate" name="birth_certificate" required>
             </div>
-
-            <!-- Submit Button -->
-            <div class="form-group">
-                <input type="submit" value="SUBMIT">
             </div>
+            </fieldset>
+            <!-- Submit Button -->
+            <button type="submit">SUBMIT</button>  
         </form>
     </div>
 
