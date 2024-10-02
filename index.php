@@ -20,7 +20,6 @@ session_start();
     <header>
         <h1>College of Computer Information and Sciences</h1>
         <h2>Qualifying Examination</h2>
-        <!-- Link to the registration page or form processing in PHP -->
         <a href="register.php" style="background-color: #007bff; color: white; padding: 10px; text-decoration: none;">Register</a>
     </header>
 

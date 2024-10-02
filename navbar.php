@@ -1,3 +1,5 @@
+<div class="navbar">
+        <img src="ccislogo.png" alt="Left Logo" class="ccislogo">
 <nav>
     <ul>
         <li><a href="index.php">Home</a></li>
@@ -8,3 +10,7 @@
         <li><a href="register.php">Register</a></li>
     </ul>
 </nav>
+</div>
+
+
+       
