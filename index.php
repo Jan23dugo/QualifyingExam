@@ -17,31 +17,21 @@ session_start();
         <?php include 'navbar.php'; ?>
     </div>
 
-    <header>
-        <h1>College of Computer Information and Sciences</h1>
-        <h2>Qualifying Examination</h2>
-        <a href="register.php" style="background-color: #007bff; color: white; padding: 10px; text-decoration: none;">Register</a>
+    <header class="exam-header">
+        <div class="header-content">
+            <h1>College of Computer Information and Sciences</h1>
+            <h2>Qualifying Examination</h2>
+            <a href="register.php" class="register-button">Register</a>
+        </div>
     </header>
 
-    <section>
-        <div>
+    <section class="exam-schedule">
+        <div class="schedule-box">
             <h3>Exam Schedule</h3>
             <p>Shiftees/Transferees</p>
-            <p><strong>Date:</strong> 
-                <?php 
-                echo "September 17, 2025"; 
-                ?>
-            </p>
-            <p><strong>Time:</strong> 
-                <?php 
-                echo "00:00 AM - 00:00 PM"; 
-                ?>
-            </p>
-            <p><strong>Place:</strong> 
-                <?php 
-                echo "CCIS Laboratory Room (5th Floor, South Wing)"; 
-                ?>
-            </p>
+            <p><strong>Date:</strong> September 17, 2025</p>
+            <p><strong>Time:</strong> 00:00 AM - 00:00 PM</p>
+            <p><strong>Place:</strong> CCIS Laboratory Room (5th Floor, South Wing)</p>
         </div>
     </section>
 
