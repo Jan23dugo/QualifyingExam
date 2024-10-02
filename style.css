@@ -1,0 +1,386 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    color: white;
+}
+
+.register-body {
+    background-color: #005684;
+    color: white;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+}
+
+header {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffe600;
+    padding: 10px;
+}
+
+.navbar nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 85px;   
+}
+
+.navbar nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+.navbar nav ul li a {
+    color: #005684;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: large;
+}
+
+legend {
+    font-weight: bold;
+}
+
+.ccislogo {
+    height: 75px;
+    width: auto;
+    margin-left: 20px;
+}
+
+.puplogo {
+    height: 75px;
+    width: auto;
+}
+
+.head h1 {
+    font-size: 35px;
+    color: #ffffff;
+    text-align: center;
+    padding: 10px;
+    margin-left: 170px;
+    margin-bottom: 5px;
+}
+
+
+legend {
+    font-size: 22px;
+}
+
+.form-section {
+    background-color: #005684;
+    padding: 20px;
+    border-radius: 20px;
+    margin: 20px;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+form fieldset {
+    width: 100%;
+    border: none;
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    width: 100%;
+    margin: 10px 0 5px;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="date"],
+form select,
+form input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background-color: #ffe600;
+    color: #004d73;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    text-align: left;
+}
+
+button[type="submit"]:hover {
+    background-color: #ffe600;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.name-gender {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.contact {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.address1 {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.address2 {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.school {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.desired {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.upload {
+    display: flex;
+    gap: 10px; /* Add space between fields */
+    justify-content: space-between;
+}
+
+.head {
+    display: flex;  
+    gap: 20px;
+    align-items: center;
+}
+
+.form-field {
+    flex: 1; /* Allow form fields to expand */
+}
+  
+.form-field label {
+    display: block;
+    margin-bottom: 5px;
+}
+  
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+#last-name, #first-name, #previous-program, #desired-program{
+    width: 400px;
+}
+
+#middle-initial {
+    width: 50px;
+}
+
+#year-level {
+    width: 150px;
+}
+
+/* Registration Successful */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.header h1 {
+    font-size: 30px;
+    color: white;
+    align-items: center;
+    text-decoration: underline;
+}
+
+.confirm-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    margin-top: 50px;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    background-color: #005684;
+}
+
+.success-message {
+    color: white;
+    margin-top: 10px;
+    margin: 30px 0;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.success-message h2 {
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.success-message p {
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+.success-message strong {
+    text-decoration: underline;
+}
+
+.email-help {
+    display: block;
+    color: #ff6666;
+    margin-top: 30px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.email-help:hover {
+    text-decoration: underline;
+}
+
+.course-buttons {
+    margin-top: 20px;
+}
+
+.course-btn {
+    background-color: #ffe600;
+    color: #005684;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-left: 100px;
+    width: 40%;
+    font-weight: bolder;
+}
+
+.course-btn:hover {
+    background-color: #f6fd6a;
+}
+
+/* Courses for Accredit and Recommended Courses */
+
+.course-list {
+    background-color: #005684;
+    color: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.course-list h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.course-item {
+    background-color: #ffe600;
+    color: #005684;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    width: 80%;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.course-item:hover {
+    background-color: #f6fd6a;
+}
+
+/* Footer Section */
+.footer {
+    background-color: #ffe600;
+    color: #005684;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.footer-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+.footer-links li {
+    display: inline;
+    margin: 0 15px;
+}
+
+.footer-links a {
+    color: #005684;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+.footer-social {
+    margin-top: 10px;
+}
+
+.footer-social a img {
+    width: 24px;
+    margin: 0 10px;
+    vertical-align: middle;
+}
+
+.footer-social a:hover img {
+    opacity: 0.7;
+}
