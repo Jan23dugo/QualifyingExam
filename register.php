@@ -64,12 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $to = $email;
     $subject = "Your Registration is Successful!";
     $message = "Dear $first_name $last_name, \n\nYou have successfully registered. Your Reference ID is: $reference_id.\nPlease keep this ID for future reference.\n\nThank you!";
-    $headers = "From: admin@yourdomain.com";
+    $headers = "From: jdugo23@gmail.com";
 
     mail($to, $subject, $message, $headers);
 
     // Redirect to success page with reference ID
-    header("Location: success.php?refid=$reference_id");
+    header("Location: registration-confirmation.php?refid=$reference_id");
     exit();
 } else {
     $errors[] = "Error: " . mysqli_error($conn);
@@ -114,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <legend>Student Personal Information</legend>
         <div class="form-group name-gender">
             <div class="form-field">
-                <label for="last-name">Last Name</label>
-                <input type="text" id="last-name" name="last-name" required>
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" required>
             </div>
             <div class="form-field">
                 <label for="first_name">First Name:</label>

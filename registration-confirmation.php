@@ -13,11 +13,11 @@
     
         <p>A <strong>Reference ID</strong> has been sent to your Email Address.<br>
         Wait and check your email!</p>
-        <p>Your Reference ID: <strong><?php echo $_GET['refid']; ?></strong></p>
+        <p>Your Reference ID: <strong><?php echo isset($_GET['refid']) ? $_GET['refid'] : 'No Reference ID'; ?></strong></p>
         <a href="resend_email.php" class="btn">Did Not Receive Email?</a>
-        </div>
+    </div>
 
-        <div class="course-buttons">
+    <div class="course-buttons">
         <a href="recommended_courses.php" class="course-btn">View Recommended Courses</a><br>
         <a href="accreditation_courses.php" class="course-btn">View Courses for Accreditation</a><br>
     </div>
