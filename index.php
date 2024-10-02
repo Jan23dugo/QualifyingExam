@@ -13,7 +13,6 @@ session_start();
 
     <!-- Include the navbar -->
     <div id="navbar">
-        <!-- Include navbar.php (or navbar.html) using PHP -->
         <?php include 'navbar.php'; ?>
     </div>
 
@@ -30,19 +29,16 @@ session_start();
             <p>Shiftees/Transferees</p>
             <p><strong>Date:</strong> 
                 <?php 
-                // Use PHP to dynamically output the date if needed
                 echo "September 17, 2025"; 
                 ?>
             </p>
             <p><strong>Time:</strong> 
                 <?php 
-                // You can dynamically generate the time if needed
                 echo "00:00 AM - 00:00 PM"; 
                 ?>
             </p>
             <p><strong>Place:</strong> 
                 <?php 
-                // Dynamically output the place if needed
                 echo "CCIS Laboratory Room (5th Floor, South Wing)"; 
                 ?>
             </p>
