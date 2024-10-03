@@ -2,9 +2,6 @@
 // Include database configuration file
 include('config/config.php');
 
-// Include PHPMailer library
-require 'send_email.php';
-
 // Initialize variables for error messages or success message
 $errors = [];
 $success = "";
@@ -48,8 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = "Please fill out all required fields.";
     }
 
-    // Generate a unique Reference ID
-    $reference_id = uniqid('STU-'); // This will generate something like STU-605c1c1c7a7f7
+      // Generate a unique Reference ID
+      $reference_id = uniqid('STU-'); // This will generate something like STU-605c1c1c7a7f7
 
     // If no errors, process the form data
     if (count($errors) == 0) {
@@ -58,24 +55,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         move_uploaded_file($_FILES['school_id']['tmp_name'], $upload_dir . $school_id);
         move_uploaded_file($_FILES['birth_certificate']['tmp_name'], $upload_dir . $birth_certificate);
 
-        // Insert the data along with the generated Reference ID into the database
+         // Insert the data along with the generated Reference ID into the database
         $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate, reference_id)
                 VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor', '$school_id', '$birth_certificate', '$reference_id')";
 
-        if (mysqli_query($conn, $sql)) {
-            // Send confirmation email using PHPMailer
-            sendRegistrationEmail($email, $reference_id); // Call the email function
+    if (mysqli_query($conn, $sql)) {
+    // Send confirmation email to the user
+    $to = $email;
+    $subject = "Your Registration is Successful!";
+    $message = "Dear $first_name $last_name, \n\nYou have successfully registered. Your Reference ID is: $reference_id.\nPlease keep this ID for future reference.\n\nThank you!";
+    $headers = "From: jdugo23@gmail.com";
 
-            // Redirect to success page with reference ID
-            header("Location: registration-confirmation.php?refid=$reference_id");
-            exit();
-        } else {
-            $errors[] = "Error: " . mysqli_error($conn);
+    mail($to, $subject, $message, $headers);
+
+    // Redirect to success page with reference ID
+    header("Location: registration-confirmation.php?refid=$reference_id");
+    exit();
+} else {
+    $errors[] = "Error: " . mysqli_error($conn);
         }
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
