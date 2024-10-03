@@ -18,8 +18,7 @@
     </div>
 
     <div class="course-buttons">
-        <a href="recommended_courses.php" class="course-btn">View Recommended Courses</a><br>
-        <a href="accreditation_courses.php" class="course-btn">View Courses for Accreditation</a><br>
+        <a href="accredited_subjects.php" class="course-btn">View Recommended Credited Subjects</a><br>
     </div>
 
 </body>
