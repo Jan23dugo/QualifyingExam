@@ -1,10 +1,10 @@
 
 <?php
 // Database connection configuration
-$servername = "localhost";
-$username = "root";  // Replace with your database username
-$password = "";  // Replace with your database password
-$dbname = "qualifying_exam";  // Replace with your database name
+$servername = "sql.freedb.tech";
+$username = "freedb_Group8";  // Replace with your database username
+$password = "a23Ey8n99P!AmB5";  // Replace with your database password
+$dbname = "freedb_QualifyingExam";  // Replace with your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

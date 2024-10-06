@@ -1,40 +1,41 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Profile - Brand</title>
+    <!-- External Stylesheets -->
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
     <link rel="stylesheet" href="assets/css/styles.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css">
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.0.0/quill.snow.css">
 </head>
-
 <body id="page-top">
     <div id="wrapper">
-
-        <!-- Sidebar Navigation -->
-        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="color: #005684; background: #005684;">
+        <!-- Sidebar -->
+        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="color: #005684;background: #005684;">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#" style="text-align: center;">
                     <div class="sidebar-brand-icon rotate-n-15"></div>
-                    <img src="assets/img/Logo.png" style="width: 47px; opacity: 1;">
+                    <img src="assets/img/Logo.png" style="width: 47px;opacity: 1;">
                     <div class="sidebar-brand-text mx-3"></div>
                 </a>
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.html" style="font-family: 'Open Sans', sans-serif;">
-                            <i class="far fa-square" style="font-size: 21px; width: 20px; height: 20px;"></i>
+                            <i class="far fa-square" style="font-size: 21px;width: 20px;height: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="create-exam.html">
-                            <i class="far fa-edit" style="font-size: 23px; width: 20px; height: 20px;"></i>
+                            <i class="far fa-edit" style="font-size: 23px;width: 20px;height: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Create Exam</span>
                         </a>
                     </li>
@@ -55,8 +56,6 @@
                             <i class="far fa-calendar-alt" style="font-size: 23px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Calendar</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="login.html">
                             <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
@@ -68,13 +67,11 @@
                 </div>
             </div>
         </nav>
-
         <!-- Content Wrapper -->
-        <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar" style="background: var(--bs-nav-link-disabled-color);">
+                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
                     <div class="container-fluid">
                         <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
                             <i class="fas fa-bars"></i>
@@ -82,142 +79,89 @@
                         <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
                             <div class="input-group">
                                 <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
-                                <button class="btn btn-primary py-0" type="button" style="background: rgb(255, 255, 255);">
-                                    <i class="fas fa-search" style="font-size: 19px; color: var(--bs-secondary-color);"></i>
+                                <button class="btn btn-primary py-0" type="button" style="background: rgb(255,255,255);">
+                                    <i class="fas fa-search" style="font-size: 19px;color: var(--bs-secondary-color);"></i>
                                 </button>
                             </div>
                         </form>
                         <ul class="navbar-nav flex-nowrap ms-auto">
-                            <li class="nav-item dropdown d-sm-none no-arrow">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
-                                    <i class="fas fa-search"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in" aria-labelledby="searchDropdown">
-                                    <form class="me-auto navbar-search w-100">
-                                        <div class="input-group">
-                                            <input class="bg-light border-0 form-control small" type="text" placeholder="Search for ...">
-                                            <button class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </li>
                             <li class="nav-item dropdown no-arrow mx-1">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-cog" style="font-size: 30px; color: var(--bs-navbar-disabled-color);"></i>
+                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="width: 60px;height: 60px;">
+                                    <i class="far fa-user-circle" style="font-size: 30px;color: var(--bs-navbar-disabled-color);backdrop-filter: brightness(99%);-webkit-backdrop-filter: brightness(99%);"></i>
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                                    <h6 class="dropdown-header">Alerts Center</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="#">
-                                        <div class="me-3">
-                                            <div class="bg-primary icon-circle">
-                                                <i class="fas fa-file-alt text-white"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span class="small text-gray-500">December 12, 2019</span>
-                                            <p>A new monthly report is ready to download!</p>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="#">
-                                        <div class="me-3">
-                                            <div class="bg-success icon-circle">
-                                                <i class="fas fa-donate text-white"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span class="small text-gray-500">December 7, 2019</span>
-                                            <p>$290.29 has been deposited into your account!</p>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="#">
-                                        <div class="me-3">
-                                            <div class="bg-warning icon-circle">
-                                                <i class="fas fa-exclamation-triangle text-white"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span class="small text-gray-500">December 2, 2019</span>
-                                            <p>Spending Alert: We've noticed unusually high spending for your account.</p>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                                </div>
-                            </li>
-
-                            <li class="nav-item dropdown no-arrow mx-1">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="width: 60px; height: 60px;">
-                                    <i class="far fa-user-circle" style="font-size: 30px; color: var(--bs-navbar-disabled-color); backdrop-filter: brightness(99%); -webkit-backdrop-filter: brightness(99%);"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                                    <h6 class="dropdown-header">Alerts Center</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="#">
-                                        <div class="dropdown-list-image me-3">
-                                            <img class="rounded-circle" src="assets/img/avatars/avatar4.jpeg">
-                                            <div class="bg-success status-indicator"></div>
-                                        </div>
-                                        <div class="font-weight-bold">
-                                            <div class="text-truncate">
-                                                <span>Your profile is ready to go!</span>
-                                            </div>
-                                            <p class="small text-gray-500 mb-0">Some text here</p>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                                </div>
                             </li>
                         </ul>
                     </div>
                 </nav>
-
-                <!-- Main Content -->
-                <div class="container-fluid">
-                    <h3 class="text-dark mb-4">Create Exam</h3>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-4">
-                            <div class="card shadow border-left-primary">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Exam Information</h6>
+                <!-- Exam Creation Section -->
+                <div class="col-md-6 col-lg-5 col-xl-5 boxContent" style="margin: 36px 0px;padding: 37px 20px;color: var(--bs-emphasis-color);font-family: 'Open Sans', sans-serif;">
+                    <ul class="list-group">
+                        <li class="list-group-item textoPasta">
+                            <span><i class="fa fa-folder-open"></i> Qualifying Exam 2024</span>
+                        </li>
+                        <li class="list-group-item textoPasta">
+                            <span><i class="fa fa-folder"></i> Sample Exam</span>
+                        </li>
+                    </ul>
+                    <button class="btn btn-primary active" type="button" style="margin: 13px;" data-bs-target="#modal-1" data-bs-toggle="modal">
+                        <strong>+</strong>
+                    </button>
+                    <!-- Create Exam Modal -->
+                    <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Create Exam</h4>
+                                    <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
-                                <div class="card-body">
-                                    <form>
-                                        <div class="row">
-                                            <div class="mb-3 col-md-6">
-                                                <label for="examTitle" class="form-label">Exam Title</label>
-                                                <input class="form-control" type="text" id="examTitle" placeholder="Enter exam title">
-                                            </div>
-                                            <div class="mb-3 col-md-6">
-                                                <label for="examDate" class="form-label">Exam Date</label>
-                                                <input class="form-control" type="date" id="examDate">
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="mb-3 col-md-6">
-                                                <label for="examTime" class="form-label">Exam Time</label>
-                                                <input class="form-control" type="time" id="examTime">
-                                            </div>
-                                            <div class="mb-3 col-md-6">
-                                                <label for="examDuration" class="form-label">Exam Duration (in minutes)</label>
-                                                <input class="form-control" type="number" id="examDuration" placeholder="Enter duration">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="examDescription" class="form-label">Exam Description</label>
-                                            <textarea class="form-control" id="examDescription" rows="4" placeholder="Enter exam description"></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Create Exam</button>
-                                    </form>
+                                <div class="modal-body" style="height: 317px;padding: 36px;margin: 9px;">
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="margin: 9px;">Exam Name:</span>
+                                        <input class="form-control" type="text" style="margin: 9px;">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="margin: 9px;">Description:</span>
+                                        <input class="form-control" type="text" style="margin: 9px;">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="margin: 9px;">Duration:</span>
+                                        <input class="form-control" type="text" style="margin: 9px;">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="margin: 9px;">Start Date:</span>
+                                        <input class="form-control" type="date" style="margin: 9px;">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="margin: 9px;">End Date:</span>
+                                        <input class="form-control" type="date" style="margin: 9px;">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a class="btn btn-primary" role="button" href="create-exam-1.html">Create</a>
+                                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+            <!-- Footer -->
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright">
+                        <span>Copyright © PUP CCIS 2024</span>
+                    </div>
+                </div>
+            </footer>
         </div>
-
+        <a class="border rounded d-inline scroll-to-top" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
     </div>
-
-    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- External Scripts -->
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
     <script src="assets/js/script.min.js"></script>
 </body>
 </html>
