@@ -36,35 +36,35 @@ include_once __DIR__ . '/../config/config.php';
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php" style="font-family: 'Open Sans', sans-serif;">
+                        <a class="nav-link" href="admin-dashboard.html" style="font-family: 'Open Sans', sans-serif;">
                             <i class="far fa-square" style="font-size: 21px; width: 20px; height: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="create-exam.php">
+                        <a class="nav-link" href="create-exam.html">
                             <i class="far fa-edit" style="font-size: 23px; width: 20px; height: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Create Exam</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="students.php">
+                        <a class="nav-link" href="students.html">
                             <i class="far fa-user" style="font-size: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Students</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="analytics.php">
+                        <a class="nav-link" href="analytics.html">
                             <i class="fas fa-chart-bar" style="font-size: 21px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Analytics</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="calendar.php">
+                        <a class="nav-link" href="calendar.html">
                             <i class="far fa-calendar-alt" style="font-size: 23px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Calendar</span>
                         </a>
-                        <a class="nav-link" href="login.php">
+                        <a class="nav-link" href="login.html">
                             <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
                         </a>
@@ -180,53 +180,23 @@ include_once __DIR__ . '/../config/config.php';
                         <!-- Tab 1: Add Questions -->
                         <div class="tab-pane" role="tabpanel" id="tab-1">
                             <div class="col-md-12">
-                                <div class="input-group" style="margin: 34px; width: 283.6px;">
-                                    <span class="input-group-text" style="box-shadow: 0px 0px 4px;">+ Add question</span>
-                                    <select class="form-select" style="box-shadow: 0px 0px 10px var(--bs-body-color);">
+                            <div class="input-group" style="margin: 34px; width: 283.6px;">
+                                    <button class="btn btn-primary" id="addQuestionButton" style="box-shadow: 0px 0px 4px;">+ Add question</button>
+                                    <select class="form-select ms-3" id="questionTypeDropdown" style="box-shadow: 0px 0px 10px var(--bs-body-color);">
                                         <optgroup label="Select question type">
-                                            <option value="12">Multiple choice</option>
-                                            <option value="12" selected>Identification</option>
-                                            <option value="13">True or False</option>
-                                            <option value="14">Coding</option>
-                                            <option value="12">Matching</option>
+                                            <option value="multiple_choice">Multiple choice</option>
+                                            <option value="identification" selected>Identification</option>
+                                            <option value="true_false">True or False</option>
+                                            <option value="coding">Coding</option>
+                                            <option value="matching">Matching</option>
                                         </optgroup>
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- Example for Multiple Choice -->
-                            <div class="container" style="margin: 37px; border-style: solid; border-color: var(--bs-body-color); height: 679.4px; width: 887.6px; border-radius: 14px; box-shadow: 0px 0px 7px;">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h5 style="height: 22px; margin: 17px;">Multiple choice</h5>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="input-group">
-                                            <span class="input-group-text"><span style="color: rgb(0, 0, 0);">Input question</span></span>
-                                            <textarea class="form-control" name="question"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="input-group" style="padding: 17px;"></div>
-                                <small class="d-xxl-flex justify-content-xxl-end">Correct Answer</small>
-
-                                <div class="input-group" style="padding: 17px;">
-                                    <span class="input-group-text">Choice 1</span>
-                                    <input class="form-control" type="text" name="choice1" style="width: 187.663px; border-color: var(--bs-emphasis-color);">
-                                    <button class="btn btn-primary" type="button" style="color: var(--bs-btn-color); background: var(--bs-btn-color); border-color: var(--bs-btn-color); margin-left: 19px;">
-                                        <input type="checkbox" name="correct_answer[]">
-                                    </button>
-                                </div>
-
-                                <!-- More choices can be added similarly -->
-
-                                <div class="input-group d-xxl-flex justify-content-xxl-center" style="padding: 8px; width: 817.8px; margin: 9px;">
-                                    <button class="btn btn-primary d-xxl-flex" type="button" style="width: 129.425px; font-size: 12px;">+ Add more choice</button>
-                                </div>
+                            <!-- Questions Container -->
+                            <div id="questionsContainer" class="container" style="margin: 37px; padding: 20px; border: 1px dashed #ccc; text-align: center; border-radius: 10px;">
+                                <p class="text-muted">Click on "Add Question" to start creating your questions.</p>
                             </div>
                         </div>
 
@@ -253,7 +223,7 @@ include_once __DIR__ . '/../config/config.php';
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">
                     <div class="text-center my-auto copyright">
-                        <span>Copyright &copy; PUP CCIS 2024</span>
+                        <span>Copyright © PUP CCIS 2024</span>
                     </div>
                 </div>
             </footer>
@@ -269,6 +239,63 @@ include_once __DIR__ . '/../config/config.php';
     <script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
     <script src="assets/js/script.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const addQuestionButton = document.getElementById('addQuestionButton');
+            const questionsContainer = document.getElementById('questionsContainer');
+            const questionTypeDropdown = document.getElementById('questionTypeDropdown');
+
+            addQuestionButton.addEventListener('click', function () {
+                const selectedQuestionType = questionTypeDropdown.value;
+                let questionCount = questionsContainer.querySelectorAll('.question').length + 1;
+
+
+                // Remove placeholder text if it's the first question
+                if (questionCount === 1) {
+                    questionsContainer.innerHTML = '';
+                }
+
+                let questionHtml = `
+    <div class="container question" style="margin-bottom: 20px; border-style: solid; border-color: var(--bs-body-color); border-radius: 14px; box-shadow: 0px 0px 7px; padding: 20px;">
+        <div class="row">
+            <div class="col-md-12">
+                <h5 style="margin-bottom: 15px;">${selectedQuestionType.charAt(0).toUpperCase() + selectedQuestionType.slice(1)} - Question ${questionCount}</h5>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Input question</span>
+                    <textarea class="form-control" rows="2"></textarea>
+                </div>
+                <div class="choices-container" id="choicesContainer_${questionCount}"></div>
+                ${selectedQuestionType === 'multiple_choice' ? `
+                <button class="btn btn-secondary addChoiceButton" type="button" data-question="${questionCount}">+ Add Choice</button>` : ''}
+            </div>
+        </div>
+    </div>`;
+
+
+                questionsContainer.insertAdjacentHTML('beforeend', questionHtml);
+            });
+
+            // Add Choice Button Event (for dynamically generated elements)
+            document.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('addChoiceButton')) {
+                    const questionNumber = e.target.getAttribute('data-question');
+                    const choicesContainer = document.getElementById(`choicesContainer_${questionNumber}`);
+                    const choiceCount = choicesContainer.children.length + 1;
+
+                    let choiceHtml = `
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Choice ${choiceCount}</span>
+                            <input type="text" class="form-control" name="choice_${questionNumber}_${choiceCount}">
+                            <div class="input-group-text">
+                                <input type="radio" name="correct_answer_${questionNumber}" value="${choiceCount}"> Correct Answer
+                            </div>
+                        </div>`;
+
+                    choicesContainer.insertAdjacentHTML('beforeend', choiceHtml);
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

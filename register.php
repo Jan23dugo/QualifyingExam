@@ -1,6 +1,8 @@
 <?php
 // Include database configuration file
 include('config/config.php');
+require 'vendor/autoload.php'; // Include Composer autoload
+use thiagoalessio\TesseractOCR\TesseractOCR; // Use the OCR class
 
 // Include PHPMailer library
 require 'send_email.php';
@@ -58,21 +60,78 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         move_uploaded_file($_FILES['school_id']['tmp_name'], $upload_dir . $school_id);
         move_uploaded_file($_FILES['birth_certificate']['tmp_name'], $upload_dir . $birth_certificate);
 
-        // Insert the data along with the generated Reference ID into the database
-        $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate, reference_id)
-                VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor', '$school_id', '$birth_certificate', '$reference_id')";
+        // Run OCR on the uploaded TOR
+        try {
+            $ocr = new TesseractOCR($upload_dir . $tor);
+            $extractedText = $ocr->run();
 
-        if (mysqli_query($conn, $sql)) {
-            // Send confirmation email using PHPMailer
-            sendRegistrationEmail($email, $reference_id); // Call the email function
+            // Print the extracted text (for debugging purposes)
+            echo "<pre>$extractedText</pre>";
 
-            // Redirect to success page with reference ID
-            header("Location: registration-confirmation.php?refid=$reference_id");
-            exit();
-        } else {
-            $errors[] = "Error: " . mysqli_error($conn);
+            // Determine eligibility based on extracted text
+            $isEligible = determineEligibility($extractedText);
+
+            if ($isEligible) {
+                // Insert the data along with the generated Reference ID into the database
+                $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate, reference_id)
+                        VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor', '$school_id', '$birth_certificate', '$reference_id')";
+
+                if (mysqli_query($conn, $sql)) {
+                    // Send confirmation email using PHPMailer
+                    sendRegistrationEmail($email, $reference_id); // Call the email function
+
+                    // Redirect to success page with reference ID
+                    header("Location: registration-confirmation.php?refid=$reference_id");
+                    exit();
+                } else {
+                    $errors[] = "Error: " . mysqli_error($conn);
+                }
+            } else {
+                $errors[] = "You are not eligible for the qualifying examination based on your grades.";
+            }
+        } catch (Exception $e) {
+            $errors[] = "Error processing the TOR: " . $e->getMessage();
         }
     }
+}
+
+// Function to determine eligibility based on TOR extracted text
+function determineEligibility($extractedText) {
+    // Normalize the text
+    $normalizedText = strtolower($extractedText);
+    
+    // Extract possible grades (assuming grades are either numbers, percentages, or letters)
+    preg_match_all('/(\d+\.\d+|\d+|[a-fA-F]|\d+%)\b/', $normalizedText, $matches);
+    $grades = $matches[0];
+
+    // Define logic to determine eligibility
+    foreach ($grades as $grade) {
+        // Handle numeric grades in 1.0 to 5.0 range
+        if (is_numeric($grade)) {
+            // For traditional numeric grades, consider anything above 2.25 as ineligible
+            if ((float)$grade > 2.25) {
+                return false;
+            }
+
+            // Handle the inverse grading system, where 5.0 is the highest
+            if ((float)$grade <= 1.0) {
+                return false; // This might indicate failing if 5.0 is the best
+            }
+        } elseif (preg_match('/\d+%/', $grade)) {
+            // Handle percentage grades
+            $percentage = (int)rtrim($grade, '%');
+            if ($percentage < 60) {
+                return false; // Typically, less than 60% is considered failing
+            }
+        } else {
+            // Handle letter grades (A-F)
+            $ineligibleGrades = ['c', 'd', 'f'];
+            if (in_array($grade, $ineligibleGrades)) {
+                return false; // C, D, F are considered ineligible
+            }
+        }
+    }
+    return true; // Eligible if no grades fall below the threshold
 }
 ?>
 
@@ -223,9 +282,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="desired_program">Desired Program:</label>
                 <select id="desired_program" name="desired_program" required>
                     <option value="" disabled selected>-- Select Desired Program --</option>
-                    <option value="bsit">BS in Information Technology</option>
-                    <option value="bsis">BS in Information Systems</option>
-                    <option value="bsce">BS in Civil Engineering</option>
+                    <option value="bsit">Bachelor of Science in Information Technology (BSIT)</option>
+                    <option value="bscs">Bachelor of Science in Computer Science (BSCS)</option>
                 </select>
             </div>
             </div>
