@@ -32,6 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Academic details
     $student_type = mysqli_real_escape_string($conn, $_POST['student_type']);
+    if ($student_type === 'ladderized') {
+        $errors[] = "Ladderized students should use a different registration form.";
+    }
     $previous_school = mysqli_real_escape_string($conn, $_POST['previous_school']);
     $year_level = mysqli_real_escape_string($conn, $_POST['year_level']);
     $previous_program = mysqli_real_escape_string($conn, $_POST['previous_program']);
@@ -60,9 +63,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         move_uploaded_file($_FILES['school_id']['tmp_name'], $upload_dir . $school_id);
         move_uploaded_file($_FILES['birth_certificate']['tmp_name'], $upload_dir . $birth_certificate);
 
-        // Run OCR on the uploaded TOR
+        // Preprocess image before OCR for better accuracy (optional)
+        $imagePath = $upload_dir . $tor;
+
+        // Use Imagick to preprocess the image
         try {
-            $ocr = new TesseractOCR($upload_dir . $tor);
+            $imagick = new \Imagick($imagePath);
+            $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
+            $imagick->adaptiveThresholdImage(100, 100, 1);
+            $processedImagePath = $upload_dir . 'processed_' . $tor;
+            $imagick->writeImage($processedImagePath);
+        } catch (Exception $e) {
+            $errors[] = "Error preprocessing the TOR: " . $e->getMessage();
+        }
+
+        // Instantiate Tesseract OCR
+        $ocr = new TesseractOCR($processedImagePath);
+
+        // Set language and configuration for better accuracy
+        $ocr->lang('eng') // Specify language
+            ->psm(6);      // Assume a uniform block of text (PSM 6)
+
+        // Run OCR and extract text
+        try {
             $extractedText = $ocr->run();
 
             // Print the extracted text (for debugging purposes)
@@ -104,34 +127,59 @@ function determineEligibility($extractedText) {
     preg_match_all('/(\d+\.\d+|\d+|[a-fA-F]|\d+%)\b/', $normalizedText, $matches);
     $grades = $matches[0];
 
-    // Define logic to determine eligibility
+    // Define logic to determine eligibility based on grading systems
+    $eligible = true;
     foreach ($grades as $grade) {
-        // Handle numeric grades in 1.0 to 5.0 range
+        // Clean up grade value to remove extra characters
+        $grade = trim($grade);
         if (is_numeric($grade)) {
-            // For traditional numeric grades, consider anything above 2.25 as ineligible
-            if ((float)$grade > 2.25) {
-                return false;
-            }
-
-            // Handle the inverse grading system, where 5.0 is the highest
-            if ((float)$grade <= 1.0) {
-                return false; // This might indicate failing if 5.0 is the best
+            $gradeValue = (float)$grade;
+            // Handle numeric grades in different ranges and ensure equivalency to 86%
+            if ($gradeValue > 1.50 && $gradeValue <= 3.0) {
+                // If grade is worse than 1.50, mark as ineligible
+                $eligible = false;
+                break;
+            } elseif ($gradeValue >= 5.0) {
+                // Failing grades or low passing in some systems
+                $eligible = false;
+                break;
             }
         } elseif (preg_match('/\d+%/', $grade)) {
             // Handle percentage grades
             $percentage = (int)rtrim($grade, '%');
-            if ($percentage < 60) {
-                return false; // Typically, less than 60% is considered failing
+            if ($percentage < 86) {
+                $eligible = false;
+                break;
             }
-        } else {
+        } elseif (preg_match('/[a-f]/i', $grade)) {
             // Handle letter grades (A-F)
-            $ineligibleGrades = ['c', 'd', 'f'];
-            if (in_array($grade, $ineligibleGrades)) {
-                return false; // C, D, F are considered ineligible
+            switch (strtoupper($grade)) {
+                case 'A':
+                case 'A+':
+                case 'A-':
+                case 'B+':
+                case 'B':
+                    // Excellent to very good
+                    break;
+                case 'C':
+                case 'C+':
+                case 'D':
+                case 'F':
+                    // Grades C, D, F are considered ineligible
+                    $eligible = false;
+                    break;
+            }
+        } elseif (preg_match('/[1-5]\.\d+/', $grade)) {
+            // Handle fractional grading system, such as 4.0 (Excellent) or 3.5 (Very Good)
+            $fractionGrade = (float)$grade;
+            if ($fractionGrade < 2.0) {
+                // Grades below 2.0 are considered not acceptable
+                $eligible = false;
+                break;
             }
         }
     }
-    return true; // Eligible if no grades fall below the threshold
+    return $eligible;
 }
 ?>
 
@@ -219,6 +267,7 @@ function determineEligibility($extractedText) {
         </div>
 
             <!-- Address -->
+           
             <div class="form-group address1">
             <div class="form-field">
                 <label for="street">Street:</label>
@@ -257,7 +306,7 @@ function determineEligibility($extractedText) {
                     <option value="" disabled selected>-- Select Student Type --</option>
                     <option value="shiftee">Shiftee</option>
                     <option value="transferee">Transferee</option>
-                    <option value="ladderized">Ladderized</option>
+                    
                 </select>
             </div>
 
@@ -292,7 +341,7 @@ function determineEligibility($extractedText) {
             <!-- File Uploads -->
             <div class="form-group upload">
             <div class="form-field">
-                <label for="tor">Upload Copy of TOR:</label>
+                <label for="tor">
                 <input type="file" id="tor" name="tor" required>
             </div>
             <div class="form-field">
