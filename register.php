@@ -41,12 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $desired_program = mysqli_real_escape_string($conn, $_POST['desired_program']);
     
     // Handle file uploads
+    $upload_dir = __DIR__ . "/uploads/";
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
     $tor = $_FILES['tor']['name'];
     $school_id = $_FILES['school_id']['name'];
     $birth_certificate = $_FILES['birth_certificate']['name'];
-
-    // Specify the directory where files will be uploaded
-    $upload_dir = "uploads/";
 
     // Check for errors before proceeding
     if (empty($last_name) || empty($first_name) || empty($gender) || empty($dob) || empty($email) || empty($student_type)) {
@@ -59,65 +61,81 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // If no errors, process the form data
     if (count($errors) == 0) {
         // Move uploaded files to the designated directory
-        move_uploaded_file($_FILES['tor']['tmp_name'], $upload_dir . $tor);
-        move_uploaded_file($_FILES['school_id']['tmp_name'], $upload_dir . $school_id);
-        move_uploaded_file($_FILES['birth_certificate']['tmp_name'], $upload_dir . $birth_certificate);
+        $tor_path = $upload_dir . uniqid() . "_" . basename($tor);
+        $school_id_path = $upload_dir . uniqid() . "_" . basename($school_id);
+        $birth_certificate_path = $upload_dir . uniqid() . "_" . basename($birth_certificate);
 
-        // Preprocess image before OCR for better accuracy (optional)
-        $imagePath = $upload_dir . $tor;
-
-        // Use Imagick to preprocess the image
-        try {
-            $imagick = new \Imagick($imagePath);
-            $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
-            $imagick->adaptiveThresholdImage(100, 100, 1);
-            $processedImagePath = $upload_dir . 'processed_' . $tor;
-            $imagick->writeImage($processedImagePath);
-        } catch (Exception $e) {
-            $errors[] = "Error preprocessing the TOR: " . $e->getMessage();
+        if (!move_uploaded_file($_FILES['tor']['tmp_name'], $tor_path)) {
+            $errors[] = "Failed to upload Transcript of Records (TOR).";
+        }
+        if (!move_uploaded_file($_FILES['school_id']['tmp_name'], $school_id_path)) {
+            $errors[] = "Failed to upload School ID.";
+        }
+        if (!move_uploaded_file($_FILES['birth_certificate']['tmp_name'], $birth_certificate_path)) {
+            $errors[] = "Failed to upload Birth Certificate.";
         }
 
-        // Instantiate Tesseract OCR
-        $ocr = new TesseractOCR($processedImagePath);
-
-        // Set language and configuration for better accuracy
-        $ocr->lang('eng') // Specify language
-            ->psm(6);      // Assume a uniform block of text (PSM 6)
-
-        // Run OCR and extract text
-        try {
-            $extractedText = $ocr->run();
-
-            // Print the extracted text (for debugging purposes)
-            echo "<pre>$extractedText</pre>";
-
-            // Determine eligibility based on extracted text
-            $isEligible = determineEligibility($extractedText);
-
-            if ($isEligible) {
-                // Insert the data along with the generated Reference ID into the database
-                $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate, reference_id)
-                        VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor', '$school_id', '$birth_certificate', '$reference_id')";
-
-                if (mysqli_query($conn, $sql)) {
-                    // Send confirmation email using PHPMailer
-                    sendRegistrationEmail($email, $reference_id); // Call the email function
-
-                    // Redirect to success page with reference ID
-                    header("Location: registration-confirmation.php?refid=$reference_id");
-                    exit();
-                } else {
-                    $errors[] = "Error: " . mysqli_error($conn);
-                }
-            } else {
-                $errors[] = "You are not eligible for the qualifying examination based on your grades.";
+        if (count($errors) == 0) {
+            // Preprocess image before OCR for better accuracy (optional)
+            try {
+                $imagick = new \Imagick($tor_path);
+                $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
+                $imagick->adaptiveThresholdImage(100, 100, 1);
+                $processedImagePath = $upload_dir . 'processed_' . uniqid() . '_' . basename($tor);
+                $imagick->writeImage($processedImagePath);
+            } catch (Exception $e) {
+                $errors[] = "Error preprocessing the TOR: " . $e->getMessage();
             }
-        } catch (Exception $e) {
-            $errors[] = "Error processing the TOR: " . $e->getMessage();
+
+            if (count($errors) == 0) {
+                // Instantiate Tesseract OCR
+                $ocr = new TesseractOCR($processedImagePath);
+
+                // Set language and configuration for better accuracy
+                $ocr->lang('eng') // Specify language
+                    ->psm(6);      // Assume a uniform block of text (PSM 6)
+
+                // Run OCR and extract text
+                try {
+                    $extractedText = $ocr->run();
+
+                    // Print the extracted text (for debugging purposes)
+                    echo "<pre>$extractedText</pre>";
+
+                    // Determine eligibility based on extracted text
+                    $isEligible = determineEligibility($extractedText);
+
+                    if ($isEligible) {
+                        // Insert the data along with the generated Reference ID into the database
+                        $sql = "INSERT INTO students (last_name, first_name, middle_initial, gender, dob, nationality, email, contact_number, street, barangay, city, province, zip_code, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, birth_certificate, reference_id)
+                                VALUES ('$last_name', '$first_name', '$middle_initial', '$gender', '$dob', '$nationality', '$email', '$contact_number', '$street', '$barangay', '$city', '$province', '$zip_code', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor_path', '$school_id_path', '$birth_certificate_path', '$reference_id')";
+
+                        if (mysqli_query($conn, $sql)) {
+                            // Send confirmation email using PHPMailer
+                            sendRegistrationEmail($email, $reference_id); // Call the email function
+
+                            // Redirect to success page with reference ID
+                            header("Location: registration-confirmation.php?refid=$reference_id");
+                            exit();
+                        } else {
+                            $errors[] = "Error: " . mysqli_error($conn);
+                        }
+                    } else {
+                        $errors[] = "You are not eligible for the qualifying examination based on your grades.";
+                    }
+                } catch (Exception $e) {
+                    $errors[] = "Error processing the TOR: " . $e->getMessage();
+                }
+            }
         }
     }
+// If there are errors, redirect to an error page with errors as query parameter
+if (count($errors) > 0) {
+    $_SESSION['registration_errors'] = $errors;
+    header("Location: registration-error.php");
+    exit();
 }
-
+}
 // Function to determine eligibility based on TOR extracted text
 function determineEligibility($extractedText) {
     // Normalize the text
