@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration Form</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="regcon">
+    <div class="navbar">
+        <img src="ccislogo.png" alt="Left Logo" class="ccislogo">
+        <nav>
+            <ul>
+                <li><a href=index.html>HOME</a></li>
+                <li><a href=about.html>ABOUT EXAM</a></li>
+                <li><a href=eligibilitychecker.html>ELIGIBILITY CHECKER</a></li>
+                <li><a href="contactus.html">CONTACT US</a></li>
+                 <li><a href=takeanexam.html>TAKE AN EXAM</a></li>
+                <li><a href=register.html>REGISTER</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="confirm-container">
+        <header class="header">
+            <img src="puplogo.png" class="puplogo" alt="School Logo">
+            <h1>STREAM Student Registration and Requirements Submission</h1>
+        </header>
+        <div class="success-message">
+            <h2>Your registration has been submitted successfully!</h2>
+            <p>Wait for an Email from us to know if you are qualified to take the exam or not.<br>It may take 4-7 days.</p>
+            <a href="#" class="email-help">Did Not Receive Email?</a>
+        </div>
+    </div>
+    <script>
+        function showRecommendedCourses() {
+            document.getElementById('recommended-courses').style.display = 'block';
+            document.getElementById('accreditation-courses').style.display = 'none';
+        }
+
+        function showAccreditationCourses() {
+            document.getElementById('accreditation-courses').style.display = 'block';
+            document.getElementById('recommended-courses').style.display = 'none';
+        }
+    </script>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+            <div class="footer-social">
+                <a href="#"><img src="facebook-icon.png" alt="Facebook"></a>
+                <a href="#"><img src="twitter-icon.png" alt="Twitter"></a>
+                <a href="#"><img src="instagram-icon.png" alt="Instagram"></a>
+            </div>
+        </div>
+    </footer>
+    
+</body>
+</html>
