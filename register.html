@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration Form</title>
-    <link rel="stylesheet" href="style.css">
+    <title>CCIS Qualifying Examination</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="register-body">
     <div class="navbar">
@@ -12,7 +12,14 @@
         <nav>
             <ul>
                 <li><a href=index.html>HOME</a></li>
-                <li><a href=about.html>ABOUT EXAM</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">ABOUT EXAM</a>
+                    <div class="dropdown-content">
+                        <a href="#schedule">Exam Schedule</a>
+                        <a href="#requirements">Exam Requirements</a>
+                        <a href="#documents">Required Documents</a>
+                    </div>
+                </li>
                 <li><a href=eligibilitychecker.html>ELIGIBILITY CHECKER</a></li>
                 <li><a href="contactus.html">CONTACT US</a></li>
                 <li><a href=takeanexam.html>TAKE AN EXAM</a></li>
@@ -21,134 +28,136 @@
         </nav>
     </div>
     <section class="form-section">
-        <div class="form-group head"> 
-            <h1>Student Registration and Requirements Submission</h1>
-            <img src="puplogo.png" alt="Right Logo" class="puplogo">
-        </div>                
-        
-        <form action="#" method="POST" enctype="multipart/form-data">//done
-            <fieldset>
-                <legend>Student Personal Information</legend>
-                <div class="form-group name-gender">
+        <div class="header-logo">
+            <img src="puplogo.png" alt="PUP Logo">
+            <h1>STREAM Student Registration and Document Submission</h1>
+        </div>
+        <form id="multi-step-form" action="#" method="POST" enctype="multipart/form-data">
+            <div class="step active">
+                <div class="form-field">
+                    <label for="student-type">Student Type</label>
+                    <select id="student-type" name="student-type" required onchange="toggleFields()">
+                        <option value="">-- Select Student Type --</option>
+                        <option value="transferee">Transferee</option>
+                        <option value="shiftee">Shiftee</option>
+                        <option value="ladderized">Ladderized</option>
+                    </select>
+                </div>
+                <div class="buttons">
+                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <h2>Personal Details</h2>
+                <div class="form-group">
                     <div class="form-field">
                         <label for="last-name">Last Name</label>
                         <input type="text" id="last-name" name="last-name">
                     </div>
                     <div class="form-field">
-                        <label for="first-name">First Name</label>
+                        <label for="first-name">Given Name</label>
                         <input type="text" id="first-name" name="first-name">
                     </div>
                     <div class="form-field">
-                        <label for="middle-initial">M.I.</label>
-                        <input type="text" id="middle-initial" name="middle-initial">
+                        <label for="middle-name">Middle Name (Optional)</label>
+                        <input type="text" id="middle-name" name="middle-name">
                     </div>
                     <div class="form-field">
-                        <label for="gender">Gender</label>
-                        <select id="gender" name="gender">
-                            <option value="">--Select Gender--</option>
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob">
+                    </div>
+                    <div class="form-field">
+                        <label for="sex">Sex</label>
+                        <select id="sex" name="sex">
+                            <option value="">--Select Sex--</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
-                            <option value="prefernot">Prefer Not To Say</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                 </div>
-            
-                <div class="form-group contact">
-                    <div class="form-field">
-                        <label for="dob">Date of Birth</label>
-                        <input type="date" id="dob" name="dob" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="nationality">Nationality</label>
-                        <input type="text" id="nationality" name="nationality" required>
-                    </div>
+                <div class="buttons">
+                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Contact Details -->
+            <div class="step">
+                <h2>Contact Details</h2>
+                <div class="form-group">
                     <div class="form-field">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>        
+                        <input type="email" id="email" name="email">
                     </div>
                     <div class="form-field">
                         <label for="contact-number">Contact Number</label>
-                        <input type="text" id="contact-number" name="contact-number" required>
+                        <input type="text" id="contact-number" name="contact-number">
+                    </div>
+                    <div class="form-field">
+                        <label for="address">Address</label>
+                        <input type="text" id="address-street" name="address-street">
                     </div>
                 </div>
+                <div class="buttons">
+                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
+                </div>
+            </div>
 
-                <div class="form-group address1">
+            <!-- Step 3: Academic Details -->
+            <div class="step">
+                <h2>Academic Information</h2>
+                <div class="form-group">
                     <div class="form-field">
-                        <label for="address-street">Street</label>
-                        <input type="text" id="address-street" name="address-street" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="barangay">Barangay</label>
-                        <input type="text" id="barangay" name="barangay" required>
-                    </div>
-                    <div class="form-field">    
-                        <label for="city">City</label>
-                        <input type="text" id="city" name="city" required>
-                    </div>
-                    <div class="form-field">    
-                        <label for="province">Province/Region</label>
-                        <input type="text" id="province" name="province" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="zip-code">Zip Code</label>
-                        <input type="text" id="zip-code" name="zip-code" required>
-                    </div>
-                </div>
-            </fieldset>
-                
-            <fieldset>
-                <legend>Student Academic Information</legend>
-                <div class="form-group school">
-                    <div class="form-field">
-                    <label for="student-type">Student Type</label>
-                    <select id="student-type" name="student-type" required>
-                        <option value="">-- Student Type --</option>
-                        <option value="transferee">Transferee</option>
-                        <option value="shiftee">Shiftee</option>
-                        <option value="ladderized">Ladderized</option>
-                    </select>
-                    </div>
-                    <div class="form-field">
-                        <label for="previous-school">Name of Previous School</label>
-                        <input type="text" id="previous-school" name="previous-school" required>
-                    </div>
-                    <div class="form-field">    
                         <label for="year-level">Current Year Level</label>
-                        <input type="text" id="year-level" name="year-level" required>
-                    </div>    
-                </div>
-                    
-                <div class="form-group desired">
-                    <div class="form-field">
-                        <label for="previous-program">Previous Program</label>
-                        <input type="text" id="previous-program" name="previous-program" required>
+                        <input type="number" id="year-level" name="year-level">
                     </div>
-                    <div class="form-field">
-                        <label for="desired-program">Desired Program:</label>
-                        <select id="desired-program" name="desired-program" required>
-                            <option value="">-- Select Desired Program --</option>
-                            <option value="bscs">Bachelor of Science in Computer Science (BSCS)</option>
-                            <option value="bsit">Bachelor of Science in Information Technology (BSIT)</option>
+                    <div class="form-field" id="previous-school-field">
+                        <label for="previous-school">Name of Previous School</label>
+                        <input type="text" id="previous-school" name="previous-school">
+                    </div>
+                    <div class="form-field" id="program-apply">
+                        <label for="program-apply">Name of Previous Program</label>
+                        <select id="program-apply" name="program-apply">
+                            <option value="">--Select Previous Program--</option>
+                            <option value="BSA">Bachelor of Science in Accountancy</option>
+                            <option value="BSBAFM">Bachelor of Science in Business Administration Major in Financial Management (formerly Bachelor of Science in Banking and Finance)</option>
+                            <option value="BSMA">Bachelor of Science in Management Accounting</option>
+                            <option value="BS-ARCH">Bachelor of Science in Architecture</option>
+                            <option value="BSID">Bachelor of Science in Interior Design</option>
+                            <option value="BSEP">Bachelor of Science in Environmental Planning</option>
+                            <option value="BSCE">Bachelor of Science in Civil Engineering</option>
+                            <option value="BSCpE">Bachelor of Science in Computer Engineering</option>
+                            <option value="BSECE">Bachelor of Science in Electronics Engineering</option>
                         </select>
                     </div>
                 </div>
-            
-                <div class="form-group upload">
-                    <div class="form-field">
-                        <label for="tor">Upload Copy of TOR</label>
-                        <input type="file" id="tor" name="tor" required>
+                <div class="buttons">
+                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Upload Documents -->
+            <div class="step">
+                <h2>Upload Documents</h2>
+                <div class="form-group">
+                    <div class="form-field" id="tor-field">
+                        <label for="tor">Upload Copy of Transcript of Records (TOR)</label>
+                        <input type="file" id="tor" name="tor">
                     </div>
                     <div class="form-field">
                         <label for="school-id">Upload Copy of School ID</label>
                         <input type="file" id="school-id" name="school-id" required>
                     </div>
-                    <div class="form-field">
-                        <label for="birth-certificate">Upload Copy of Birth Certificate</label>
-                        <input type="file" id="birth-certificate" name="birth-certificate" required>
-                    </div>  
                 </div>
-            </fieldset>
-            <button type="submit">SUBMIT</button>
+                <div class="buttons">
+                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                    <button type="submit" class="nxt-btn">Submit</button>
+                </div>
+            </div>
         </form>
     </section>
 
@@ -167,5 +176,54 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step');
+
+        function showStep(n) {
+            steps.forEach(step => step.classList.remove('active'));
+            steps[n].classList.add('active');
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showStep(currentStep);
+        });
+
+        function toggleFields() {
+            const studentType = document.getElementById("student-type").value;
+            
+            const torField = document.getElementById("tor-field");
+            const previousSchoolField = document.getElementById("previous-school-field");
+
+            if (studentType === "transferee") {
+                torField.style.display = "block"; // Show TOR upload
+                previousSchoolField.style.display = "block"; // Show previous school field
+            } else if (studentType === "shiftee") {
+                torField.style.display = "block"; // Show TOR upload
+                previousSchoolField.style.display = "none"; // Hide previous school field
+            } else if (studentType === "ladderized") {
+                torField.style.display = "none"; // Hide TOR upload
+                previousSchoolField.style.display = "none"; // Hide previous school field
+            } else {
+                torField.style.display = "none"; // Default hide for TOR
+                previousSchoolField.style.display = "none"; // Default hide for previous school
+            }
+        }
+    </script>
 </body>
 </html>
