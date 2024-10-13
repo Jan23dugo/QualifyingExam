@@ -131,13 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: registration-error.php");
         exit();
     }
-}
-?>
+} // Ensure this closing brace is present
 
-
-// Function to determine eligibility based on TOR extracted text
 function determineEligibility($extractedText) {
-    // Normalize the text
     $normalizedText = strtolower($extractedText);
     
     // Extract possible grades (assuming grades are either numbers, percentages, or letters)
@@ -418,7 +414,7 @@ function determineEligibility($extractedText) {
         } else {
             // Show year level field and reset previous programs to all options
             yearLevelField.style.display = 'block';
-            previousProgramSelect.innerHTML = `
+            previousProgramSelect.innerHTML = ` 
                 <option value="">--Select Previous Program--</option>
                 <option value="BSA">Bachelor of Science in Accountancy</option>
                 <option value="BSBAFM">Bachelor of Science in Business Administration Major in Financial Management</option>
