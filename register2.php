@@ -23,11 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $contact_number = mysqli_real_escape_string($conn, $_POST['contact-number']);
     $street = mysqli_real_escape_string($conn, $_POST['address-street']);
-    $year_level = mysqli_real_escape_string($conn, $_POST['year-level']);
     $previous_school = mysqli_real_escape_string($conn, $_POST['previous-school']);
     $previous_program = mysqli_real_escape_string($conn, $_POST['previous-program']);
     $desired_program = mysqli_real_escape_string($conn, $_POST['program-apply']);
     
+    // Handle different conditions for Ladderized students
+    if ($student_type === 'ladderized') {
+        $year_level = NULL;
+        $previous_program = 'DICT'; // Automatically set to DICT for ladderized
+    } else {
+        $year_level = mysqli_real_escape_string($conn, $_POST['year-level']);
+    }
+
     // Handle file uploads
     $upload_dir = __DIR__ . "/uploads/";
     if (!is_dir($upload_dir)) {
@@ -59,21 +66,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors[] = "Failed to upload School ID.";
         }
 
-        if (count($errors) == 0) {
+        // OCR processing only for Transferee and Shiftee, skip for Ladderized
+        if (count($errors) == 0 && $student_type !== 'ladderized' && $tor) {
             // Preprocess image before OCR for better accuracy (optional)
-            if ($tor) {
-                try {
-                    $imagick = new \Imagick($tor_path);
-                    $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
-                    $imagick->adaptiveThresholdImage(100, 100, 1);
-                    $processedImagePath = $upload_dir . 'processed_' . uniqid() . '_' . basename($tor);
-                    $imagick->writeImage($processedImagePath);
-                } catch (Exception $e) {
-                    $errors[] = "Error preprocessing the TOR: " . $e->getMessage();
-                }
+            try {
+                $imagick = new \Imagick($tor_path);
+                $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
+                $imagick->adaptiveThresholdImage(100, 100, 1);
+                $processedImagePath = $upload_dir . 'processed_' . uniqid() . '_' . basename($tor);
+                $imagick->writeImage($processedImagePath);
+            } catch (Exception $e) {
+                $errors[] = "Error preprocessing the TOR: " . $e->getMessage();
             }
 
-            if (count($errors) == 0 && $tor) {
+            // OCR only if preprocessing is successful
+            if (count($errors) == 0) {
                 // Instantiate Tesseract OCR
                 $ocr = new TesseractOCR($processedImagePath);
 
@@ -98,22 +105,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $errors[] = "Error processing the TOR: " . $e->getMessage();
                 }
             }
+        }
 
-            if (count($errors) == 0) {
-                // Insert the data along with the generated Reference ID into the database
-                $sql = "INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id)
-                        VALUES ('$last_name', '$first_name', '$middle_name', '$gender', '$dob', '$email', '$contact_number', '$street', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor_path', '$school_id_path', '$reference_id')";
+        if (count($errors) == 0) {
+            // Insert the data along with the generated Reference ID into the database
+            $sql = "INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id)
+                    VALUES ('$last_name', '$first_name', '$middle_name', '$gender', '$dob', '$email', '$contact_number', '$street', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor_path', '$school_id_path', '$reference_id')";
 
-                if (mysqli_query($conn, $sql)) {
-                    // Send confirmation email using PHPMailer
-                    sendRegistrationEmail($email, $reference_id); // Call the email function
+            if (mysqli_query($conn, $sql)) {
+                // Send confirmation email using PHPMailer
+                sendRegistrationEmail($email, $reference_id); // Call the email function
 
-                    // Redirect to success page with reference ID
-                    header("Location: registration-confirmation.php?refid=$reference_id");
-                    exit();
-                } else {
-                    $errors[] = "Error: " . mysqli_error($conn);
-                }
+                // Redirect to success page with reference ID
+                header("Location: registration-confirmation.php?refid=$reference_id");
+                exit();
+            } else {
+                $errors[] = "Error: " . mysqli_error($conn);
             }
         }
     }
@@ -125,6 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 }
+?>
+
 
 // Function to determine eligibility based on TOR extracted text
 function determineEligibility($extractedText) {
@@ -203,211 +212,226 @@ function determineEligibility($extractedText) {
 <?php include('navbar.php'); ?>
 
 <section class="form-section">
-        <div class="form-group head"> 
+    <div class="form-group head">
         <h1>STREAM Student Registration and Document Submission</h1>
         <img src="assets/img/PUP_CCIS_logo.png" alt="PUP CCIS Logo" class="puplogo">
-        </div>       
+    </div>
 
-        <!-- Display errors or success message -->
-        <?php if (!empty($errors)): ?>
-            <div class="errors">
-                <?php foreach ($errors as $error): ?>
-                    <p><?php echo $error; ?></p>
-                <?php endforeach; ?>
+    <!-- Display errors or success message -->
+    <?php if (!empty($errors)): ?>
+        <div class="errors">
+            <?php foreach ($errors as $error): ?>
+                <p><?php echo $error; ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($success)): ?>
+        <div class="success">
+            <p><?php echo $success; ?></p>
+        </div>
+    <?php endif; ?>
+
+    <!-- Form -->
+    <form id="multi-step-form" action="register.php" method="POST" enctype="multipart/form-data">
+        <div class="step active">
+            <div class="form-field">
+                <label for="student-type">Student Type</label>
+                <select id="student-type" name="student-type" required onchange="handleStudentTypeChange()">
+                    <option value="">-- Select Student Type --</option>
+                    <option value="transferee">Transferee</option>
+                    <option value="shiftee">Shiftee</option>
+                    <option value="ladderized">Ladderized</option>
+                </select>
             </div>
-        <?php endif; ?>
-
-        <?php if (!empty($success)): ?>
-            <div class="success">
-                <p><?php echo $success; ?></p>
+            <div class="buttons">
+                <button type="button" class="nxt-btn" onclick="validateStep()">Next</button>
             </div>
-        <?php endif; ?>
+        </div>
 
-        <!-- Form -->
-        <form id="multi-step-form" action="register.php" method="POST" enctype="multipart/form-data">
-            <div class="step active">
+        <div class="step">
+            <h2>Personal Details</h2>
+            <div class="form-group">
                 <div class="form-field">
-                    <label for="student-type">Student Type</label>
-                    <select id="student-type" name="student-type" required onchange="toggleFields()">
-                        <option value="">-- Select Student Type --</option>
-                        <option value="transferee">Transferee</option>
-                        <option value="shiftee">Shiftee</option>
-                        <option value="ladderized">Ladderized</option>
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" name="last-name" required>
+                </div>
+                <div class="form-field">
+                    <label for="first-name">Given Name</label>
+                    <input type="text" id="first-name" name="first-name" required>
+                </div>
+                <div class="form-field">
+                    <label for="middle-name">Middle Name (Optional)</label>
+                    <input type="text" id="middle-name" name="middle-name">
+                </div>
+                <div class="form-field">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" required>
+                </div>
+                <div class="form-field">
+                    <label for="sex">Sex</label>
+                    <select id="sex" name="sex" required>
+                        <option value="">--Select Sex--</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
                     </select>
                 </div>
-                <div class="buttons">
-                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
-                </div>
             </div>
+            <div class="buttons">
+                <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                <button type="button" class="nxt-btn" onclick="validateStep()">Next</button>
+            </div>
+        </div>
 
-           
-            <div class="step">
-            <h2>Personal Details</h2>
-                <div class="form-group">
-                    <div class="form-field">
-                        <label for="last-name">Last Name</label>
-                        <input type="text" id="last-name" name="last-name">
-                    </div>
-                    <div class="form-field">
-                        <label for="first-name">Given Name</label>
-                        <input type="text" id="first-name" name="first-name">
-                    </div>
-                    <div class="form-field">
-                        <label for="middle-name">Middle Name (Optional)</label>
-                        <input type="text" id="middle-name" name="middle-name">
-                    </div>
-                    <div class="form-field">
-                        <label for="dob">Date of Birth</label>
-                        <input type="date" id="dob" name="dob">
-                    </div>
-                    <div class="form-field">
-                        <label for="sex">Sex</label>
-                        <select id="sex" name="sex">
-                            <option value="">--Select Sex--</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="buttons">
-                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
-                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
-                </div>
-            </div>
         <!-- Step 2: Contact Details -->
-            <div class="step">
-                <h2>Contact Details</h2>
-                <div class="form-group">
-                    <div class="form-field">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email">
-                    </div>
-                    <div class="form-field">
-                        <label for="contact-number">Contact Number</label>
-                        <input type="text" id="contact-number" name="contact-number">
-                    </div>
-                    <div class="form-field">
-                        <label for="address">Address</label>
-                        <input type="text" id="address-street" name="address-street">
-                    </div>
+        <div class="step">
+            <h2>Contact Details</h2>
+            <div class="form-group">
+                <div class="form-field">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
                 </div>
-                <div class="buttons">
-                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
-                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
+                <div class="form-field">
+                    <label for="contact-number">Contact Number</label>
+                    <input type="text" id="contact-number" name="contact-number" required>
+                </div>
+                <div class="form-field">
+                    <label for="address">Address</label>
+                    <input type="text" id="address-street" name="address-street" required>
                 </div>
             </div>
+            <div class="buttons">
+                <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                <button type="button" class="nxt-btn" onclick="validateStep()">Next</button>
+            </div>
+        </div>
 
-              <!-- Step 3: Academic Details -->
-            <div class="step">
-                <h2>Academic Information</h2>
-                <div class="form-group">
-                    <div class="form-field">
-                        <label for="year-level">Current Year Level</label>
-                        <input type="number" id="year-level" name="year-level">
-                    </div>
-                    <div class="form-field" id="previous-school-field">
-                        <label for="previous-school">Name of Previous School</label>
-                        <input type="text" id="previous-school" name="previous-school">
-                    </div>
-                    <div class="form-field" id="previous-program-field">
-                        <label for="previous-program">Name of Previous Program</label>
-                        <select id="previous-program" name="previous-program">
-                            <option value="">--Select Previous Program--</option>
-                            <option value="BSA">Bachelor of Science in Accountancy</option>
-                            <option value="BSBAFM">Bachelor of Science in Business Administration Major in Financial Management (formerly Bachelor of Science in Banking and Finance)</option>
-                            <option value="BSMA">Bachelor of Science in Management Accounting</option>
-                            <option value="BS-ARCH">Bachelor of Science in Architecture</option>
-                            <option value="BSID">Bachelor of Science in Interior Design</option>
-                            <option value="BSEP">Bachelor of Science in Environmental Planning</option>
-                            <option value="BSCE">Bachelor of Science in Civil Engineering</option>
-                            <option value="BSCpE">Bachelor of Science in Computer Engineering</option>
-                            <option value="BSECE">Bachelor of Science in Electronics Engineering</option>
-                        </select>
-                    </div>
-                    <div class="form-field" id="program-apply">
-                        <label for="program-apply">Name of Program Applying To</label>
-                        <select id="program-apply" name="program-apply">
-                            <option value="">--Select Previous Program--</option>
-                            <option value="BSCS">Bachelor of Science in Computer Sciences</option>
-                            <option value="BSIT">Bachelor of Science in Information Technology</option>
-                        </select>
-                    </div>
+        <!-- Step 3: Academic Details -->
+        <div class="step">
+            <h2>Academic Information</h2>
+            <div class="form-group">
+                <div class="form-field" id="year-level-field">
+                    <label for="year-level">Current Year Level</label>
+                    <input type="number" id="year-level" name="year-level" required>
                 </div>
-                <div class="buttons">
-                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
-                    <button type="button" class="nxt-btn" onclick="nextStep()">Next</button>
+                <div class="form-field" id="previous-school-field">
+                    <label for="previous-school">Name of Previous School</label>
+                    <input type="text" id="previous-school" name="previous-school" required>
+                </div>
+                <div class="form-field" id="previous-program-field">
+                    <label for="previous-program">Name of Previous Program</label>
+                    <select id="previous-program" name="previous-program" required>
+                        <option value="">--Select Previous Program--</option>
+                        <option value="DICT">Diploma in Information and Communication Technology (DICT)</option>
+                        <option value="BSA">Bachelor of Science in Accountancy</option>
+                        <!-- Other programs for transferee and shiftee students -->
+                    </select>
+                </div>
+                <div class="form-field" id="program-apply">
+                    <label for="program-apply">Name of Program Applying To</label>
+                    <select id="program-apply" name="program-apply" required>
+                        <option value="">--Select Desired Program--</option>
+                        <option value="BSCS">Bachelor of Science in Computer Science</option>
+                        <option value="BSIT">Bachelor of Science in Information Technology</option>
+                    </select>
                 </div>
             </div>
+            <div class="buttons">
+                <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                <button type="button" class="nxt-btn" onclick="validateStep()">Next</button>
+            </div>
+        </div>
 
-            <!-- Step 4: Upload Documents -->
-            <div class="step">
-                <h2>Upload Documents</h2>
-                <div class="form-group">
-                    <div class="form-field" id="tor-field">
-                        <label for="tor">Upload Copy of Transcript of Records (TOR)</label>
-                        <input type="file" id="tor" name="tor">
-                    </div>
-                    <div class="form-field">
-                        <label for="school-id">Upload Copy of School ID</label>
-                        <input type="file" id="school-id" name="school-id" required>
-                    </div>
+        <!-- Step 4: Upload Documents -->
+        <div class="step">
+            <h2>Upload Documents</h2>
+            <div class="form-group">
+                <div class="form-field" id="tor-field">
+                    <label for="tor">Upload Copy of Transcript of Records (TOR)</label>
+                    <input type="file" id="tor" name="tor" required>
                 </div>
-                <div class="buttons">
-                    <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
-                    <button type="submit" class="nxt-btn">Submit</button>
+                <div class="form-field">
+                    <label for="school-id">Upload Copy of School ID</label>
+                    <input type="file" id="school-id" name="school-id" required>
                 </div>
             </div>
-        </form>
-    </section>
+            <div class="buttons">
+                <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+                <button type="submit" class="nxt-btn">Submit</button>
+            </div>
+        </div>
+    </form>
+</section>
 
-    <script>
-        let currentStep = 0;
-        const steps = document.querySelectorAll('.step');
+<script>
+    function validateStep() {
+        // Get the active step
+        const activeStep = document.querySelector('.step.active');
+        const inputs = activeStep.querySelectorAll('input, select');
+        let isValid = true;
 
-        function showStep(n) {
-            steps.forEach(step => step.classList.remove('active'));
-            steps[n].classList.add('active');
-        }
-
-        function nextStep() {
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                showStep(currentStep);
+        // Loop through inputs to check if they are valid
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                isValid = false;
+                input.reportValidity(); // This will display validation messages if input is invalid
             }
-        }
-
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                showStep(currentStep);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            showStep(currentStep);
         });
 
-        function toggleFields() {
-            const studentType = document.getElementById("student-type").value;
-            
-            const torField = document.getElementById("tor-field");
-            const previousSchoolField = document.getElementById("previous-school-field");
-
-            if (studentType === "transferee") {
-                torField.style.display = "block"; // Show TOR upload
-                previousSchoolField.style.display = "block"; // Show previous school field
-            } else if (studentType === "shiftee") {
-                torField.style.display = "block"; // Show TOR upload
-                previousSchoolField.style.display = "none"; // Hide previous school field
-            } else if (studentType === "ladderized") {
-                torField.style.display = "none"; // Hide TOR upload
-                previousSchoolField.style.display = "none"; // Hide previous school field
-            } else {
-                torField.style.display = "none"; // Default hide for TOR
-                previousSchoolField.style.display = "none"; // Default hide for previous school
-            }
+        // Proceed to the next step if valid
+        if (isValid) {
+            nextStep();
         }
-    </script>
+    }
+
+    function nextStep() {
+        const currentStep = document.querySelector('.step.active');
+        const nextStep = currentStep.nextElementSibling;
+
+        if (nextStep) {
+            currentStep.classList.remove('active');
+            nextStep.classList.add('active');
+        }
+    }
+
+    function prevStep() {
+        const currentStep = document.querySelector('.step.active');
+        const prevStep = currentStep.previousElementSibling;
+
+        if (prevStep) {
+            currentStep.classList.remove('active');
+            prevStep.classList.add('active');
+        }
+    }
+
+    function handleStudentTypeChange() {
+        const studentType = document.getElementById('student-type').value;
+        const yearLevelField = document.getElementById('year-level-field');
+        const previousProgramField = document.getElementById('previous-program-field');
+        const previousProgramSelect = document.getElementById('previous-program');
+
+        if (studentType === 'ladderized') {
+            // Hide year level field and limit previous program to DICT
+            yearLevelField.style.display = 'none';
+            previousProgramSelect.innerHTML = '<option value="DICT">Diploma in Information and Communication Technology (DICT)</option>';
+        } else {
+            // Show year level field and reset previous programs to all options
+            yearLevelField.style.display = 'block';
+            previousProgramSelect.innerHTML = `
+                <option value="">--Select Previous Program--</option>
+                <option value="BSA">Bachelor of Science in Accountancy</option>
+                <option value="BSBAFM">Bachelor of Science in Business Administration Major in Financial Management</option>
+                <!-- Other programs... -->
+            `;
+        }
+    }
+
+    // Call this on page load in case the form is revisited
+    document.addEventListener('DOMContentLoaded', function() {
+        handleStudentTypeChange();
+    });
+</script>
+
 </body>
 </html>
