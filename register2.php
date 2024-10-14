@@ -7,6 +7,9 @@ use thiagoalessio\TesseractOCR\TesseractOCR; // Use the OCR class
 // Include PHPMailer library
 require 'send_email.php';
 
+// Include the credit_subjects_matching.php file
+include('credit_subjects_matching.php');
+
 // Initialize variables for error messages or success message
 $errors = [];
 $success = "";
@@ -67,6 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // OCR processing only for Transferee and Shiftee, skip for Ladderized
+        $is_tech = false; // Default to non-tech
+        $credited_subjects = []; // Array to store credited subjects
+
         if (count($errors) == 0 && $student_type !== 'ladderized' && $tor) {
             // Preprocess image before OCR for better accuracy (optional)
             try {
@@ -101,6 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     if (!$isEligible) {
                         $errors[] = "You are not eligible for the qualifying examination based on your grades.";
                     }
+
+                    // Determine if the student has taken any programming course
+                    $is_tech = determineTechBackground($extractedText);
+
+                    // Determine credited subjects based on the extracted text and the desired program
+                    $credited_subjects = determineCreditSubjects($extractedText, $desired_program);
+
                 } catch (Exception $e) {
                     $errors[] = "Error processing the TOR: " . $e->getMessage();
                 }
@@ -109,10 +122,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (count($errors) == 0) {
             // Insert the data along with the generated Reference ID into the database
-            $sql = "INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id)
-                    VALUES ('$last_name', '$first_name', '$middle_name', '$gender', '$dob', '$email', '$contact_number', '$street', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor_path', '$school_id_path', '$reference_id')";
+            $sql = "INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id, is_tech)
+                    VALUES ('$last_name', '$first_name', '$middle_name', '$gender', '$dob', '$email', '$contact_number', '$street', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor_path', '$school_id_path', '$reference_id', '$is_tech')";
 
             if (mysqli_query($conn, $sql)) {
+                // Save credited subjects to the database
+                saveCreditedSubjects($conn, $reference_id, $credited_subjects);
+
                 // Send confirmation email using PHPMailer
                 sendRegistrationEmail($email, $reference_id); // Call the email function
 
@@ -193,6 +209,21 @@ function determineEligibility($extractedText) {
         }
     }
     return $eligible;
+}
+
+function determineTechBackground($extractedText) {
+    $normalizedText = strtolower($extractedText);
+    
+    // List of keywords to identify tech-related subjects
+    $programming_keywords = ['programming', 'coding', 'software development', 'java', 'python', 'c++', 'introduction to programming', 'cs fundamentals'];
+
+    // Check if any of the programming keywords are present in the extracted text
+    foreach ($programming_keywords as $keyword) {
+        if (strpos($normalizedText, $keyword) !== false) {
+            return true; // The student has a tech background
+        }
+    }
+    return false; // No programming subjects found
 }
 ?>
 
