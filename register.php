@@ -1,11 +1,19 @@
-<?php 
+<?php
 // Include database configuration file
 include('config/config.php');
 require 'vendor/autoload.php'; // Include Composer autoload
 use thiagoalessio\TesseractOCR\TesseractOCR; // Use the OCR class
 
+include('preprocess_image.php');
+
 // Include PHPMailer library
 require 'send_email.php';
+
+// Include the credit_subjects_matching.php file
+include('credit_subjects_matching.php');
+
+// Start session for error handling
+session_start();
 
 // Initialize variables for error messages or success message
 $errors = [];
@@ -49,6 +57,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = "Please fill out all required fields.";
     }
 
+    // Check for valid email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Please enter a valid email address.";
+    }
+
+    // Validate uploaded image for TOR
+    if ($tor) {
+        $allowed_types = ['image/png', 'image/jpeg', 'application/pdf'];
+        if (!in_array($_FILES['tor']['type'], $allowed_types)) {
+            $errors[] = "Please upload a valid image or PDF file.";
+        }
+    }
+
+    // Check if files are uploaded correctly
+    if ($tor && $_FILES['tor']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "Error uploading Transcript of Records (TOR).";
+    }
+    if ($_FILES['school-id']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "Error uploading School ID.";
+    }
+
     // Generate a unique Reference ID
     $reference_id = uniqid('STU-'); // This will generate something like STU-605c1c1c7a7f7
 
@@ -59,142 +88,187 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $tor_path = $upload_dir . uniqid() . "_" . basename($tor);
             if (!move_uploaded_file($_FILES['tor']['tmp_name'], $tor_path)) {
                 $errors[] = "Failed to upload Transcript of Records (TOR).";
+            } else {
+                // Imagick Preprocessing
+                if (class_exists('Imagick')) {
+                    try {
+                        // Call the preprocessImage function to process the image
+                        $processedImagePath = preprocessImage($tor_path, $upload_dir);
+
+                        // Check if an error occurred in the preprocessing
+                        if (strpos($processedImagePath, "Error") !== false) {
+                            $errors[] = $processedImagePath;
+                        }
+                    } catch (Exception $e) {
+                        $errors[] = "Error processing image: " . $e->getMessage();
+                    }
+                } else {
+                    $errors[] = "Imagick is not installed on the server.";
+                }
             }
         }
+
         $school_id_path = $upload_dir . uniqid() . "_" . basename($school_id);
         if (!move_uploaded_file($_FILES['school-id']['tmp_name'], $school_id_path)) {
             $errors[] = "Failed to upload School ID.";
         }
 
         // OCR processing only for Transferee and Shiftee, skip for Ladderized
+        $is_tech = false; // Default to non-tech
+        $credited_subjects = []; // Array to store credited subjects
+
         if (count($errors) == 0 && $student_type !== 'ladderized' && $tor) {
-            // Preprocess image before OCR for better accuracy (optional)
+            // OCR on the processed image
+            $ocr = new TesseractOCR($processedImagePath);
+            $ocr->executable('C:/Program Files/Tesseract-OCR/tesseract.exe'); // Path to the Tesseract executable
+
+            // Improved OCR Configuration
+            $ocr->lang('eng') // Set language to English
+                ->psm(11) // Set Page Segmentation Mode to "Assume a uniform block of text"
+                ->config('tessedit_char_whitelist', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:-()') // Whitelist common characters to improve accuracy
+                ->config('textord_min_linesize', 2.5); // Helps in cases where lines might be faint or text too small
+
+            // Run OCR and extract text
             try {
-                $imagick = new \Imagick($tor_path);
-                $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
-                $imagick->adaptiveThresholdImage(100, 100, 1);
-                $processedImagePath = $upload_dir . 'processed_' . uniqid() . '_' . basename($tor);
-                $imagick->writeImage($processedImagePath);
-            } catch (Exception $e) {
-                $errors[] = "Error preprocessing the TOR: " . $e->getMessage();
-            }
+                $extractedText = $ocr->run();
 
-            // OCR only if preprocessing is successful
-            if (count($errors) == 0) {
-                // Instantiate Tesseract OCR
-                $ocr = new TesseractOCR($processedImagePath);
+                // Debugging step: Display extracted text for verification
+                echo "<pre>Extracted Text from OCR:\n" . htmlentities($extractedText) . "</pre>";
 
-                // Set language and configuration for better accuracy
-                $ocr->lang('eng') // Specify language
-                    ->psm(6);      // Assume a uniform block of text (PSM 6)
+                // Extract important parts from the OCR results using refined regex
+                $subject_codes = [];
+                $descriptions = [];
+                $grades = [];
+                $units = [];
 
-                // Run OCR and extract text
-                try {
-                    $extractedText = $ocr->run();
+                // Improved regex patterns to capture each part
+                preg_match_all('/[A-Z]{2,3}\d{3}/', $extractedText, $subject_codes); // Matches subject codes like MIT626
+                preg_match_all('/[A-Z][A-Za-z\s]+(?=\d{1,2}\.\d{2})/', $extractedText, $descriptions); // Matches course descriptions before grades
+                preg_match_all('/\b[1-2]\.\d{2}\b/', $extractedText, $grades); // Matches numeric grades like 1.25, 2.00 but avoids larger numbers like years
+                preg_match_all('/\b\d+\b(?=\scredits?)/i', $extractedText, $units); // Matches units followed by "credits"
 
-                    // Print the extracted text (for debugging purposes)
-                    echo "<pre>$extractedText</pre>";
-
-                    // Determine eligibility based on extracted text
-                    $isEligible = determineEligibility($extractedText);
-
-                    if (!$isEligible) {
-                        $errors[] = "You are not eligible for the qualifying examination based on your grades.";
-                    }
-                } catch (Exception $e) {
-                    $errors[] = "Error processing the TOR: " . $e->getMessage();
+                // Output the extracted data (for debugging or processing)
+                foreach ($subject_codes[0] as $i => $code) {
+                    echo "Subject: " . $code . "<br>";
+                    echo "Description: " . (isset($descriptions[0][$i]) ? $descriptions[0][$i] : 'N/A') . "<br>";
+                    echo "Grade: " . (isset($grades[0][$i]) ? $grades[0][$i] : 'N/A') . "<br>";
+                    echo "Units: " . (isset($units[0][$i]) ? $units[0][$i] : 'N/A') . "<br><br>";
                 }
+
+                // Determine eligibility based on extracted grades
+                $isEligible = determineEligibility($grades[0]);
+
+                if (!$isEligible) {
+                    $errors[] = "You are not eligible for the qualifying examination based on your grades.";
+                }
+
+                // Determine if the student has taken any programming course
+                $is_tech = determineTechBackground($extractedText);
+
+                // Determine credited subjects based on the extracted text and the desired program
+                $credited_subjects = determineCreditSubjects($extractedText, $desired_program);
+
+            } catch (Exception $e) {
+                $errors[] = "Error processing the TOR: " . $e->getMessage();
             }
         }
 
         if (count($errors) == 0) {
-            // Insert the data along with the generated Reference ID into the database
-            $sql = "INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id)
-                    VALUES ('$last_name', '$first_name', '$middle_name', '$gender', '$dob', '$email', '$contact_number', '$street', '$student_type', '$previous_school', '$year_level', '$previous_program', '$desired_program', '$tor_path', '$school_id_path', '$reference_id')";
-
-            if (mysqli_query($conn, $sql)) {
+            // Prepare the SQL statement for inserting the student data
+            $stmt = $conn->prepare("INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id, is_tech) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            // The number of placeholders must match the number of variables, and types should match the data types
+            // Corrected to match all variables being bound
+            $stmt->bind_param(
+                "ssssssssssssssssi", // Updated type definition: match number of variables
+                $last_name,
+                $first_name,
+                $middle_name,
+                $gender,
+                $dob,
+                $email,
+                $contact_number,
+                $street,
+                $student_type,
+                $previous_school,
+                $year_level,
+                $previous_program,
+                $desired_program,
+                $processedImagePath,
+                $school_id_path,
+                $reference_id,
+                $is_tech
+            );
+        
+            if ($stmt->execute()) {
+                // Save credited subjects to the database
+                saveCreditedSubjects($conn, $reference_id, $credited_subjects);
+        
                 // Send confirmation email using PHPMailer
                 sendRegistrationEmail($email, $reference_id); // Call the email function
-
+        
                 // Redirect to success page with reference ID
                 header("Location: registration-confirmation.php?refid=$reference_id");
                 exit();
             } else {
-                $errors[] = "Error: " . mysqli_error($conn);
+                $errors[] = "Database error: " . $stmt->error;
             }
+            $stmt->close();
         }
+        
     }
 
-    // If there are errors, redirect to an error page with errors as query parameter
+    // If there are errors, display errors immediately
     if (count($errors) > 0) {
         $_SESSION['registration_errors'] = $errors;
-        header("Location: registration-error.php");
+        foreach ($errors as $error) {
+            echo "<p>Error: $error</p>";
+        }
         exit();
     }
-} // Ensure this closing brace is present
+}
 
-function determineEligibility($extractedText) {
-    $normalizedText = strtolower($extractedText);
-    
-    // Extract possible grades (assuming grades are either numbers, percentages, or letters)
-    preg_match_all('/(\d+\.\d+|\d+|[a-fA-F]|\d+%)\b/', $normalizedText, $matches);
-    $grades = $matches[0];
-
-    // Define logic to determine eligibility based on grading systems
+function determineEligibility($grades) {
     $eligible = true;
+
     foreach ($grades as $grade) {
-        // Clean up grade value to remove extra characters
         $grade = trim($grade);
+
+        // Normalize possible mistakes in OCR like commas instead of dots
+        $grade = str_replace(',', '.', $grade);
+
         if (is_numeric($grade)) {
             $gradeValue = (float)$grade;
-            // Handle numeric grades in different ranges and ensure equivalency to 86%
-            if ($gradeValue > 1.50 && $gradeValue <= 3.0) {
-                // If grade is worse than 1.50, mark as ineligible
-                $eligible = false;
-                break;
-            } elseif ($gradeValue >= 5.0) {
-                // Failing grades or low passing in some systems
-                $eligible = false;
-                break;
-            }
-        } elseif (preg_match('/\d+%/', $grade)) {
-            // Handle percentage grades
-            $percentage = (int)rtrim($grade, '%');
-            if ($percentage < 86) {
-                $eligible = false;
-                break;
-            }
-        } elseif (preg_match('/[a-f]/i', $grade)) {
-            // Handle letter grades (A-F)
-            switch (strtoupper($grade)) {
-                case 'A':
-                case 'A+':
-                case 'A-':
-                case 'B+':
-                case 'B':
-                    // Excellent to very good
-                    break;
-                case 'C':
-                case 'C+':
-                case 'D':
-                case 'F':
-                    // Grades C, D, F are considered ineligible
-                    $eligible = false;
-                    break;
-            }
-        } elseif (preg_match('/[1-5]\.\d+/', $grade)) {
-            // Handle fractional grading system, such as 4.0 (Excellent) or 3.5 (Very Good)
-            $fractionGrade = (float)$grade;
-            if ($fractionGrade < 2.0) {
-                // Grades below 2.0 are considered not acceptable
+
+            // Mark as ineligible if any grade is worse than 2.50
+            if ($gradeValue > 2.50) {
                 $eligible = false;
                 break;
             }
         }
     }
+
     return $eligible;
 }
+
+function determineTechBackground($extractedText) {
+    $normalizedText = strtolower($extractedText);
+    
+    // List of keywords to identify tech-related subjects
+    $programming_keywords = ['programming', 'coding', 'software development', 'java', 'python', 'c++', 'introduction to programming', 'cs fundamentals'];
+
+    // Check if any of the programming keywords are present in the extracted text
+    foreach ($programming_keywords as $keyword) {
+        if (strpos($normalizedText, $keyword) !== false) {
+            return true; // The student has a tech background
+        }
+    }
+    return false; // No programming subjects found
+}
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">

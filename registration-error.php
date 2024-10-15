@@ -1,20 +1,43 @@
+<?php
+// Start session
+session_start();
+
+// Check if there are any errors stored in the session
+$errors = isset($_SESSION['registration_errors']) ? $_SESSION['registration_errors'] : [];
+
+// Unset errors after loading to prevent them from persisting on refresh
+unset($_SESSION['registration_errors']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Not Qualified</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Registration Error</title>
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Assuming you have a stylesheet for styling -->
 </head>
 <body>
+    <section class="error-section">
+        <div class="error-container">
+            <h1>Registration Error</h1>
+            <?php if (!empty($errors)): ?>
+                <div class="errors">
+                    <h3>We encountered the following errors:</h3>
+                    <ul>
+                        <?php foreach ($errors as $error): ?>
+                            <li><?php echo htmlspecialchars($error); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php else: ?>
+                <p>An unknown error occurred. Please try again later.</p>
+            <?php endif; ?>
 
-    <div class="error-message">
-        <h1>REGISTRATION NOT QUALIFIED!</h1>
-        <p>We regret to inform you that based on the evaluation of your submitted information and documents, you do not meet the requirements for the qualifying examination.</p>
-        <p>If you have any questions or believe this decision was made in error, please contact the admissions office for further clarification.</p>
-
-        <a href="register.php" class="btn">Go Back to Registration Form</a>
-    </div>
-
+            <div class="actions">
+                <a href="register.php" class="btn">Back to Registration</a>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
