@@ -1,72 +1,109 @@
 <?php
-// Include database configuration file
-include('config/config.php');
-require 'vendor/autoload.php'; // Include Composer autoload
+// credit_subjects_matching.php
 
-// This script will be responsible for matching subjects from the OCR extracted text
-// with the predefined subjects for IT and CS programs.
+// Hardcoded credit requirements for IT and CS programs
+$creditRequirements = [
+    'IT' => [
+        ['subject_code' => 'ACCO 20213', 'description' => 'Accounting Principles', 'min_units' => 3],
+        ['subject_code' => 'COMP 20013', 'description' => 'Introduction to Computing', 'min_units' => 3],
+        ['subject_code' => 'COMP 20023', 'description' => 'Computer Programming 1', 'min_units' => 3],
+        ['subject_code' => 'CWTS 10013', 'description' => 'Civic Welfare Training Service 1', 'min_units' => 3],
+        ['subject_code' => 'GEED 10053', 'description' => 'Mathematics in the Modern World', 'min_units' => 3],
+        ['subject_code' => 'GEED 10063', 'description' => 'Purposive Communication', 'min_units' => 3],
+        ['subject_code' => 'GEED 10103', 'description' => 'Filipinolohiya at Pambansang Kaunlaran', 'min_units' => 3],
+        ['subject_code' => 'PHED 10012', 'description' => 'Physical Fitness and Self-Testing Activities', 'min_units' => 2],
 
-function determineCreditSubjects($extractedText, $desired_program) {
-    // Normalize the extracted text
-    $normalizedText = strtolower($extractedText);
+        ['subject_code' => 'COMP 20033', 'description' => 'Computer Programming 2', 'min_units' => 3],
+        ['subject_code' => 'COMP 20043', 'description' => 'Discrete Structures 1', 'min_units' => 3],
+        ['subject_code' => 'CWTS 10023', 'description' => 'Civic Welfare Training Service 2', 'min_units' => 3],
+        ['subject_code' => 'GEED 10033', 'description' => 'Readings in Philippine History', 'min_units' => 3],
+        ['subject_code' => 'GEED 10113', 'description' => 'Pagsasalin sa Kontekstong Filipino', 'min_units' => 3],
+        ['subject_code' => 'GEED 20023', 'description' => 'Politics, Governance and Citizenship', 'min_units' => 3],
+        ['subject_code' => 'PHED 10022', 'description' => 'Rhythmic Activities', 'min_units' => 2],
+    ],
+    'CS' => [
+        ['subject_code' => 'GEED 10053', 'description' => 'Mathematics in the Modern World', 'min_units' => 3],
+        ['subject_code' => 'GEED 10063', 'description' => 'Purposive Communication', 'min_units' => 3],
+        ['subject_code' => 'GEED 10103', 'description' => 'Filipinolohiya at Pambansang Kaunlaran', 'min_units' => 3],
+        ['subject_code' => 'GEED 20023', 'description' => 'Politics, Governance and Citizenship', 'min_units' => 3],
+        ['subject_code' => 'COMP 20013', 'description' => 'Introduction to Computing', 'min_units' => 3],
+        ['subject_code' => 'COMP 20023', 'description' => 'Computer Programming 1', 'min_units' => 3],
+        ['subject_code' => 'PHED 20023', 'description' => 'Physical Education 1', 'min_units' => 2],
+        ['subject_code' => 'NSTP 20023', 'description' => 'National Service Training Program 1', 'min_units' => 3],
+ 
+        ['subject_code' => 'GEED 10083', 'description' => 'Science, Technology and Society', 'min_units' => 3],
+        ['subject_code' => 'GEED 10113', 'description' => 'Intelektwaslisasyon ng Filipino sa ibat ibang Larangan', 'min_units' => 3],
+        ['subject_code' => 'MATH 20333', 'description' => 'Differential Calculus', 'min_units' => 3],
+        ['subject_code' => 'GEED 10023', 'description' => 'Understanding the Self', 'min_units' => 3],
+        ['subject_code' => 'COMP 20023', 'description' => 'Computer Programming 2', 'min_units' => 3],
+        ['subject_code' => 'COMP 20043', 'description' => 'Discrete Structures 1', 'min_units' => 3],
+        ['subject_code' => 'PHED 10022', 'description' => 'Physical Education', 'min_units' => 2],
+        ['subject_code' => 'NSTP 10023', 'description' => 'National Service Training Program 2', 'min_units' => 3],
+    ]
+];
 
-    // Define course lists for Computer Science and Information Technology
-    $cs_subjects = [
-        'mathematics in the modern world',
-        'purposive communication',
-        'filipinolohiya at pambansang kaunlaran',
-        'politics, governance and citizenship',
-        'introduction to computing',
-        'computer programming 1',
-        'science, technology and society',
-        'intelektwalisasyon ng filipino sa iba\'t ibang',
-        'differential calculus',
-        'understanding the self',
-        'computer programming 2',
-        'discrete structures 1'
-    ];
+// Function to determine credited subjects based on extracted text and credit requirements
+function determineCreditSubjects($extractedText, $desiredProgram, $creditRequirements) {
+    $creditedSubjects = [];
 
-    $it_subjects = [
-        'physical fitness and self-testing activities',
-        'filipinolohiya at pambansang kaunlaran',
-        'purposive communication',
-        'mathematics in the modern world',
-        'civic welfare training service 1',
-        'computer programming 1',
-        'introduction to computing',
-        'accounting principles',
-        'computer programming 2',
-        'discrete structures 1',
-        'civic welfare training service 2',
-        'readings in philippine history',
-        'pagsasalin sa kontekstong filipino',
-        'politics, governance and citizenship',
-        'rhythmic activities'
-    ];
+    // Check if the desired program is listed in the credit requirements
+    if (!isset($creditRequirements[$desiredProgram])) {
+        return $creditedSubjects; // No requirements found for the desired program
+    }
 
-    // Choose subjects based on the desired program
-    $required_subjects = ($desired_program === 'BSCS') ? $cs_subjects : $it_subjects;
+    // Extract subject codes, descriptions, and units using improved regex
+    preg_match_all('/([A-Z]{2,3}\d{3})/', $extractedText, $extractedCodes); // Matches subject codes like IT101
+    preg_match_all('/([A-Za-z\s\d,:-]+)/', $extractedText, $extractedDescriptions); // Matches descriptions
+    preg_match_all('/(\d+)\s?(?:credits?|units?)/i', $extractedText, $extractedUnits); // Matches units followed by "credits" or "units"
 
-    // Determine the credited subjects based on OCR extracted text
-    $credited_subjects = [];
+    // Flatten the results arrays
+    $extractedCodes = $extractedCodes[0];
+    $extractedDescriptions = $extractedDescriptions[0];
+    $extractedUnits = $extractedUnits[0];
 
-    foreach ($required_subjects as $subject) {
-        if (strpos($normalizedText, strtolower($subject)) !== false) {
-            $credited_subjects[] = $subject;
+    // Loop through the program's credit requirements
+    foreach ($creditRequirements[$desiredProgram] as $requirement) {
+        $subjectCode = $requirement['subject_code'];
+        $description = $requirement['description'];
+        $requiredUnits = (float)$requirement['min_units'];
+
+        // Attempt to find the subject code in the extracted text
+        foreach ($extractedCodes as $codeIndex => $extractedCode) {
+            if (stripos($extractedCode, $subjectCode) !== false) {
+                // If the subject code is found, look for the description and units nearby
+                $descriptionMatch = false;
+                $unitsMatch = false;
+                $unitsValue = 0;
+
+                // Check if the description matches in the extracted text
+                foreach ($extractedDescriptions as $extractedDescription) {
+                    if (stripos($extractedDescription, $description) !== false) {
+                        $descriptionMatch = true;
+                        break;
+                    }
+                }
+
+                // Check if there are sufficient units for the subject
+                foreach ($extractedUnits as $extractedUnit) {
+                    $unitsValue = (float)$extractedUnit;
+                    if ($unitsValue >= $requiredUnits) {
+                        $unitsMatch = true;
+                        break;
+                    }
+                }
+
+                // If all conditions match, add the credited subject to the list
+                if ($descriptionMatch && $unitsMatch) {
+                    $creditedSubjects[] = [
+                        'subject_code' => $subjectCode,
+                        'description' => $description,
+                        'units' => $unitsValue
+                    ];
+                }
+            }
         }
     }
 
-    return $credited_subjects;
+    return $creditedSubjects;
 }
-
-// Function to save credited subjects to the database
-function saveCreditedSubjects($conn, $reference_id, $credited_subjects) {
-    foreach ($credited_subjects as $subject) {
-        $sql = "INSERT INTO credited_subjects (reference_id, subject_name) VALUES ('$reference_id', '$subject')";
-        if (!mysqli_query($conn, $sql)) {
-            echo "Error: " . mysqli_error($conn);
-        }
-    }
-}
-
 ?>

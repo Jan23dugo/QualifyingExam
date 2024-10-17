@@ -186,12 +186,35 @@ header {
 .form-field {
     margin-bottom: 10px;
 }
-.form-field input, .form-field select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 4px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+.form-field input {
+    width: 100%; /* Full width for input */
+    padding: 10px; /* Padding inside the input */
+    border-radius: 4px; /* Rounded corners */
+    margin-top: 5px; /* Margin on top */
+    margin-bottom: 10px; /* Margin on bottom */
+    border: 1px solid #ccc; /* Light gray border */
+    color: #333; /* Dark text */
+}
+
+.form-field input:focus {
+    border-color: #005684; /* Highlight border color on focus */
+    outline: none; /* Remove default outline */
+}
+
+.form-field select {
+    width: 100%; /* Full width for select */
+    padding: 10px; /* Padding inside the select */
+    border-radius: 4px; /* Rounded corners */
+    margin-top: 5px; /* Margin on top */
+    margin-bottom: 10px; /* Margin on bottom */
+    background-color: #fff; /* White background for visibility */
+    color: #333; /* Dark text for contrast */
+    border: 1px solid #ccc; /* Light gray border */
+}
+
+.form-field select:focus {
+    border-color: #005684; /* Highlight border color on focus */
+    outline: none; /* Remove default outline */
 }
 .form-group label {
     font-weight: bold;
