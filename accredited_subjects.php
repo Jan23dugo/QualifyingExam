@@ -1,11 +1,33 @@
 <?php
-// accredited_subjects.php
+// Include database connection
+include('config/config.php');
 
-// Start session to access session variables
-session_start();
+// Get the reference ID from the URL
+if (isset($_GET['refid'])) {
+    $reference_id = $_GET['refid'];
+} else {
+    echo "Reference ID is missing. Please register first.";
+    exit();
+}
 
-// Include header or any other common files if needed
+// Fetch credited subjects from the database using the reference_id
+$sql = "SELECT subject_code, subject_description, units FROM credited_subjects WHERE reference_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $reference_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Store the results in an array
+$accreditedSubjects = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $accreditedSubjects[] = $row;
+    }
+}
+
+$stmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,28 +38,25 @@ session_start();
 </head>
 <body>
 
-    <div class="accredited-subjects">
-        <h1>Recommended Credited Subjects</h1>
+<div class="accredited-subjects">
+    <h1>Credited Subjects</h1>
 
-        <?php
-        // Check if there are accredited subjects stored in the session
-        if (isset($_SESSION['accredited_subjects']) && !empty($_SESSION['accredited_subjects'])) {
-            // Display the accredited subjects
-            foreach ($_SESSION['accredited_subjects'] as $subject) {
-                echo "<div class='subject-item'>";
-                echo "<p><strong>Subject Code:</strong> " . htmlspecialchars($subject['subject_code']) . "</p>";
-                echo "<p><strong>Description:</strong> " . htmlspecialchars($subject['description']) . "</p>";
-                echo "<p><strong>Units:</strong> " . htmlspecialchars($subject['units']) . "</p>";
-                echo "</div><br>";
-            }
-        } else {
-            // Message to display if there are no accredited subjects
-            echo "<p>No accredited subjects found. Please check back later or ensure your registration was completed successfully.</p>";
+    <?php
+    if (!empty($accreditedSubjects)) {
+        foreach ($accreditedSubjects as $subject) {
+            echo "<div class='subject-item'>";
+            echo "<p><strong>Subject Code:</strong> " . htmlspecialchars($subject['subject_code']) . "</p>";
+            echo "<p><strong>Description:</strong> " . htmlspecialchars($subject['subject_description']) . "</p>";
+            echo "<p><strong>Units:</strong> " . htmlspecialchars($subject['units']) . "</p>";
+            echo "</div><br>";
         }
-        ?>
+    } else {
+        echo "<p>No credited subjects found for this Reference ID.</p>";
+    }
+    ?>
 
-        <a href="register.php" class="btn">Back to Registration</a>
-    </div>
+    <a href="register-test.php" class="btn">Back to Registration</a>
+</div>
 
 </body>
 </html>
