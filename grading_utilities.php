@@ -1,5 +1,6 @@
 <?php
 // grading_utilities.php
+// This file contains functions that are used in Evaluating Grading System on Different UNiversities
 
 // Function to fetch grading system rules for a university
 function getGradingSystemRules($conn, $universityName) {

@@ -15,7 +15,7 @@ unset($_SESSION['registration_errors']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Error</title>
-    <link rel="stylesheet" href="assets/css/style.css"> <!-- Assuming you have a stylesheet for styling -->
+    <link rel="stylesheet" href="assets/css/style.css"> 
 </head>
 <body>
     <section class="error-section">
@@ -35,7 +35,7 @@ unset($_SESSION['registration_errors']);
             <?php endif; ?>
 
             <div class="actions">
-                <a href="register.php" class="btn">Back to Registration</a>
+                <a href="register-test.php" class="btn">Back to Registration</a>
             </div>
         </div>
     </section>

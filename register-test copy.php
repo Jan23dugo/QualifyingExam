@@ -2,26 +2,79 @@
 // Include database configuration file
 include('config/config.php');
 require 'vendor/autoload.php'; // Include Composer autoload
-use thiagoalessio\TesseractOCR\TesseractOCR; // Use the OCR class
+use thiagoalessio\TesseractOCR\TesseractOCR;
 
 include('preprocess_image.php');
-
-// Include PHPMailer library
 require 'send_email.php';
+include('grading_utilities.php');
+include('credit_subjects_logic.php');
 
-// Start session for error handling
-session_start();
+// Start session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Initialize variables for error messages or success message
-$errors = [];
-$success = "";
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Initialize the $errors array to avoid undefined variable error
+$errors = []; // <-- Add this to ensure $errors is always an array
+
+// Function to aggressively insert missing spaces and clean up OCR text
+function insertMissingSpaces($text) {
+    // Add space between subject codes and descriptions (e.g., COMP20033 -> COMP 20033)
+    $text = preg_replace('/([A-Z]{2,4})(\d{3,5})/', '$1 $2', $text);
+
+    // Add space between descriptions and faculty names, units, or codes if merged
+    $text = preg_replace('/([a-z])([A-Z])/', '$1 $2', $text);
+    $text = preg_replace('/([a-z])(\d)/', '$1 $2', $text);
+
+    // Add space between numbers and letters (e.g., 30BSITI -> 30 BSITI)
+    $text = preg_replace('/(\d)([A-Z])/', '$1 $2', $text);
+
+    // Add space between description and numbers, such as units (e.g., "Programming2" -> "Programming 2")
+    $text = preg_replace('/([a-zA-Z]+)(\d)/', '$1 $2', $text);
+
+    // Normalize multiple spaces into a single space
+    $text = preg_replace('/\s+/', ' ', $text);
+
+    return trim($text);
+}
+
+// Flexible regex to extract subject codes, descriptions, and units from cleaned OCR text
+function extractFlexibleSubjects($text) {
+    $credited_subjects = [];
+
+    // Split text by occurrences of subject codes (letter-number patterns)
+    $lines = preg_split('/(?=[A-Z]{2,4}\s?\d{3,5})/', $text);
+
+    foreach ($lines as $line) {
+        // Attempt to capture subject code, description, and units flexibly
+        if (preg_match('/([A-Z]{2,4}\s?\d{3,5})\s+([A-Za-z\s,\'-]+?)\s+(\d+\.\d+|\d+)/i', $line, $match)) {
+            $subject_code = $match[1];
+            $description = $match[2];
+            $units = $match[3];
+
+            // Add to the credited subjects array
+            $credited_subjects[] = [
+                'subject_code' => $subject_code,
+                'description' => $description,
+                'units' => $units
+            ];
+        }
+    }
+
+    return $credited_subjects;
+}
+
 
 // Define the saveCreditedSubjects function
 function saveCreditedSubjects($conn, $reference_id, $credited_subjects) {
     if (!empty($credited_subjects)) {
         foreach ($credited_subjects as $subject) {
             $stmt = $conn->prepare("INSERT INTO credited_subjects (reference_id, subject_code, subject_description, units) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("sssi", $reference_id, $subject['subject_code'], $subject['description'], $subject['units']);
+            $stmt->bind_param("sssd", $reference_id, $subject['subject_code'], $subject['description'], $subject['units']);
             if (!$stmt->execute()) {
                 throw new Exception("Error saving credited subject: " . $stmt->error);
             }
@@ -95,82 +148,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // If no errors, process the form data
     if (count($errors) == 0) {
         // Move uploaded files to the designated directory
+
         if ($tor) {
             $tor_path = $upload_dir . uniqid() . "_" . basename($tor);
             if (!move_uploaded_file($_FILES['tor']['tmp_name'], $tor_path)) {
                 $errors[] = "Failed to upload Transcript of Records (TOR).";
             } else {
-                // Imagick Preprocessing
-                if (class_exists('Imagick')) {
-                    try {
-                        // Call the preprocessImage function to process the image
-                        $processedImagePath = preprocessImage($tor_path, $upload_dir);
+                // Preprocess the image to make OCR more accurate
+                $processedImagePath = preprocessImage($tor_path); // Only pass the image path
+    
+           // OCR on the preprocessed image
+           $ocr = new TesseractOCR($tor_path);
+           $ocr->lang('eng') 
+               ->psm(6) // Set to block of text mode
+               ->config('tessedit_char_whitelist', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:-');
 
-                        // Check if an error occurred in the preprocessing
-                        if (strpos($processedImagePath, "Error") !== false) {
-                            $errors[] = $processedImagePath;
-                        }
-                    } catch (Exception $e) {
-                        $errors[] = "Error processing image: " . $e->getMessage();
-                    }
-                } else {
-                    $errors[] = "Imagick is not installed on the server.";
-                }
-            }
-        }
+           try {
+               $extractedText = $ocr->run();
+
+               // Insert missing spaces to clean up the OCR text
+               $cleanedText = insertMissingSpaces($extractedText);
+
+               // Debugging: Output cleaned text
+               echo "<pre>Cleaned Text from OCR:\n" . htmlentities($cleanedText) . "</pre>";
+
+               // Extract the subjects from the cleaned text
+               $credited_subjects = extractFlexibleSubjects($cleanedText);
+
+               // Debugging: Output credited subjects
+               echo "<pre>Credited Subjects:\n";
+               print_r($credited_subjects);
+               echo "</pre>";
+
+           } catch (Exception $e) {
+               $errors[] = "Error processing the TOR: " . $e->getMessage();
+           }
+       }
+   }
+
 
         $school_id_path = $upload_dir . uniqid() . "_" . basename($school_id);
         if (!move_uploaded_file($_FILES['school-id']['tmp_name'], $school_id_path)) {
             $errors[] = "Failed to upload School ID.";
         }
 
-        // OCR processing only for Transferee and Shiftee, skip for Ladderized
-        $is_tech = false; // Default to non-tech
-        $credited_subjects = []; // Array to store credited subjects
-
-        if (count($errors) == 0 && $student_type !== 'ladderized' && $tor) {
-            // OCR on the processed image
-            $ocr = new TesseractOCR($processedImagePath);
-            $ocr->executable('C:/Program Files/Tesseract-OCR/tesseract.exe'); // Path to the Tesseract executable
-
-            // Improved OCR Configuration
-            $ocr->lang('eng') // Set language to English
-                ->psm(11) // Set Page Segmentation Mode to "Assume a uniform block of text"
-                ->config('tessedit_char_whitelist', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:-()') // Whitelist common characters to improve accuracy
-                ->config('textord_min_linesize', 2.5); // Helps in cases where lines might be faint or text too small
-
-            // Run OCR and extract text
-try {
-    $extractedText = $ocr->run();
-
-    // Store extracted text in session
-    $_SESSION['extractedText'] = $extractedText;
-
-    // Debugging step: Display extracted text for verification
-    echo "<pre>Extracted Text from OCR:\n" . htmlentities($extractedText) . "</pre>";
-
-    // Determine credited subjects based on the extracted text and the desired program
-    $desired_program = 'BSIT'; // or fetch this dynamically from your form
-    $credited_subjects = determineCreditSubjects($extractedText, $desired_program, $conn); // No $creditRequirements needed
-
-    // Store accredited subjects in the session
-    if (!empty($credited_subjects)) {
-        $_SESSION['accredited_subjects'] = $credited_subjects;
-    }
-
-} catch (Exception $e) {
-    $errors[] = "Error processing the TOR: " . $e->getMessage();
-}
-
-        }
-
         if (count($errors) == 0) {
             // Prepare the SQL statement for inserting the student data
             $stmt = $conn->prepare("INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id, is_tech) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            
-            // The number of placeholders must match the number of variables, and types should match the data types
+            // Set is_tech explicitly as 0 or 1
+            $is_tech = ($student_type === 'tech') ? 1 : 0;
+
             $stmt->bind_param(
-                "ssssssssssssssssi", // Updated type definition: match number of variables
+                "ssssssssssssssssi", 
                 $last_name,
                 $first_name,
                 $middle_name,
@@ -184,7 +213,7 @@ try {
                 $year_level,
                 $previous_program,
                 $desired_program,
-                $processedImagePath,
+                $tor_path,
                 $school_id_path,
                 $reference_id,
                 $is_tech
@@ -192,12 +221,13 @@ try {
         
             if ($stmt->execute()) {
                 // Save credited subjects to the database
-                saveCreditedSubjects($conn, $reference_id, $_SESSION['accredited_subjects']);
+                saveCreditedSubjects($conn, $reference_id, $credited_subjects);
         
                 // Send confirmation email using PHPMailer
-                sendRegistrationEmail($email, $reference_id); // Call the email function
+                sendRegistrationEmail($email, $reference_id);
         
                 // Redirect to success page with reference ID
+                // Comment this during debugging
                 header("Location: registration-confirmation.php?refid=$reference_id");
                 exit();
             } else {
@@ -207,7 +237,7 @@ try {
         }
     }
 
-    // If there are errors, display errors immediately
+    // If there are errors, display them
     if (count($errors) > 0) {
         $_SESSION['registration_errors'] = $errors;
         foreach ($errors as $error) {
@@ -218,7 +248,6 @@ try {
 }
 
 ?>
-
 
 
 
@@ -345,7 +374,7 @@ try {
                         <option value="">--Select Previous University--</option>
                         <option value="AMA">AMA University (AMA)</option>
                         <option value="TUP">Technological University of the Philippines (TUP)</option>
-                        <option value="PUP">University of the Philippines (PUP)</option>
+                        <option value="PUP">Polytechnic University of the Philippines (PUP)</option>
                         <option value="DICT">Diploma in Information and Communication Technology (DICT)</option>
                     </select>
                 </div>
