@@ -17,54 +17,16 @@
 
 <body id="page-top">
     <div id="wrapper">
-        
+        <?php include 'sidebar.php'; ?>
 
         <!-- Content Wrapper -->
         <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content" style="color: rgb(0,0,0);">
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar" style="background: var(--bs-nav-link-disabled-color);">
-                    <div class="container-fluid">
-                        <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
-                            <i class="fas fa-bars"></i>
-                        </button>
+            <div id="content">
+               <!-- Include Topbar -->
+               <?php include 'topbar.php'; ?>
 
-                        <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
-                            <div class="input-group"></div>
-                        </form>
-
-                        <ul class="navbar-nav flex-nowrap ms-auto">
-                            <li class="nav-item dropdown d-sm-none no-arrow">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
-                                    <i class="fas fa-search"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in" aria-labelledby="searchDropdown">
-                                    <form class="me-auto navbar-search w-100">
-                                        <div class="input-group">
-                                            <input class="bg-light border-0 form-control small" type="text" placeholder="Search for ...">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </li>
-
-                            <!-- Settings and Profile Icons -->
-                            <li class="nav-item dropdown no-arrow mx-1">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-cog" style="font-size: 30px; color: var(--bs-navbar-disabled-color);"></i>
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown no-arrow mx-1">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="width: 60px; height: 60px;">
-                                    <i class="far fa-user-circle" style="font-size: 30px; color: var(--bs-navbar-disabled-color); backdrop-filter: brightness(99%); -webkit-backdrop-filter: brightness(99%);"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-
+                            
+                           
                 <!-- Main Content -->
                 <div class="container" style="width: 886.6px; height: 382px; padding: 21px;">
                     <div class="row">
@@ -114,16 +76,9 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <footer class="bg-white sticky-footer">
-                <div class="container my-auto">
-                    <div class="text-center my-auto copyright">
-                        <span>Copyright © PUP CCIS 2024</span>
-                    </div>
-                </div>
-            </footer>
         </div>
+        <!-- Footer -->
+        <?php include 'footer.php'; ?>
     </div>
 
     <!-- External Scripts -->

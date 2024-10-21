@@ -29,7 +29,7 @@
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.html" style="font-family: 'Open Sans', sans-serif;">
+                        <a class="nav-link" href="admin-dashboard.php" style="font-family: 'Open Sans', sans-serif;">
                             <i class="far fa-square" style="font-size: 21px; width: 20px; height: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Dashboard</span>
                         </a>
@@ -57,7 +57,7 @@
                             <i class="far fa-calendar-alt" style="font-size: 23px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Calendar</span>
                         </a>
-                        <a class="nav-link" href="login.html">
+                        <a class="nav-link" href="login.php">
                             <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
                             <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
                         </a>
