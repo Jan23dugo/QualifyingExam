@@ -10,30 +10,42 @@ session_start();
     <title>Qualifying Examination</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="index">
 
     <!-- Include the navbar -->
     <div id="navbar">
         <?php include 'navbar.php'; ?>
     </div>
 
-    <header class="exam-header">
-        <div class="header-content">
-            <h1>College of Computer Information and Sciences</h1>
-            <h2>Qualifying Examination</h2>
-            <a href="register.php" class="register-button">Register</a>
+<div class="index-home">            
+        <h1>Welcome to the</h1>
+        <h1>Polytechnic Univeristy of the Philippines</h1>
+        <h1>CCIS Qualifying Examination</h1>
+        <div class="mini-sched">
+            <h2>Hello, PUPian!</h2>
+            <p>Please click or tap your destination.</p>
+            <button class="student-btn" ><a href="register.html">Student</a></button> <br>
+            <button class="admin-btn"><a href="admin-login.html">Admin</a></button>
+            <div class="terms-privacy">
+                <p>By using this service, you understood and agree to the <br>PUP Online Services <a href="terms">Terms of Use</a> and <a href="#privacy">Privacy Statement</a></p>
+            </div> 
         </div>
-    </header>
-
-    <section class="exam-schedule">
-        <div class="schedule-box">
-            <h3>Exam Schedule</h3>
-            <p>Shiftees/Transferees</p>
-            <p><strong>Date:</strong> September 17, 2025</p>
-            <p><strong>Time:</strong> 00:00 AM - 00:00 PM</p>
-            <p><strong>Place:</strong> CCIS Laboratory Room (5th Floor, South Wing)</p>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+            <div class="footer-social">
+                <a href="#"><img src="facebook-icon.png" alt="Facebook"></a>
+                <a href="#"><img src="twitter-icon.png" alt="Twitter"></a>
+                <a href="#"><img src="instagram-icon.png" alt="Instagram"></a>
+            </div>
         </div>
-    </section>
+    </footer>
 
 </body>
 </html>
