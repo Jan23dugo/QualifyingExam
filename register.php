@@ -278,13 +278,13 @@ function determineTechBackground($extractedText) {
     <title>CCIS Qualifying Examination</title>
     <link rel="stylesheet" href="assets/css/style.css">  
 </head>
-<body>
+<body class="register-body">
 <?php include('navbar.php'); ?>
 
 <section class="form-section">
     <div class="form-group head">
         <h1>STREAM Student Registration and Document Submission</h1>
-        <img src="assets/img/PUP_CCIS_logo.png" alt="PUP CCIS Logo" class="puplogo">
+        <img src="puplogo.png" alt="PUP CCIS Logo" class="puplogo">
     </div>
 
     <!-- Display errors or success message -->
