@@ -284,7 +284,7 @@ function determineTechBackground($extractedText) {
 <section class="form-section">
     <div class="form-group head">
         <h1>STREAM Student Registration and Document Submission</h1>
-        <img src="puplogo.png" alt="PUP CCIS Logo" class="puplogo">
+        <img src="assets/img/puplogo.png" alt="PUP CCIS Logo" class="puplogo">
     </div>
 
     <!-- Display errors or success message -->
