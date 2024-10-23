@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="regcon">
-    <div id="navbar">
-        <?php include 'navbar.php'; ?>
-    </div>
+    <?php include 'navbar.php'; ?>
     <div class="confirm-container">
         <header class="header">
             <img src="puplogo.png" class="puplogo" alt="School Logo">
