@@ -4,60 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Create Exam - Brand</title>
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap">
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&display=swap">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css">
-    <link rel="stylesheet" href="https://cdn.quilljs.com/1.0.0/quill.snow.css">
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    
     <style>
-        .time-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 70%;
-        }
-
-        .time-input {
-            flex: 1;
-            padding-right: 40px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .arrow-buttons {
-            position: absolute;
-            right: 10px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .arrow-buttons button {
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .highlight {
-            background-color: #d1ecf1;
-            border-radius: 4px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .add-dropdown-wrapper {
-            margin-bottom: 20px;
-            position: relative;
-            top: 10px;
-            left: 10px;
-        }
-
+        /* Custom styles for folder and table */
         .folder-list {
             margin-top: 20px;
             display: flex;
@@ -162,46 +121,86 @@
 
                 <!-- Folder List Section -->
                 <div class="folder-list" id="folderList">
-                    <!-- Folders will be added here dynamically -->
+                    <!-- Folders and Exams will be added here dynamically -->
+                    <h3>Your Exams</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Exam ID</th>
+                                <th>Exam Name</th>
+                                <th>Description</th>
+                                <th>Duration</th>
+                                <th>Schedule Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // Include the database connection
+                            include_once('../config/config.php');
+
+                            // Fetch exams from the database
+                            $sql = "SELECT * FROM exams ORDER BY exam_id DESC";
+                            $result = $conn->query($sql);
+
+                            // Display exams
+                            if ($result->num_rows > 0) {
+                                while($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row['exam_name'] . "</td>";
+                                    echo "<td>" . $row['description'] . "</td>";
+                                    echo "<td>" . $row['duration'] . " minutes</td>";
+                                    echo "<td>" . $row['schedule_date'] . "</td>";
+                                    echo "<td><a href='test2.php?exam_id=" . $row['exam_id'] . "' class='btn btn-success'>Add Questions</a></td>";
+                                    echo "<td><a href='delete_exam.php?exam_id=" . $row['exam_id'] . "'>Delete</a></td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='6'>No exams created yet. Click '+ Add' to create a new exam.</td></tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
                 </div>
 
                 <!-- Create Exam Modal -->
                 <div class="modal fade" role="dialog" tabindex="-1" id="createExamModal">
                     <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form action="../admin/process_create_exam.php" method="POST">
-                            <div class="modal-header">
-                        <h4 class="modal-title">Create Exam</h4>
-                            <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" style="height: auto;padding: 36px;margin: 9px;">
-                        <div class="input-group">
-                            <span class="input-group-text">Exam Name:</span>
-                            <input class="form-control" type="text" name="exam_name" required>
-                    </div>
-                    <div class="input-group">
-                        <span class="input-group-text">Description:</span>
-                        <input class="form-control" type="text" name="description">
-                    </div>
-                    <div class="input-group">
-                        <span class="input-group-text">Duration (in minutes):</span>
-                        <input class="form-control" type="text" name="duration" placeholder="eg. 90 minutes" required>
-                    </div>
-                    <div class="input-group">
-                        <span class="input-group-text">Schedule Date:</span>
-                        <input class="form-control" type="date" name="schedule_date" required>
+                        <div class="modal-content">
+                            <form action="../admin/process_create_exam.php" method="POST">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Create Exam</h4>
+                                    <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body" style="height: auto; padding: 36px; margin: 9px;">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Exam Name:</span>
+                                        <input class="form-control" type="text" name="exam_name" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Description:</span>
+                                        <input class="form-control" type="text" name="description">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Duration (in minutes):</span>
+                                        <input class="form-control" type="text" name="duration" placeholder="e.g., 90 minutes" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Schedule Date:</span>
+                                        <input class="form-control" type="date" name="schedule_date" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-primary" type="submit">Create</button>
+                                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" type="submit">Create</button>
-                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
+                <!-- Folder Content Wrapper -->
+                <div id="folderContentWrapper"></div>
 
                 <!-- Custom Folder Modal -->
                 <div class="modal-custom" id="folderModal">
@@ -212,28 +211,31 @@
                         <button class="btn-ok" onclick="confirmAddFolder()">OK</button>
                     </div>
                 </div>
-                <!-- Footer -->
-                <?php include 'footer.php'; ?>
             </div>
+
+            <!-- Footer -->
+            <?php include 'footer.php'; ?>
         </div>
+
         <a class="border rounded d-inline scroll-to-top" href="#page-top">
             <i class="fas fa-angle-up"></i>
         </a>
-        
     </div>
 
+    <!-- Load jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Load Bootstrap JS -->
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
-    <script src="assets/js/script.min.js"></script>
+
     <script>
     let currentFolder = null;
 
     // Dropdown action handlers
     function addAssessment() {
-        // Show Create Exam Modal when "Add Assessment" is clicked
-        $('#createExamModal').modal('show');
+        const modalElement = document.getElementById('createExamModal');
+        const modal = new bootstrap.Modal(modalElement);  // Bootstrap 5 method to show modals
+        modal.show();
     }
 
     function addFolder() {
@@ -319,9 +321,7 @@
         document.getElementById('folderContentWrapper').style.display = 'none';
         currentFolder = null; // Reset to root level when going back
     }
-</script>
-
-
+    </script>
 
 </body>
 </html>

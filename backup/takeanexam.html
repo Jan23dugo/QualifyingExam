@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examination</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="take-exam-body">
+    <div class="navbar">
+        <img src="ccislogo.png" alt="Left Logo" class="ccislogo">
+        <nav>
+            <ul>
+                <li><a href=index.html>HOME</a></li>
+                <li><a href=aboutexam.html>ABOUT EXAM</a></li>
+                <li><a href=eligibilitychecker.html>ELIGIBILITY CHECKER</a></li>
+                <li><a href="contactus.html">CONTACT US</a></li>
+                <li><a href=takeanexam.html>TAKE AN EXAM</a></li>
+                <li><a href=register.html>REGISTER</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="TE-container">
+        <header class="TE-header">
+            <h1>Qualifying Examination</h1>
+        </header>
+        <p>Input your <strong>Reference ID</strong> that you have received in your Email Address to proceed to examination</p>
+        <div class="exam-form">
+            <label for="reference-id">Reference ID: </label>
+            <div class="input-container">
+                <input type="text" id="reference-id" placeholder="Enter your reference ID">
+                <button  onclick="checkEligibility()">Search</button>
+            </div>
+        </div>
+
+        <div class="exam-result">
+            <div id="take-exam-results" >
+                <hr>
+                <h2>RESULTS</h2>
+                <hr>
+                <div class="flex-container">
+                    <p id="exam-student-name"></p>
+                    <div class="exam-button">
+                        <button id="take-exam" class="take-exam-button" style="display: none;" onclick="showExam()">See Exam</button>
+                    </div>
+                </div>
+                <div id="examinations" class="exam-list" style="display:none;">
+                    <h2>Examinations</h2> 
+                    <button class="exam-item"><a href="exam1.html">Information Technology Exam</a></button>
+                </div>
+                <div class="no-record">
+                    <p id="no-record-msg" style="display: none;">I'm sorry, but it seems like we do not have a record of this Reference ID. <br>Kindly double check if you typed it correctly.</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+            <div class="footer-social">
+                <a href="#"><img src="facebook-icon.png" alt="Facebook"></a>
+                <a href="#"><img src="twitter-icon.png" alt="Twitter"></a>
+                <a href="#"><img src="instagram-icon.png" alt="Instagram"></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const eligibleIDs = ['REF12345', 'REF67890', 'REF11111'];
+
+        function checkEligibility() {
+            var referenceId = document.getElementById("reference-id").value;
+            var studentName = document.getElementById("exam-student-name");
+            var takeExamBtn = document.getElementById("take-exam");
+            var noRecordMsg = document.getElementById("no-record-msg");
+
+            // Reset display settings
+            takeExamBtn.style.display = "none";
+            noRecordMsg.style.display = "none";
+            studentName.innerText = "";
+
+            // Check if the reference ID is empty
+            if (referenceId.trim() === "") {
+                alert("Please enter a Reference ID before checking eligibility.");
+                return;  // Stop the function execution
+            }
+
+            // Mock data for eligibility check
+            if (eligibleIDs.includes(referenceId)) {
+                studentName.innerText = "John Doe";
+                takeExamBtn.style.display = "block";
+            } else {
+                noRecordMsg.style.display = "block";
+            }
+        }
+
+        function showExam() {
+            document.getElementById('examinations').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

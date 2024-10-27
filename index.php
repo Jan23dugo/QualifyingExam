@@ -24,8 +24,8 @@ session_start();
         <div class="mini-sched">
             <h2>Hello, PUPian!</h2>
             <p>Please click or tap your destination.</p>
-            <button class="student-btn" ><a href="register.html">Student</a></button> <br>
-            <button class="admin-btn"><a href="admin-login.html">Admin</a></button>
+            <button class="student-btn" ><a href="registerFront.php">Student</a></button> <br>
+            <button class="admin-btn"><a href="../admin/loginAdmin.php">Admin</a></button>
             <div class="terms-privacy">
                 <p>By using this service, you understood and agree to the <br>PUP Online Services <a href="terms">Terms of Use</a> and <a href="#privacy">Privacy Statement</a></p>
             </div> 

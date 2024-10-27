@@ -1145,3 +1145,26 @@ header {
 html {
     scroll-behavior: smooth;
   }
+/* Add this to your CSS file */
+.errors {
+    background-color: #ffebee;
+    border: 1px solid #ef5350;
+    color: #c62828;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.success {
+    background-color: #e8f5e9;
+    border: 1px solid #66bb6a;
+    color: #2e7d32;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.error-message, .success-message {
+    margin: 0;
+    padding: 5px 0;
+}

@@ -19,60 +19,46 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Initialize the $errors array to avoid undefined variable error
-$errors = []; // <-- Add this to ensure $errors is always an array
+$errors = [];
 
 // Function to aggressively insert missing spaces and clean up OCR text
 function insertMissingSpaces($text) {
     // Add space between subject codes and descriptions (e.g., COMP20033 -> COMP 20033)
     $text = preg_replace('/([A-Z]{2,4})(\d{3,5})/', '$1 $2', $text);
-
     // Add space between descriptions and faculty names, units, or codes if merged
     $text = preg_replace('/([a-z])([A-Z])/', '$1 $2', $text);
     $text = preg_replace('/([a-z])(\d)/', '$1 $2', $text);
-
     // Add space between numbers and letters (e.g., 30BSITI -> 30 BSITI)
     $text = preg_replace('/(\d)([A-Z])/', '$1 $2', $text);
-
     // Add space between description and numbers, such as units (e.g., "Programming2" -> "Programming 2")
     $text = preg_replace('/([a-zA-Z]+)(\d)/', '$1 $2', $text);
-
     // Normalize multiple spaces into a single space
     $text = preg_replace('/\s+/', ' ', $text);
 
     return trim($text);
 }
 
-// Flexible regex to extract subject codes, descriptions, and units from cleaned OCR text
-function extractFlexibleSubjects($text) {
-    $credited_subjects = [];
-
-    // Split text by occurrences of subject codes (letter-number patterns)
-    $lines = preg_split('/(?=[A-Z]{2,4}\s?\d{3,5})/', $text);
-
+// Function to extract subject codes, descriptions, and grades from cleaned OCR text
+function extractSubjects($text) {
+    $subjects = [];
+    $lines = explode("\n", $text);
     foreach ($lines as $line) {
-        // Attempt to capture subject code, description, and units flexibly
-        if (preg_match('/([A-Z]{2,4}\s?\d{3,5})\s+([A-Za-z\s,\'-]+?)\s+(\d+\.\d+|\d+)/i', $line, $match)) {
-            $subject_code = $match[1];
-            $description = $match[2];
-            $units = $match[3];
-
-            // Add to the credited subjects array
-            $credited_subjects[] = [
-                'subject_code' => $subject_code,
-                'description' => $description,
-                'units' => $units
+        if (preg_match('/([A-Z]{2,4}\s?\d{3,5})\s+(.+?)\s+(\d+\.\d+|\d+)\s+([A-F]|\d+\.\d*)$/i', $line, $match)) {
+            $subjects[] = [
+                'subject_code' => $match[1],
+                'description' => $match[2],
+                'units' => $match[3],
+                'grade' => $match[4]
             ];
         }
     }
-
-    return $credited_subjects;
+    return $subjects;
 }
 
-
-// Define the saveCreditedSubjects function
-function saveCreditedSubjects($conn, $reference_id, $credited_subjects) {
-    if (!empty($credited_subjects)) {
-        foreach ($credited_subjects as $subject) {
+// Function to save credited subjects to the database
+function saveCreditedSubjects($conn, $reference_id, $subjects) {
+    if (!empty($subjects)) {
+        foreach ($subjects as $subject) {
             $stmt = $conn->prepare("INSERT INTO credited_subjects (reference_id, subject_code, subject_description, units) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("sssd", $reference_id, $subject['subject_code'], $subject['description'], $subject['units']);
             if (!$stmt->execute()) {
@@ -89,23 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $student_type = mysqli_real_escape_string($conn, $_POST['student-type']);
     $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
     $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
-    $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
     $dob = mysqli_real_escape_string($conn, $_POST['dob']);
     $gender = mysqli_real_escape_string($conn, $_POST['sex']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $previous_school = mysqli_real_escape_string($conn, $_POST['previous-school']);
+    $desired_program = mysqli_real_escape_string($conn, $_POST['program-apply']);
+    $year_level = ($student_type !== 'ladderized') ? mysqli_real_escape_string($conn, $_POST['year-level']) : NULL;
     $contact_number = mysqli_real_escape_string($conn, $_POST['contact-number']);
     $street = mysqli_real_escape_string($conn, $_POST['address-street']);
-    $previous_school = mysqli_real_escape_string($conn, $_POST['previous-school']);
-    $previous_program = mysqli_real_escape_string($conn, $_POST['previous-program']);
-    $desired_program = mysqli_real_escape_string($conn, $_POST['program-apply']);
-    
-    // Handle different conditions for Ladderized students
-    if ($student_type === 'ladderized') {
-        $year_level = NULL;
-        $previous_program = 'DICT'; // Automatically set to DICT for ladderized
-    } else {
-        $year_level = mysqli_real_escape_string($conn, $_POST['year-level']);
-    }
 
     // Handle file uploads
     $upload_dir = __DIR__ . "/uploads/";
@@ -117,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $school_id = $_FILES['school-id']['name'];
 
     // Check for errors before proceeding
-    if (empty($last_name) || empty($first_name) || empty($gender) || empty($dob) || empty($email) || empty($student_type)) {
+    if (empty($last_name) || empty($first_name) || empty($gender) || empty($dob) || empty($email) || empty($student_type) || empty($contact_number) || empty($street)) {
         $errors[] = "Please fill out all required fields.";
     }
 
@@ -143,59 +120,70 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Generate a unique Reference ID
-    $reference_id = uniqid('STU-'); // This will generate something like STU-605c1c1c7a7f7
+    $reference_id = uniqid('STU-');
+
+    // Initialize eligibility variable
+    $isEligible = false;
 
     // If no errors, process the form data
     if (count($errors) == 0) {
         // Move uploaded files to the designated directory
-
         if ($tor) {
             $tor_path = $upload_dir . uniqid() . "_" . basename($tor);
             if (!move_uploaded_file($_FILES['tor']['tmp_name'], $tor_path)) {
                 $errors[] = "Failed to upload Transcript of Records (TOR).";
             } else {
                 // Preprocess the image to make OCR more accurate
-                $processedImagePath = preprocessImage($tor_path); // Only pass the image path
-    
-           // OCR on the preprocessed image
-           $ocr = new TesseractOCR($tor_path);
-           $ocr->lang('eng') 
-               ->psm(6) // Set to block of text mode
-               ->config('tessedit_char_whitelist', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:-');
+                $processedImagePath = preprocessImage($tor_path);
 
-           try {
-               $extractedText = $ocr->run();
+                // OCR on the preprocessed image
+                $ocr = new TesseractOCR($processedImagePath);
+                $ocr->lang('eng')->psm(6)->config('tessedit_char_whitelist', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:-');
 
-               // Insert missing spaces to clean up the OCR text
-               $cleanedText = insertMissingSpaces($extractedText);
+                try {
+                    $extractedText = $ocr->run();
+                    $cleanedText = insertMissingSpaces($extractedText);
+                    $subjects = extractSubjects($cleanedText);
 
-               // Debugging: Output cleaned text
-               echo "<pre>Cleaned Text from OCR:\n" . htmlentities($cleanedText) . "</pre>";
+                    // Print the OCR result for debugging
+                    echo "<pre>OCR Result: " . htmlspecialchars($cleanedText) . "</pre>";
+                    echo "<pre>Parsed Subjects and Grades: " . print_r($subjects, true) . "</pre>";
 
-               // Extract the subjects from the cleaned text
-               $credited_subjects = extractFlexibleSubjects($cleanedText);
+                    // Check eligibility
+                    $grades = array_column($subjects, 'grade');
+                    $gradingRules = getGradingSystemRules($conn, $previous_school);
+                    if (empty($gradingRules)) {
+                        echo "<p>Error: Grading rules not found for the previous school ($previous_school).</p>";
+                        error_log("No grading rules found for: $previous_school");
+                    } else {
+                        $isEligible = determineEligibility($grades, $gradingRules);
+                    }
 
-               // Debugging: Output credited subjects
-               echo "<pre>Credited Subjects:\n";
-               print_r($credited_subjects);
-               echo "</pre>";
-
-           } catch (Exception $e) {
-               $errors[] = "Error processing the TOR: " . $e->getMessage();
-           }
-       }
-   }
-
+                    if ($isEligible) {
+                        // Save credited subjects to the database
+                        saveCreditedSubjects($conn, $reference_id, $subjects);
+                        // Send confirmation email using PHPMailer
+                        sendRegistrationEmail($email, $reference_id);
+                        // Redirect to success page with reference ID
+                        header("Location: registration-confirmation.php?refid=$reference_id");
+                        exit();
+                    } else {
+                        echo "<p>Student is not eligible based on grades.</p>";
+                    }
+                } catch (Exception $e) {
+                    $errors[] = "Error processing the TOR: " . $e->getMessage();
+                }
+            }
+        }
 
         $school_id_path = $upload_dir . uniqid() . "_" . basename($school_id);
         if (!move_uploaded_file($_FILES['school-id']['tmp_name'], $school_id_path)) {
             $errors[] = "Failed to upload School ID.";
         }
 
-        if (count($errors) == 0) {
+        if (count($errors) == 0 && $isEligible) {
             // Prepare the SQL statement for inserting the student data
             $stmt = $conn->prepare("INSERT INTO students (last_name, first_name, middle_name, gender, dob, email, contact_number, street, student_type, previous_school, year_level, previous_program, desired_program, tor, school_id, reference_id, is_tech) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            // Set is_tech explicitly as 0 or 1
             $is_tech = ($student_type === 'tech') ? 1 : 0;
 
             $stmt->bind_param(
@@ -218,16 +206,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $reference_id,
                 $is_tech
             );
-        
+
             if ($stmt->execute()) {
                 // Save credited subjects to the database
-                saveCreditedSubjects($conn, $reference_id, $credited_subjects);
-        
+                saveCreditedSubjects($conn, $reference_id, $subjects);
                 // Send confirmation email using PHPMailer
                 sendRegistrationEmail($email, $reference_id);
-        
                 // Redirect to success page with reference ID
-                // Comment this during debugging
                 header("Location: registration-confirmation.php?refid=$reference_id");
                 exit();
             } else {
@@ -246,11 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 }
-
 ?>
-
-
-
 
 
 <!DOCTYPE html>
@@ -374,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <option value="">--Select Previous University--</option>
                         <option value="AMA">AMA University (AMA)</option>
                         <option value="TUP">Technological University of the Philippines (TUP)</option>
-                        <option value="PUP">University of the Philippines (PUP)</option>
+                        <option value="PUP">Polytechnic University of the Philippines</option>
                         <option value="DICT">Diploma in Information and Communication Technology (DICT)</option>
                     </select>
                 </div>

@@ -55,12 +55,13 @@ function extractFlexibleSubjects($text) {
             $subject_code = $match[1];
             $description = $match[2];
             $units = $match[3];
-
+            $grades = $match[4];
             // Add to the credited subjects array
             $credited_subjects[] = [
                 'subject_code' => $subject_code,
                 'description' => $description,
-                'units' => $units
+                'units' => $units,
+                'grades' => $grades
             ];
         }
     }
@@ -374,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <option value="">--Select Previous University--</option>
                         <option value="AMA">AMA University (AMA)</option>
                         <option value="TUP">Technological University of the Philippines (TUP)</option>
-                        <option value="PUP">Polytechnic University of the Philippines (PUP)</option>
+                        <option value="PUP">University of the Philippines (PUP)</option>
                         <option value="DICT">Diploma in Information and Communication Technology (DICT)</option>
                     </select>
                 </div>
