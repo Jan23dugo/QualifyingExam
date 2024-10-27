@@ -126,6 +126,8 @@ session_start();
         <option value="AMA University">AMA University (AMA)</option>
         <option value="Technological University of the Philippines">Technological University of the Philippines (TUP)</option>
         <option value="Polytechnic University of the Philippines">Polytechnic University of the Philippines (PUP)</option>
+        <option value="University of Perpetual">University of Perpetual (UP)</option>
+        <option value="University of Perpetual">University of the Philippines (UP)</option>
         <option value="Diploma in Information and Communication Technology">Diploma in Information and Communication Technology (DICT)</option>
     </select>
 </div>

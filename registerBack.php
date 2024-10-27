@@ -144,28 +144,34 @@ function matchCreditedSubjects($conn, $subjects, $student_id) {
 }
 // 2. Function to determine eligibility based on grades and grading system rules
 function determineEligibility($grades, $gradingRules) {
-    $minPassingPercentage = 85.0; // This is the threshold percentage for eligibility
+    $minPassingPercentage = 85.0; // Threshold percentage for eligibility
 
     foreach ($grades as $grade) {
-        $grade = floatval($grade);
         $isEligible = false;
-
-        $convertedPercentage = null;
+        
         foreach ($gradingRules as $rule) {
-            $minGrade = (float)$rule['grade_value'];
-            if ($grade == $minGrade) {
-                $convertedPercentage = (float)$rule['max_percentage'];
+            $gradeValue = $rule['grade_value'];
+            $minPercentage = (float)$rule['min_percentage'];
+            $maxPercentage = (float)$rule['max_percentage'];
+            
+            // Check if the student's grade matches the grade value in the database
+            if ($grade == $gradeValue) {
+                if ($minPercentage >= $minPassingPercentage) {
+                    $isEligible = true;
+                }
                 break;
             }
         }
 
-        if ($convertedPercentage === null || $convertedPercentage < $minPassingPercentage) {
-            return false; // Not eligible if any grade does not meet the threshold
+        // If any grade does not meet the threshold, return false
+        if (!$isEligible) {
+            return false;
         }
     }
 
     return true; // All grades meet eligibility criteria
 }
+
 // 3. Function to check if the student is a tech student based on parsed subjects
 function isTechStudent($subjects) {
     // List of tech-related subjects (you can customize this list)
