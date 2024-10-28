@@ -1,10 +1,13 @@
 <?php
+// Start output buffering at the very beginning
+ob_start();
+
 // Include necessary files and libraries
 include('config/config.php');
 require 'vendor/autoload.php';
 use thiagoalessio\TesseractOCR\TesseractOCR;
 ini_set('error_log', __DIR__ . '/logs/php-error.log');
-require 'send_email.php'; // Assuming this function is available for sending emails
+require 'send_email.php';
 
 // Session management
 if (session_status() == PHP_SESSION_NONE) {
@@ -143,33 +146,44 @@ function matchCreditedSubjects($conn, $subjects, $student_id) {
     }
 }
 // 2. Function to determine eligibility based on grades and grading system rules
-function determineEligibility($grades, $gradingRules) {
+function determineEligibility($subjects, $gradingRules) {
     $minPassingPercentage = 85.0; // Threshold percentage for eligibility
+    
+    // Debug output
+    echo "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
+    echo "<h3>Grade Eligibility Check:</h3>";
 
-    foreach ($grades as $grade) {
-        $isEligible = false;
+    foreach ($subjects as $subject) {
+        $grade = $subject['grade'];
+        $isSubjectEligible = false;
+        
+        echo "Checking grade: " . $grade . "<br>";
         
         foreach ($gradingRules as $rule) {
-            $gradeValue = $rule['grade_value'];
-            $minPercentage = (float)$rule['min_percentage'];
-            $maxPercentage = (float)$rule['max_percentage'];
+            $gradeValue = floatval($rule['grade_value']);
+            $minPercentage = floatval($rule['min_percentage']);
+            $maxPercentage = floatval($rule['max_percentage']);
             
-            // Check if the student's grade matches the grade value in the database
-            if ($grade == $gradeValue) {
-                if ($minPercentage >= $minPassingPercentage) {
-                    $isEligible = true;
-                }
+            echo "Comparing with rule: Grade Value = $gradeValue, Min % = $minPercentage, Max % = $maxPercentage<br>";
+            
+            // Check if the grade falls within the percentage range
+            if ($grade <= $gradeValue && $minPercentage >= $minPassingPercentage) {
+                $isSubjectEligible = true;
+                echo "Subject is eligible with grade $grade (meets minimum percentage requirement)<br>";
                 break;
             }
         }
 
-        // If any grade does not meet the threshold, return false
-        if (!$isEligible) {
+        if (!$isSubjectEligible) {
+            echo "Subject with grade $grade does not meet eligibility criteria<br>";
+            echo "</div>";
             return false;
         }
     }
 
-    return true; // All grades meet eligibility criteria
+    echo "All subjects meet eligibility criteria<br>";
+    echo "</div>";
+    return true;
 }
 
 // 3. Function to check if the student is a tech student based on parsed subjects
@@ -194,7 +208,7 @@ function isTechStudent($subjects) {
 // Function to register the student with updated fields
 // Function to register the student with updated fields and also pass subjects
 function registerStudent($conn, $studentData, $subjects) {
-    $reference_id = uniqid('STU_', true);  // Generate a unique reference ID
+    $reference_id = uniqid('STU_', true);
     $studentData['reference_id'] = $reference_id;
     
     $stmt = $conn->prepare("INSERT INTO students (
@@ -225,19 +239,17 @@ function registerStudent($conn, $studentData, $subjects) {
     );
 
     if ($stmt->execute()) {
-        $student_id = $stmt->insert_id; // Retrieve the newly generated student ID
-
-        // Store success message and reference ID in session
+        $student_id = $stmt->insert_id;
         $_SESSION['success'] = "Registration successful! Your reference ID is: " . $reference_id;
         $_SESSION['reference_id'] = $reference_id;
-        $_SESSION['student_id'] = $student_id;  // Save the student ID in session
-        // Send registration email
-        sendRegistrationEmail($studentData['email'], $studentData['reference_id']);
+        $_SESSION['student_id'] = $student_id;
         
-        // Call matchCreditedSubjects and pass $student_id and $subjects
+        // Store debug information in session if needed
+        $_SESSION['debug_output'] = ob_get_clean(); // Capture and store debug output
+        
+        sendRegistrationEmail($studentData['email'], $studentData['reference_id']);
         matchCreditedSubjects($conn, $subjects, $student_id);
         
-        // For now, do not redirect to the success page to see debug output
         header("Location: registration_success.php");
         exit();
     } else {
@@ -271,13 +283,13 @@ function getGradingSystemRules($conn, $universityName) {
     $stmt->close();
     return $gradingRules;
 }
-// Handle file upload and process OCR
+
+// Main processing code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if (isset($_FILES['tor']) && $_FILES['tor']['error'] == UPLOAD_ERR_OK &&
             isset($_FILES['school_id']) && $_FILES['school_id']['error'] == UPLOAD_ERR_OK) {
             
-            // Validate and upload the files
             validateUploadedFile($_FILES['tor']);
             $tor_path = 'uploads/tor/' . basename($_FILES['tor']['name']);
             move_uploaded_file($_FILES['tor']['tmp_name'], __DIR__ . '/' . $tor_path);
@@ -286,24 +298,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $school_id_path = 'uploads/school_id/' . basename($_FILES['school_id']['name']);
             move_uploaded_file($_FILES['school_id']['tmp_name'], __DIR__ . '/' . $school_id_path);
 
-            // Extract text from TOR using OCR
+            $isEligible = false;
+            $student_type = $_POST['student_type'] ?? '';
+
+            // Store debug information
+            $debug_output = "";
+            
+            // Add OCR debug output
             $ocr_output = (new TesseractOCR($tor_path))->run();
-            $subjects = extractSubjects($ocr_output);  // Parse OCR text into subjects
+            $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
+            $debug_output .= "<h3>OCR Debug Output:</h3>";
+            $debug_output .= "<pre style='white-space: pre-wrap;'>" . htmlspecialchars($ocr_output) . "</pre>";
+            $debug_output .= "</div>";
 
-            // Retrieve grading rules from database
-            $previous_school = $_POST['previous_school'] ?? '';
-            $gradingRules = getGradingSystemRules($conn, $previous_school);
+            $subjects = extractSubjects($ocr_output);
+            $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
+            $debug_output .= "<h3>Extracted Subjects:</h3>";
+            $debug_output .= "<pre style='white-space: pre-wrap;'>" . print_r($subjects, true) . "</pre>";
+            $debug_output .= "</div>";
 
-            // Determine eligibility based on grades
-            $isEligible = determineEligibility($subjects, $gradingRules);
+            // Store debug output in session
+            $_SESSION['debug_output'] = $debug_output;
+
+            if (strtolower($student_type) === 'ladderized') {
+                $isEligible = true;
+            } else {
+                $previous_school = $_POST['previous_school'] ?? '';
+                $gradingRules = getGradingSystemRules($conn, $previous_school);
+                $isEligible = determineEligibility($subjects, $gradingRules);
+            }
 
             if ($isEligible) {
-                echo "<h3>The student is eligible.</h3>";
-
-                // Check if the student is tech-related
                 $is_tech = isTechStudent($subjects);
-
-                // Gather and register student data
                 $studentData = [
                     'first_name' => $_POST['first_name'] ?? '',
                     'middle_name' => $_POST['middle_name'] ?? '',
@@ -313,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email' => $_POST['email'] ?? '',
                     'contact_number' => $_POST['contact_number'] ?? '',
                     'street' => $_POST['street'] ?? '',
-                    'student_type' => $_POST['student_type'] ?? '',
+                    'student_type' => $student_type,
                     'previous_school' => $_POST['previous_school'] ?? '',
                     'year_level' => $_POST['year_level'] ?? '',
                     'previous_program' => $_POST['previous_program'] ?? '',
@@ -322,17 +348,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'school_id_path' => $school_id_path,
                     'is_tech' => $is_tech
                 ];
-                // Register student in the database and pass $subjects
-                registerStudent($conn, $studentData, $subjects);  // Pass subjects here
-                
+                registerStudent($conn, $studentData, $subjects);
             } else {
-                echo "<h3>The student is not eligible.</h3>";
+                $_SESSION['last_error'] = "The student is not eligible.";
+                header("Location: registerFront.php");
+                exit();
             }
         } else {
             throw new Exception("Both TOR and School ID files are required.");
         }
     } catch (Exception $e) {
-        echo "<h3>Error:</h3>" . htmlspecialchars($e->getMessage());
+        $_SESSION['last_error'] = $e->getMessage();
+        header("Location: registerFront.php");
+        exit();
     }
 }
+
+// If we reach here, something went wrong
+$_SESSION['last_error'] = "An unexpected error occurred.";
+header("Location: registerFront.php");
+exit();
 ?>
