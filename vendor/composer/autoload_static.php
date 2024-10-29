@@ -11,6 +11,10 @@ class ComposerStaticInitc0cb2b6fa1e6d04e355fec91e2fda292
         array (
             'thiagoalessio\\TesseractOCR\\' => 27,
         ),
+        'A' => 
+        array (
+            'App\\' => 4,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -18,10 +22,25 @@ class ComposerStaticInitc0cb2b6fa1e6d04e355fec91e2fda292
         array (
             0 => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src',
         ),
+        'App\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'thiagoalessio\\TesseractOCR\\Command' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/Command.php',
+        'thiagoalessio\\TesseractOCR\\FeatureNotAvailableException' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/FeatureNotAvailableException.php',
+        'thiagoalessio\\TesseractOCR\\FriendlyErrors' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/FriendlyErrors.php',
+        'thiagoalessio\\TesseractOCR\\ImageNotFoundException' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/ImageNotFoundException.php',
+        'thiagoalessio\\TesseractOCR\\NoWritePermissionsForOutputFile' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/NoWritePermissionsForOutputFile.php',
+        'thiagoalessio\\TesseractOCR\\Option' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/Option.php',
+        'thiagoalessio\\TesseractOCR\\Process' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/Process.php',
+        'thiagoalessio\\TesseractOCR\\TesseractNotFoundException' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/TesseractNotFoundException.php',
+        'thiagoalessio\\TesseractOCR\\TesseractOCR' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/TesseractOCR.php',
+        'thiagoalessio\\TesseractOCR\\TesseractOcrException' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/TesseractOcrException.php',
+        'thiagoalessio\\TesseractOCR\\UnsuccessfulCommandException' => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src/UnsuccessfulCommandException.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

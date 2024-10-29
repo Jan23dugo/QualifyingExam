@@ -1,6 +1,7 @@
 <?php
 // Start output buffering at the very beginning
 ob_start();
+session_start();
 
 // Include necessary files and libraries
 include('config/config.php');
@@ -8,6 +9,7 @@ require 'vendor/autoload.php';
 use thiagoalessio\TesseractOCR\TesseractOCR;
 ini_set('error_log', __DIR__ . '/logs/php-error.log');
 require 'send_email.php';
+require_once 'config/tesseract_config.php';
 
 // Session management
 if (session_status() == PHP_SESSION_NONE) {
@@ -18,8 +20,11 @@ if (!isset($_SESSION['success'])) {
 }
 
 function debug_log($message) {
-    error_log($message);
-    echo $message . "<br>";
+    // Store debug messages in session instead of echoing
+    if (!isset($_SESSION['debug_messages'])) {
+        $_SESSION['debug_messages'] = [];
+    }
+    $_SESSION['debug_messages'][] = $message;
 }
 
 error_reporting(E_ALL);
@@ -190,8 +195,8 @@ function determineEligibility($subjects, $gradingRules) {
 function isTechStudent($subjects) {
     // List of tech-related subjects (you can customize this list)
     $tech_subjects = [
-        'Computer Programming', 'Software Engineering', 'Database Systems', 'Operating Systems',
-        'Data Structures', 'Algorithms', 'Web Development', 'Networking', 'Information Technology',
+        'Computer Programming 1', 'Software Engineering', 'Database Systems', 'Operating Systems',
+        'Data Structures', 'Algorithms', 'Web Development', 'Computer Programming 2', 'Information Technology',
         'Cybersecurity', 'System Analysis and Design'
     ];
 
@@ -244,16 +249,23 @@ function registerStudent($conn, $studentData, $subjects) {
         $_SESSION['reference_id'] = $reference_id;
         $_SESSION['student_id'] = $student_id;
         
-        // Store debug information in session if needed
-        $_SESSION['debug_output'] = ob_get_clean(); // Capture and store debug output
+        // Store debug information in session
+        $_SESSION['debug_output'] = ob_get_clean();
         
         sendRegistrationEmail($studentData['email'], $studentData['reference_id']);
         matchCreditedSubjects($conn, $subjects, $student_id);
         
+        // Clean output buffer before redirect
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         header("Location: registration_success.php");
         exit();
     } else {
-        echo "Error registering student: " . $stmt->error;
+        $_SESSION['last_error'] = "Error registering student: " . $stmt->error;
+        header("Location: registerFront.php");
+        exit();
     }
     $stmt->close();
 }
@@ -305,11 +317,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $debug_output = "";
             
             // Add OCR debug output
-            $ocr_output = (new TesseractOCR($tor_path))->run();
-            $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
-            $debug_output .= "<h3>OCR Debug Output:</h3>";
-            $debug_output .= "<pre style='white-space: pre-wrap;'>" . htmlspecialchars($ocr_output) . "</pre>";
-            $debug_output .= "</div>";
+            try {
+                if (!class_exists('thiagoalessio\TesseractOCR\TesseractOCR')) {
+                    throw new Exception("Tesseract OCR library not found. Please ensure it's properly installed.");
+                }
+
+                // Create OCR instance with explicit path
+                $ocr = new TesseractOCR($tor_path);
+                $ocr->executable(TESSERACT_PATH);
+                
+                // Optional: Add additional configurations
+                $ocr->lang('eng')  // Specify language
+                    ->dpi(300)     // Set DPI
+                    ->psm(6);      // Page segmentation mode
+                
+                $ocr_output = $ocr->run();
+                
+                if (empty($ocr_output)) {
+                    throw new Exception("OCR failed to extract text from the document.");
+                }
+
+                $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
+                $debug_output .= "<h3>OCR Debug Output:</h3>";
+                $debug_output .= "<pre style='white-space: pre-wrap;'>" . htmlspecialchars($ocr_output) . "</pre>";
+                $debug_output .= "</div>";
+
+            } catch (Exception $e) {
+                $_SESSION['last_error'] = "OCR Error: " . $e->getMessage();
+                error_log("OCR Error: " . $e->getMessage());
+                header("Location: registerFront.php");
+                exit();
+            }
 
             $subjects = extractSubjects($ocr_output);
             $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
@@ -348,6 +386,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'school_id_path' => $school_id_path,
                     'is_tech' => $is_tech
                 ];
+                
+                // Clean any output before registration
+                while (ob_get_level()) {
+                    ob_end_clean();
+                }
+                
                 registerStudent($conn, $studentData, $subjects);
             } else {
                 $_SESSION['last_error'] = "The student is not eligible.";

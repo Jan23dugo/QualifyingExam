@@ -23,7 +23,7 @@
             },
             "time": "2023-10-05T21:14:48+00:00",
             "type": "library",
-            "installation-source": "source",
+            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "thiagoalessio\\TesseractOCR\\": "src/"

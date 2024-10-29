@@ -7,4 +7,15 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'thiagoalessio\\TesseractOCR\\Command' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/Command.php',
+    'thiagoalessio\\TesseractOCR\\FeatureNotAvailableException' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/FeatureNotAvailableException.php',
+    'thiagoalessio\\TesseractOCR\\FriendlyErrors' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/FriendlyErrors.php',
+    'thiagoalessio\\TesseractOCR\\ImageNotFoundException' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/ImageNotFoundException.php',
+    'thiagoalessio\\TesseractOCR\\NoWritePermissionsForOutputFile' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/NoWritePermissionsForOutputFile.php',
+    'thiagoalessio\\TesseractOCR\\Option' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/Option.php',
+    'thiagoalessio\\TesseractOCR\\Process' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/Process.php',
+    'thiagoalessio\\TesseractOCR\\TesseractNotFoundException' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/TesseractNotFoundException.php',
+    'thiagoalessio\\TesseractOCR\\TesseractOCR' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/TesseractOCR.php',
+    'thiagoalessio\\TesseractOCR\\TesseractOcrException' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/TesseractOcrException.php',
+    'thiagoalessio\\TesseractOCR\\UnsuccessfulCommandException' => $vendorDir . '/thiagoalessio/tesseract_ocr/src/UnsuccessfulCommandException.php',
 );

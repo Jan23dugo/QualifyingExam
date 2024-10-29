@@ -3,7 +3,7 @@
 // Database connection configuration
 $servername = "localhost";
 $username = "root";  // Replace with your database username
-$password = "";  // Replace with your database password
+$password = "akosidugo23";  // Replace with your database password
 $dbname = "qualifying_exam";  // Replace with your database name
 
 // Create connection
