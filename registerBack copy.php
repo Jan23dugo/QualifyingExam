@@ -111,18 +111,10 @@ function extractSubjects($text) {
 
 // 1. Function to compare parsed subjects with coded courses in the database and save matches
 function matchCreditedSubjects($conn, $subjects, $student_id) {
-    addDebugOutput("Starting Subject Matching Process");
-    
     foreach ($subjects as $subject) {
         $code = strtolower(trim($subject['subject_code']));  
         $description = strtolower(trim($subject['description']));  
         $units = $subject['units'];
-
-        addDebugOutput("Checking Subject:", [
-            'code' => $code,
-            'description' => $description,
-            'units' => $units
-        ]);
 
         $sql = "SELECT * FROM coded_courses 
                 WHERE LOWER(subject_code) = ? 
@@ -136,8 +128,6 @@ function matchCreditedSubjects($conn, $subjects, $student_id) {
 
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                addDebugOutput("Match Found:", $row);
-                
                 $insert_sql = "INSERT INTO matched_courses (subject_code, subject_description, units, student_id, matched_at) 
                                VALUES (?, ?, ?, ?, NOW())";
                 $insert_stmt = $conn->prepare($insert_sql);
@@ -146,11 +136,6 @@ function matchCreditedSubjects($conn, $subjects, $student_id) {
             }
             $_SESSION['matches'][] = "Subject matched: {$subject['subject_code']} - {$subject['description']} ({$subject['units']} units)";
         } else {
-            addDebugOutput("No Match Found for Subject", [
-                'searched_code' => $code,
-                'searched_description' => $description,
-                'searched_units' => $units
-            ]);
             $_SESSION['matches'][] = "No match for: {$subject['subject_code']} - {$subject['description']} ({$subject['units']} units)";
         }
     }
@@ -158,7 +143,7 @@ function matchCreditedSubjects($conn, $subjects, $student_id) {
 
 // 2. Function to determine eligibility based on grades and grading system rules
 function determineEligibility($subjects, $gradingRules) {
-    $minPassingPercentage = 85.0; // Minimum required percentage
+    $minPassingPercentage = 85.0;
     
     $_SESSION['debug_output'] = '';
     $_SESSION['debug_output'] .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
@@ -170,8 +155,6 @@ function determineEligibility($subjects, $gradingRules) {
         
         $_SESSION['debug_output'] .= "Checking grade: " . $grade . "<br>";
         
-        // Find the matching grade rule for this grade
-        $matchingRule = null;
         foreach ($gradingRules as $rule) {
             $gradeValue = floatval($rule['grade_value']);
             $minPercentage = floatval($rule['min_percentage']);
@@ -179,25 +162,11 @@ function determineEligibility($subjects, $gradingRules) {
             
             $_SESSION['debug_output'] .= "Comparing with rule: Grade Value = $gradeValue, Min % = $minPercentage, Max % = $maxPercentage<br>";
             
-            // Check if the grade falls within this rule's range
-            if ($grade == $gradeValue) {
-                $matchingRule = $rule;
-                $_SESSION['debug_output'] .= "Found matching grade rule. Percentage range: $minPercentage - $maxPercentage<br>";
+            if ($grade <= $gradeValue && $minPercentage >= $minPassingPercentage) {
+                $isSubjectEligible = true;
+                $_SESSION['debug_output'] .= "Subject is eligible with grade $grade<br>";
                 break;
             }
-        }
-        
-        // If we found a matching rule, check if the percentage meets our requirement
-        if ($matchingRule) {
-            $ruleMinPercentage = floatval($matchingRule['min_percentage']);
-            if ($ruleMinPercentage >= $minPassingPercentage) {
-                $isSubjectEligible = true;
-                $_SESSION['debug_output'] .= "Subject is eligible: Grade $grade corresponds to percentage $ruleMinPercentage% (≥ $minPassingPercentage%)<br>";
-            } else {
-                $_SESSION['debug_output'] .= "Subject is not eligible: Grade $grade corresponds to percentage $ruleMinPercentage% (< $minPassingPercentage%)<br>";
-            }
-        } else {
-            $_SESSION['debug_output'] .= "No matching grade rule found for grade $grade<br>";
         }
 
         if (!$isSubjectEligible) {
@@ -214,30 +183,21 @@ function determineEligibility($subjects, $gradingRules) {
 
 // 3. Function to check if the student is a tech student based on parsed subjects
 function isTechStudent($subjects) {
-    addDebugOutput("Starting Tech Student Check");
-    
+    // List of tech-related subjects (you can customize this list)
     $tech_subjects = [
         'Computer Programming 1', 'Software Engineering', 'Database Systems', 'Operating Systems',
         'Data Structures', 'Algorithms', 'Web Development', 'Computer Programming 2', 'Information Technology',
         'Cybersecurity', 'System Analysis and Design'
     ];
 
-    addDebugOutput("Tech Subject Keywords:", $tech_subjects);
-
     foreach ($subjects as $subject) {
         foreach ($tech_subjects as $tech_subject) {
             if (stripos($subject['description'], $tech_subject) !== false) {
-                addDebugOutput("Tech Subject Found:", [
-                    'subject' => $subject['description'],
-                    'matched_keyword' => $tech_subject
-                ]);
-                return true;
+                return true; // Student is a tech student
             }
         }
     }
-    
-    addDebugOutput("No Tech Subjects Found in Student's Records");
-    return false;
+    return false; // Student is not a tech student
 }
 
 // Function to register the student with updated fields
@@ -326,19 +286,6 @@ function getGradingSystemRules($conn, $universityName) {
     return $gradingRules;
 }
 
-// Add this function at the top
-function addDebugOutput($message, $data = null) {
-    if (!isset($_SESSION['debug_output'])) {
-        $_SESSION['debug_output'] = '';
-    }
-    $_SESSION['debug_output'] .= "<div style='background: #f5f5f5; margin: 10px 0; padding: 10px; border-left: 4px solid #008CBA;'>";
-    $_SESSION['debug_output'] .= "<strong>$message</strong><br>";
-    if ($data !== null) {
-        $_SESSION['debug_output'] .= "<pre>" . print_r($data, true) . "</pre>";
-    }
-    $_SESSION['debug_output'] .= "</div>";
-}
-
 // Main processing code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -359,65 +306,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $school_id_path = 'uploads/school_id/' . basename($_FILES['school_id']['name']);
             move_uploaded_file($_FILES['school_id']['tmp_name'], __DIR__ . '/' . $school_id_path);
 
-            // Add this function at the top
+            $isEligible = false;
+            $student_type = $_POST['student_type'] ?? '';
+
+            // Store debug information
+            $debug_output = "";
+            
+            // Add OCR debug output
             try {
-                addDebugOutput("Starting OCR Process");
-                
                 if (!class_exists('thiagoalessio\TesseractOCR\TesseractOCR')) {
-                    throw new Exception("Tesseract OCR library not found");
+                    throw new Exception("Tesseract OCR library not found. Please ensure it's properly installed.");
                 }
 
+                // Create OCR instance with explicit path
                 $ocr = new TesseractOCR($tor_path);
                 $ocr->executable(TESSERACT_PATH);
+                
+                // Optional: Add additional configurations
+                $ocr->lang('eng')  // Specify language
+                    ->dpi(300)     // Set DPI
+                    ->psm(6);      // Page segmentation mode
+                
                 $ocr_output = $ocr->run();
                 
                 if (empty($ocr_output)) {
-                    throw new Exception("OCR failed to extract text from the document");
+                    throw new Exception("OCR failed to extract text from the document.");
                 }
 
-                addDebugOutput("Raw OCR Output:", $ocr_output);
-
-                // Extract subjects from OCR text
-                $subjects = extractSubjects($ocr_output);
-                addDebugOutput("Extracted Subjects:", $subjects);
-
-                // Process eligibility
-                $isEligible = false;
-                $student_type = $_POST['student_type'] ?? '';
-                
-                addDebugOutput("Student Type:", $student_type);
-
-                if (strtolower($student_type) === 'ladderized') {
-                    $isEligible = true;
-                    addDebugOutput("Ladderized Student - Automatically Eligible");
-                } else {
-                    $previous_school = $_POST['previous_school'] ?? '';
-                    addDebugOutput("Previous School:", $previous_school);
-                    
-                    $gradingRules = getGradingSystemRules($conn, $previous_school);
-                    addDebugOutput("Retrieved Grading Rules:", $gradingRules);
-                    
-                    $isEligible = determineEligibility($subjects, $gradingRules);
-                }
-
-                // Check if student is tech
-                $is_tech = isTechStudent($subjects);
-                addDebugOutput("Tech Student Check:", [
-                    'is_tech' => $is_tech ? 'Yes' : 'No',
-                    'checked_subjects' => $subjects
-                ]);
+                $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
+                $debug_output .= "<h3>OCR Debug Output:</h3>";
+                $debug_output .= "<pre style='white-space: pre-wrap;'>" . htmlspecialchars($ocr_output) . "</pre>";
+                $debug_output .= "</div>";
 
             } catch (Exception $e) {
-                addDebugOutput("Error in OCR Process:", $e->getMessage());
                 $_SESSION['last_error'] = "OCR Error: " . $e->getMessage();
+                error_log("OCR Error: " . $e->getMessage());
                 header("Location: registerFront.php");
                 exit();
             }
 
-            // Store eligibility status in session
-            $_SESSION['is_eligible'] = $isEligible;
+            $subjects = extractSubjects($ocr_output);
+            $debug_output .= "<div style='background: #f5f5f5; padding: 15px; margin: 15px 0; border: 1px solid #ddd;'>";
+            $debug_output .= "<h3>Extracted Subjects:</h3>";
+            $debug_output .= "<pre style='white-space: pre-wrap;'>" . print_r($subjects, true) . "</pre>";
+            $debug_output .= "</div>";
+
+            // Store debug output in session
+            $_SESSION['debug_output'] = $debug_output;
+
+            if (strtolower($student_type) === 'ladderized') {
+                $isEligible = true;
+            } else {
+                $previous_school = $_POST['previous_school'] ?? '';
+                $gradingRules = getGradingSystemRules($conn, $previous_school);
+                $isEligible = determineEligibility($subjects, $gradingRules);
+            }
 
             if ($isEligible) {
+                $is_tech = isTechStudent($subjects);
                 $studentData = [
                     'first_name' => $_POST['first_name'] ?? '',
                     'middle_name' => $_POST['middle_name'] ?? '',
@@ -444,9 +390,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 registerStudent($conn, $studentData, $subjects);
             } else {
-                $_SESSION['success'] = "Registration completed, but you are not eligible for credit transfer.";
-                $_SESSION['eligibility_message'] = "Based on your grades and our criteria, you do not meet the eligibility requirements for credit transfer.";
-                header("Location: registration_success.php");
+                $_SESSION['last_error'] = "The student is not eligible.";
+                header("Location: registerFront.php");
                 exit();
             }
         } else {
