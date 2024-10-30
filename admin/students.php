@@ -164,6 +164,101 @@ if (!$result) {
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/script.min.js"></script>
     
+    <!-- Add this modal HTML before the closing body tag -->
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="studentModalLabel">Student Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <!-- Personal Information -->
+                        <div class="row mb-3">
+                            <h6 class="text-primary">Personal Information</h6>
+                            <div class="col-md-4">
+                                <p><strong>Reference ID:</strong> <span id="ref_id"></span></p>
+                                <p><strong>First Name:</strong> <span id="first_name"></span></p>
+                                <p><strong>Middle Name:</strong> <span id="middle_name"></span></p>
+                                <p><strong>Last Name:</strong> <span id="last_name"></span></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Gender:</strong> <span id="gender"></span></p>
+                                <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
+                                <p><strong>Email:</strong> <span id="email"></span></p>
+                                <p><strong>Contact:</strong> <span id="contact"></span></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Address:</strong> <span id="address"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Academic Information -->
+                        <div class="row mb-3">
+                            <h6 class="text-primary">Academic Information</h6>
+                            <div class="col-md-6">
+                                <p><strong>Student Type:</strong> <span id="student_type"></span></p>
+                                <p><strong>Previous School:</strong> <span id="prev_school"></span></p>
+                                <p><strong>Year Level:</strong> <span id="year_level"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Previous Program:</strong> <span id="prev_program"></span></p>
+                                <p><strong>Desired Program:</strong> <span id="desired_program"></span></p>
+                                <p><strong>Tech Student:</strong> <span id="is_tech"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="row mb-3">
+                            <h6 class="text-primary">Uploaded Documents</h6>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        Transcript of Records
+                                    </div>
+                                    <div class="card-body">
+                                        <img id="tor_preview" src="" alt="TOR" class="img-fluid mb-2" style="max-height: 300px;">
+                                        <button class="btn btn-primary btn-sm" onclick="viewDocument('tor')">View Full Size</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        School ID
+                                    </div>
+                                    <div class="card-body">
+                                        <img id="school_id_preview" src="" alt="School ID" class="img-fluid mb-2" style="max-height: 300px;">
+                                        <button class="btn btn-primary btn-sm" onclick="viewDocument('school_id')">View Full Size</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentModalLabel">Document View</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="fullSizeDocument" src="" alt="Document" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     // Search functionality
     document.getElementById('searchInput').addEventListener('keyup', function() {
@@ -189,9 +284,47 @@ if (!$result) {
     });
 
     // View student function
-    function viewStudent(referenceId) {
-        // Redirect to student details page
-        window.location.href = `view_student.php?ref=${referenceId}`;
+    async function viewStudent(referenceId) {
+        try {
+            const response = await fetch(`get_student_details.php?ref=${referenceId}`);
+            const student = await response.json();
+            
+            if (student) {
+                // Populate modal with student details
+                document.getElementById('ref_id').textContent = student.reference_id;
+                document.getElementById('first_name').textContent = student.first_name;
+                document.getElementById('middle_name').textContent = student.middle_name || 'N/A';
+                document.getElementById('last_name').textContent = student.last_name;
+                document.getElementById('gender').textContent = student.gender;
+                document.getElementById('dob').textContent = student.dob;
+                document.getElementById('email').textContent = student.email;
+                document.getElementById('contact').textContent = student.contact_number;
+                document.getElementById('address').textContent = student.street;
+                document.getElementById('student_type').textContent = student.student_type;
+                document.getElementById('prev_school').textContent = student.previous_school;
+                document.getElementById('year_level').textContent = student.year_level;
+                document.getElementById('prev_program').textContent = student.previous_program;
+                document.getElementById('desired_program').textContent = student.desired_program;
+                document.getElementById('is_tech').textContent = student.is_tech ? 'Yes' : 'No';
+
+                // Set document previews
+                document.getElementById('tor_preview').src = '../' + student.tor;
+                document.getElementById('school_id_preview').src = '../' + student.school_id;
+
+                // Store document paths for full view
+                document.getElementById('tor_preview').dataset.fullPath = '../' + student.tor;
+                document.getElementById('school_id_preview').dataset.fullPath = '../' + student.school_id;
+
+                // Show the modal
+                const studentModal = new bootstrap.Modal(document.getElementById('studentModal'));
+                studentModal.show();
+            } else {
+                alert('Student details not found');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error loading student details');
+        }
     }
 
     // Delete student function
@@ -219,6 +352,16 @@ if (!$result) {
                 alert('Error deleting student');
             });
         }
+    }
+
+    // View document in full size
+    function viewDocument(type) {
+        const preview = document.getElementById(`${type}_preview`);
+        const fullSizeImg = document.getElementById('fullSizeDocument');
+        fullSizeImg.src = preview.dataset.fullPath;
+        
+        const documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
+        documentModal.show();
     }
     </script>
 </body>
