@@ -16,11 +16,12 @@ session_start();
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(250,243,213,0.60);
         }
 
         .modal-content {
-            background-color: #fefefe;
+            background-color: #73343a;
+            color: #f4d6a3;
             margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
@@ -31,7 +32,7 @@ session_start();
         }
 
         .close {
-            color: #aaa;
+            color: #f4d6a3;
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -54,8 +55,9 @@ session_start();
             display: inline-block;
             padding: 10px 20px;
             margin: 10px;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #f4d6a3;
+            color: #73343a;
+            font-weight: bolder;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -63,15 +65,17 @@ session_start();
         }
 
         .btn:hover {
-            background-color: #45a049;
+            background-color: #73343a;
+            color: #f4d6a3;
         }
 
         .btn-secondary {
-            background-color: #008CBA;
+            background-color: #f4d6a3;
         }
 
         .btn-secondary:hover {
-            background-color: #007399;
+            background-color: #faf3d5;
+            color: #73343a;
         }
 
         .success-message {
@@ -118,6 +122,9 @@ session_start();
     </style>
 </head>
 <body>
+    
+    <?php include 'navbar.php'?>
+    
     <div class="success-container">
         <?php if (isset($_SESSION['success'])): ?>
             <script>
