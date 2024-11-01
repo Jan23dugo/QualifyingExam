@@ -1,8 +1,9 @@
-* {
+body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    background-color: #faf3d5;
 }
 
 .exam-header {
@@ -84,31 +85,33 @@ header {
 
 .navbar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #ffe600;
-    padding: 10px;
+    justify-content: space-around;
+    background-color: #73343a; /* Maroon */
+    padding: 10px 0;
+    width: 100%;
     position: -webkit-sticky;
     position: sticky;
 
 }
 
-.navbar nav ul {
+nav ul {
     list-style-type: none;
     display: flex;
     gap: 85px;   
 }
 
-.navbar nav ul li {
-    display: inline;
-    margin-right: 20px;
+nav ul li a {
+    color: #faf3d5; /* Beige */
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 16px;
+    max-height: fit-content;
+    transition: background-color 0.3s ease;
 }
 
-.navbar nav ul li a {
-    color: #005684;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: large;
+nav ul li a:hover {
+    background-color: #e5b168; /* Yellow-orange on hover */
+    color: #73343a; /* Maroon text */
 }
 
 /* Dropdown Menu */
@@ -119,14 +122,14 @@ header {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #ffffff;
+    background-color: #faf3d5;
     min-width: 160px;
     box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
     z-index: 1;
 }
 
-.dropdown-content a {
-    color: #333;
+.dropdown .dropdown-content a {
+    color: #73343a;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -134,7 +137,7 @@ header {
 }
 
 .dropdown-content a:hover {
-    background-color: #f1f1f1;
+    background-color: #f4d6a3;
 }
 
 .dropdown:hover .dropdown-content {
@@ -142,12 +145,6 @@ header {
 }
 
 /* Register */
-
-.register-body {
-    background-image: url(PUPreg.jpg);
-    background-repeat: no-repeat;
-    background-size: cover;
-}
 
 .ccislogo {
     height: 75px;
@@ -163,7 +160,7 @@ header {
 .form-section {
     width: 55%;
     margin: 50px auto;
-    background-color: #005684;
+    background-color: #73343a;
     color: white;
     padding: 20px;
     border-radius: 8px;
@@ -227,8 +224,8 @@ header {
 
 .nxt-btn, .prev-btn {
     padding: 10px 20px;
-    background-color: #f9c01c;
-    color: #005684;
+    background-color: #f3d197;
+    color: #73343a;
     font-weight: bolder;
     border: none;
     border-radius: 4px;
@@ -236,7 +233,7 @@ header {
 }
 
 .nxt-btn:hover, .prev-btn:hover {
-    background-color: #fff3d0;
+    background-color: #faf3d5;
 }
 .header-logo {
     display: flex;
@@ -264,6 +261,10 @@ header {
 }
 .step-indicator div.active {
     color: #a51931;
+}
+
+#tor, #school_id {
+    color: white;
 }
 
 /* Registration Successful */
@@ -394,19 +395,14 @@ header {
 }
 
 /* Eligibility Checker */
-.eligibility-body {
-    background-image: url(PUPbg.png);
-    color: rgb(255, 255, 255);
-}
-
 .EC-container {
-    max-width: 1200px;
-    min-height: 500px;
-    margin: 0 auto;
-    margin-top: 20px;
+    max-width: 900px;
+    max-height: 400px;
+    margin: 40px auto;
     padding: 20px;
     text-align: center;
-    background-color: #005684;
+    background-color: #73343a;
+    color: #faf3d5;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -432,7 +428,6 @@ header {
 .input-container {
     display: flex;
     align-items: center;
-    
 }
 
 .input-container input {
@@ -449,17 +444,16 @@ header {
     padding: 10px 20px;
     font-size: 1.1rem;
     font-weight: bold;
-    background-color: #ffe600;
-    color: #005684;
+    background-color: #f4d6a3;
+    color: #73343a;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
 .input-container button:hover {
-    background-color: #005684;
-    color: #ffe600;
-
+    background-color: #a4656b;
+    color: #f9d089;
 }
 
 .eligibility-result h2 {
@@ -976,118 +970,106 @@ header {
 
 /* Index */
 .index {
-    background-image: url(PUPbg.png);
+    background-color: rgba(250,243,213,.5);
     color: #fff;
 }
 
-.index-home {
-    flex: 1;
-    background-color: rgb(244, 244, 244);
-    height: 600px;
-    width: 1110px;
-    margin-top: 50px;
-    margin-right: 200px;
-    margin-bottom: 150px;
-    margin-left: 200px;
-    justify-content: space-between;
+.index header {
+    background-color: #73343a; /* Maroon */
+    color: #faf3d5; /* Beige text */
     padding: 20px;
-    color: #005684;
-    border-radius: 20px;
-}
-
-.index-home h1 {
     text-align: center;
-    font-size: 30px;
-    font-weight: bolder;
-    padding: 5px;
+    width: 100%;
 }
 
-.index-home h2 {
-    text-align: center;
-    font-size: 30px;
-    padding: 5px;
-}
-
-.index-home2 {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    font-size: 5vh;
-    align-items: center;
-    margin-top: 50px;
-}
-
-.mini-sched {
-    background-color: #005684;
-    padding: 20px;
-    border-radius: 10px;
-    color: #fff;
-    width: 300px;
-    text-align: center;
-    height: 300px;
-    width: 1000px;
-    padding: 10px;
-    margin-top: 40px;
-    margin-left: 35px;
-}
-
-.mini-sched h3 {
-    font-size: 4vh;
-    padding: 10px;
-    text-decoration: underline;
-}
-
-.mini-sched p {
-    font-size: 3vh;
-    padding: 10px;
-}
-
-.index-reg-btn {
-    display: inline-block;
-    background-color: #ffe600;
-    color: #005684;
-    padding: 10px 20px;
-    font-weight: bolder;
-    text-decoration: none;
-    border-radius: 5px;
-    box-shadow: 2px 2px 5px  rgb(0, 86, 132);
-    margin-left: 420px;
-    font-size: 2.5vh;
-}
-
-.student-btn, .admin-btn {
-    background-color: #ffe600;
-    width: 900px;
-    padding: 10px;
-    text-decoration: none;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 20px;
+.index header .logo {
+    height: 60px;
     margin-bottom: 10px;
-    font-weight: bolder;
 }
-.student-btn a, .admin-btn a {
+
+.index header h1 {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.index header h2 {
+    font-size: 1.2em;
+    font-weight: normal;
+}
+
+.index-container {
+    background-color: #f4d6a3; /* White for contrast */
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    margin: 80px auto;
+    padding: 20px;
+    max-width: 600px;
+    text-align: center;
+    width: 90%;
+}
+
+.index-container h3 {
+    color: #73343a; /* Maroon */
+    font-size: 1.4em;
+    margin-bottom: 10px;
+}
+
+.index-container p {
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.index-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.index-button {
+    background-color: #e5b168; /* Yellow-orange */
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.index-button a {
+    color: #73343a; /* Maroon text */
     text-decoration: none;
-    color: #005684;
 }
 
-.student-btn:hover, .admin-btn:hover {
-    background-color: ivory;
+.index-button:hover, .index-button a:hover {
+    background-color: #73343a; /* Lighter yellow-orange */
+    transform: translateY(-3px);
+    color: #e5b168;
 }
 
-.terms-privacy a{
-    color: #ffe600;
+/* Terms of Use */
+.terms {
+    font-size: 0.9em;
+    color: #73343a;
+    margin-top: 20px;
+}
+
+.terms a {
+    color: #73343a; /* Yellow-orange */
     text-decoration: none;
 }
 
-.terms-privacy a:hover {
-    color: #c5b101;
+.terms a:hover {
     text-decoration: underline;
 }
+
 /* Footer Section */
 .footer {
-    background-color: #ffe600;
-    color: #005684;
+    background-color: #73343a;
+    color: #faf3d5;
     padding: 20px 0;
     text-align: center;
     margin-top: auto;
@@ -1119,7 +1101,7 @@ header {
 }
 
 .footer-links a {
-    color: #005684;
+    color: #faf3d5;
     text-decoration: none;
     font-weight: bold;
 }
