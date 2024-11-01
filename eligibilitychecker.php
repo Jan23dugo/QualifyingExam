@@ -7,10 +7,6 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>Polytechnic University of the Philippines</h1>
-        <h2>CCIS Qualifying Examination</h2>
-    </header>
 
     <?php include 'navbar.php'?>
     
@@ -56,11 +52,6 @@
     <footer class="footer">
         <div class="footer-content">
             <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
-            <ul class="footer-links">
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-                <li><a href="#">Contact Us</a></li>
-            </ul>
         </div>
     </footer>
 
