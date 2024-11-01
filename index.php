@@ -11,25 +11,25 @@ session_start();
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="index">
+    <header>
+        <h1>Polytechnic University of the Philippines</h1>
+        <h2>CCIS Qualifying Examination</h2>
+    </header>
 
-    <!-- Include the navbar -->
-    <div id="navbar">
-        <?php include 'navbar.php'; ?>
-    </div>
+    <?php include 'navbar.php'?>
 
-<div class="index-home">            
-        <h1>Welcome to the</h1>
-        <h1>Polytechnic Univeristy of the Philippines</h1>
-        <h1>CCIS Qualifying Examination</h1>
-        <div class="mini-sched">
-            <h2>Hello, PUPian!</h2>
-            <p>Please click or tap your destination.</p>
-            <button class="student-btn" ><a href="registerFront.php">Student</a></button> <br>
-            <button class="admin-btn"><a href="../admin/loginAdmin.php">Admin</a></button>
-            <div class="terms-privacy">
-                <p>By using this service, you understood and agree to the <br>PUP Online Services <a href="terms">Terms of Use</a> and <a href="#privacy">Privacy Statement</a></p>
-            </div> 
+    <div class="index-container">
+        <h3>Hello, PUPian!</h3>
+        <p>Please click or tap your destination.</p>
+        <div class="index-buttons">
+            <button class="index-button"><a href="registerFront.html">Student</a></button>
+            <button class="index-button"><a href="loginAdmin.html">Admin</a></button>
         </div>
+        <p class="terms">
+            By using this service, you understand and agree to the
+            <a href="#">PUP Online Services Terms of Use</a> and
+            <a href="#">Privacy Statement</a>.
+        </p>
     </div>
     <footer class="footer">
         <div class="footer-content">
@@ -39,11 +39,6 @@ session_start();
                 <li><a href="#">Terms of Service</a></li>
                 <li><a href="#">Contact Us</a></li>
             </ul>
-            <div class="footer-social">
-                <a href="#"><img src="facebook-icon.png" alt="Facebook"></a>
-                <a href="#"><img src="twitter-icon.png" alt="Twitter"></a>
-                <a href="#"><img src="instagram-icon.png" alt="Instagram"></a>
-            </div>
         </div>
     </footer>
 
