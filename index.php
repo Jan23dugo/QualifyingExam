@@ -27,11 +27,5 @@ session_start();
             <a href="#">Privacy Statement</a>.
         </p>
     </div>
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
-        </div>
-    </footer>
-
 </body>
 </html>
