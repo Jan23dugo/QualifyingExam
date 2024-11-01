@@ -11,10 +11,6 @@ session_start();
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="index">
-    <header>
-        <h1>Polytechnic University of the Philippines</h1>
-        <h2>CCIS Qualifying Examination</h2>
-    </header>
 
     <?php include 'navbar.php'?>
 
