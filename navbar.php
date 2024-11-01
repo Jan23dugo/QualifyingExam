@@ -12,7 +12,6 @@
                     </div>
                 </li>
                 <li><a href=eligibilitychecker.php>ELIGIBILITY CHECKER</a></li>
-                <li><a href="contactus.php">CONTACT US</a></li>
                 <li><a href=takeanexam.php>TAKE AN EXAM</a></li>
                 <li><a href=register.php>REGISTER</a></li>
             </ul>
