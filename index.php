@@ -18,8 +18,8 @@ session_start();
         <h3>Hello, PUPian!</h3>
         <p>Please click or tap your destination.</p>
         <div class="index-buttons">
-            <button class="index-button"><a href="registerFront.html">Student</a></button>
-            <button class="index-button"><a href="loginAdmin.html">Admin</a></button>
+            <button class="index-button"><a href="registerFront.php">Student</a></button>
+            <button class="index-button"><a href="loginAdmin.php">Admin</a></button>
         </div>
         <p class="terms">
             By using this service, you understand and agree to the
