@@ -1,9 +1,9 @@
 body {
     box-sizing: border-box;
     margin: 0;
-    padding: 0;
     font-family: Arial, sans-serif;
     background-color: #faf3d5;
+    padding-top: 100px;
 }
 
 .exam-header {
@@ -40,7 +40,7 @@ body {
     background-color: #ffcc00;
 }
 
-/* Exam Schedule Section */
+* Exam Schedule Section */
 .exam-schedule {
     display: flex;
     justify-content: center;
@@ -84,20 +84,28 @@ header {
 }
 
 .navbar {
+    position: fixed;
+    top: 0%;
     display: flex;
     justify-content: space-around;
     background-color: #73343a; /* Maroon */
-    padding: 10px 0;
     width: 100%;
-    position: -webkit-sticky;
-    position: sticky;
+    align-items: center;
+    text-align: center;
+}
 
+.streamslogo {
+    height: 100px;
+    width: auto;
 }
 
 nav ul {
     list-style-type: none;
     display: flex;
     gap: 85px;   
+    align-items: center;
+    text-align: center;
+    margin: 0 15px;
 }
 
 nav ul li a {
@@ -145,6 +153,13 @@ nav ul li a:hover {
 }
 
 /* Register */
+.register header {
+    background-color: #73343a; /* Maroon */
+    color: #faf3d5; /* Beige text */
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+}
 
 .ccislogo {
     height: 75px;
@@ -158,13 +173,14 @@ nav ul li a:hover {
 }
 
 .form-section {
-    width: 55%;
+    width: 50%;
     margin: 50px auto;
     background-color: #73343a;
     color: white;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 150px;
+    align-items: center;
 }
 .step {
     display: none;
@@ -184,7 +200,7 @@ nav ul li a:hover {
     margin-bottom: 10px;
 }
 .form-field input {
-    width: 100%; /* Full width for input */
+    width: 97%; /* Full width for input */
     padding: 10px; /* Padding inside the input */
     border-radius: 4px; /* Rounded corners */
     margin-top: 5px; /* Margin on top */
@@ -275,11 +291,11 @@ nav ul li a:hover {
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-radius: 10px;
+    background-color: #73343a; /* Maroon */
+    color: #faf3d5; /* Beige text */
+    padding: 20px;
+    text-align: center;
+    width: 100%;
 }
 
 .header h1 {
@@ -409,7 +425,12 @@ nav ul li a:hover {
 
 .EC-header h1 {
     font-size: 36px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.EC-container p {
+    text-align: center;
 }
 
 .eligibility-form {
@@ -970,7 +991,7 @@ nav ul li a:hover {
 
 /* Index */
 .index {
-    background-color: rgba(250,243,213,.5);
+    background-image: url(oval1.jpg);
     color: #fff;
 }
 
@@ -998,20 +1019,24 @@ nav ul li a:hover {
 }
 
 .index-container {
-    background-color: #f4d6a3; /* White for contrast */
+    background-color: rgba(244, 214, 163, .92);
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    margin: 80px auto;
+    margin: 15px auto;
     padding: 20px;
-    max-width: 600px;
+    max-width: 800px;
     text-align: center;
     width: 90%;
 }
 
-.index-container h3 {
+.index-container h3, h2 {
     color: #73343a; /* Maroon */
     font-size: 1.4em;
     margin-bottom: 10px;
+}
+
+.index-container h1 {
+    color: #73343a;
 }
 
 .index-container p {
@@ -1067,22 +1092,53 @@ nav ul li a:hover {
 }
 
 /* About Exam */
-
 .about-exam {
-    background-color: #005684;
-}
-
-.about-exam-info, #schedule, .exam-requirements, .required-documents {
-    background-color: #f0f0f0;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 1000px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgb(0,86,132);
-    text-align: center;
     align-items: center;
 }
+.about-exam-info, #schedule {
+    background-color: white;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px #73343a;
+    text-align: center;
+    align-items: center;
+    max-height: fit-content;
+}
 
+.about-exam-info h1, h2, p {
+    text-align: left;
+}
+
+#about-exam-info h1{
+    color: #73343a;
+}
+
+.required-documents {
+    margin-bottom: 100px;
+}
+
+.exam-requirements, .required-documents {
+    flex: 1; /* Each section takes equal space */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px #73343a;
+    max-height: 200px; /* Adjust the height as needed */
+    overflow-y: auto;
+    max-width: 600px;
+}
+
+.requirements-documents-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+}
+
+@media (max-width: 768px) {
+    .requirements-documents-container {
+        grid-template-columns: 1fr; /* Stack the sections on smaller screens */
+    }
+}
 section {
     padding: 20px;
     margin: 20px auto;
@@ -1093,9 +1149,14 @@ section {
 }
 
 /* Styling the table */
+.schedule-table-container {
+    align-items: center;
+    text-align: center;
+}
+
 .schedule-table {
     align-items: center;
-    width: 80%;
+    width: 100%;
     max-width: 600px;
     border-collapse: collapse;
     background-color: #fff;
@@ -1110,7 +1171,7 @@ section {
 }
 
 .schedule-table th {
-    background-color: #1e90ff;
+    background-color: #73343a;
     color: white;
     font-weight: bold;
 }
@@ -1128,57 +1189,20 @@ section {
     background-color: #73343a;
     color: #faf3d5;
     padding: 20px 0;
-    text-align: center;
-    margin-top: auto;
-    position: fixed;
-    bottom: 0%;
     width: 100%;
+    bottom: 0%;
+    position: fixed;
 }
 
 .footer-content {
+    margin-left: 410px;
     max-width: 960px;
-    margin: 0 auto;
     padding: 0 20px;
 }
 
 .footer p {
     margin-bottom: 10px;
     font-size: 1rem;
-}
-
-.footer-links {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 10px;
-}
-
-.footer-links li {
-    display: inline;
-    margin: 0 15px;
-}
-
-.footer-links a {
-    color: #faf3d5;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.footer-links a:hover {
-    text-decoration: underline;
-}
-
-.footer-social {
-    margin-top: 10px;
-}
-
-.footer-social a img {
-    width: 24px;
-    margin: 0 10px;
-    vertical-align: middle;
-}
-
-.footer-social a:hover img {
-    opacity: 0.7;
 }
 
 html {
