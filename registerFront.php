@@ -10,14 +10,77 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCIS Qualifying Examination</title>
     <link rel="stylesheet" href="assets/css/style.css">  
+    <style>
+        /* Modal styles */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; 
+        z-index: 1000; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto; /* 10% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+        max-width: 500px;
+        text-align: left;
+    }
+
+    .close-btn {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
 </head>
-<body>
-<?php include('navbar.php'); ?>
+
+<body class="register">
+    
+    <?php include('navbar.php'); ?>
+
+    <div id="infoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2>CCIS Qualifying Examination Information</h2>
+        <p>Welcome to the CCIS Qualifying Examination registration. Please note the following requirements:</p>
+        <strong><p>Exam Registration Requirements:</p></strong>
+        <ul>
+            <li>Must <strong>not</strong> have a <strong>failing grade or grade lower than 2.00 (or 85)</strong></li>
+            <li>Must be an <strong>incoming Second Year if transferee or shiftee</strong> (must have completed at least 2 semester).
+                <br>If ladderized, must be <strong>graduated on their 3-year diplomat program</strong>. </li>
+            <li>Must have <strong>no failing grade, dropped, incomplete, and withdrawn mark</strong> in any subjects.</li>
+        </ul>
+        <strong><p>Required Documents:</p></strong>
+        <ul>
+            <li>Submit a copy of your <strong>Transcript of Records (TOR), or Informative or Certified Copy of Grades</strong> (initial requirement of the college only) </li>
+            <li>Provide a <strong>valid School ID</strong></li>
+            <li>Ensure all contact information is accurate</li>
+            <li>Select the correct "Student Type" (Transferee, Shiftee, or Ladderized) as it affects the required information</li>
+        </ul>
+        <p>After completing the registration, you will receive an email with further instructions for the examination.</p>
+    </div>
+</div>
 
 <section class="form-section">
-    <div class="form-group head">
-        <h1>STREAM Student Registration and Document Submission</h1>
-        <img src="assets/img/PUP_CCIS_logo.png" alt="PUP CCIS Logo" class="puplogo">
+    <div class="header-logo">
+        <img src="assets/img/ccislogo.png" alt="PUP Logo" class="ccislogo">
+        <h1>STREAMS Student Registration and Document Submission</h1>
+        <img src="assets/img/puplogo.png" alt="PUP CCIS Logo" class="puplogo">
     </div>
 
 
@@ -73,14 +136,14 @@ session_start();
                     <input type="date" id="dob" name="dob" required>
                 </div>
                 <div class="form-field">
-    <label for="gender">Gender</label>
-    <select id="gender" name="gender" required>
-        <option value="">--Select Gender--</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-    </select>
-</div>
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">--Select Gender--</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
             </div>
             <div class="buttons">
                 <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
@@ -173,6 +236,8 @@ session_start();
     </form>
 </section>
 
+<?php include 'footer.php'?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const previousProgramSelect = document.getElementById("previous_program");
@@ -262,6 +327,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for student type selection
     document.getElementById('student_type').addEventListener('change', handleStudentTypeChange);
 });
+
+    // Function to open the modal
+    function openModal() {
+        document.getElementById("infoModal").style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById("infoModal").style.display = "none";
+    }
+
+    // Open the modal when the page loads
+    window.onload = function() {
+        openModal();
+    };
+
 </script>
 
 
