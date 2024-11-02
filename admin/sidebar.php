@@ -21,7 +21,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="students_folder.html">
+                <a class="nav-link" href="students.php">
                     <i class="far fa-user" style="font-size: 20px;"></i>
                     <span style="font-family: 'Open Sans', sans-serif;">Students</span>
                 </a>
@@ -39,7 +39,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="login.php">
+                <a class="nav-link" href="loginAdmin.php">
                     <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
                     <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
                 </a>
