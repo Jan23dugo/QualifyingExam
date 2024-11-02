@@ -1,4 +1,4 @@
-<?php 
+<p?php 
 session_start();
 ?>
 
@@ -15,12 +15,12 @@ session_start();
     <?php include 'navbar.php'?>
 
     <!-- About Exam Section -->
+
     <section id="about-exam-info" class="about-exam-info">
         <h1>About the CCIS Qualifying Exam</h1>
         <p>Welcome to the official page for the CCIS Qualifying Exam. Below you will find all the necessary information about the upcoming exams, including the schedule, requirements, and the documents needed to participate in the exam. Please make sure you are prepared and have all the necessary materials before your exam day.</p>
     </section>
-    
-    <!-- Exam Schedule Section -->
+
     <section id="schedule" class="about-exam-info">
         <h2>Exam Schedule</h2>
         <p>The exam schedule for the upcoming CCIS Qualifying Exam is as follows:</p>
@@ -52,29 +52,34 @@ session_start();
                 </tbody>
             </table>
         </div>
-
     </section>
+    </div>
 
-    <!-- Exam Requirements Section -->
-    <section id="requirements" class="exam-requirements">
-        <h2>Exam Requirements</h2>
-        <p>To qualify for the CCIS exam, students must meet the following requirements:</p><br>
-        <ul>
-            <p>Must be a <strong>registered transferee, shiftee, or ladderized</strong> student.</p>
-            <p>Must have <strong>completed the required prerequisite courses.</strong></li>
-            <p>Must <strong>not</strong> have grade lower than <strong>2.00 (or 85).</strong></li>
-        </ul>
-    </section>
+        <section id="requirements" class="exam-requirements">
+            <h2>Exam Requirements</h2>
+            <p>To qualify for the CCIS exam, students must meet the following requirements:</p>
+            <ul>
+                <li>Must be a <strong>registered transferee, shiftee, or ladderized</strong> student.</li>
+                <li>Must have <strong>completed the required prerequisite courses.</strong></li>
+                <li>Must <strong>not</strong> have grade lower than <strong>2.00 (or 85).</strong></li>
+            </ul>
+        </section>
 
-    <!-- Required Documents Section -->
-    <section id="documents" class="required-documents">
-        <h2>Required Documents</h2>
-        <p>The following documents are required to be submitted before taking the exam:</p>
-        <ul>
-            <li>Transcript of Records (TOR) for transferees and shiftees.</li>
-            <li>Copy of valid school ID (required for all students).</li>
-            <li>Birth Certificate (required for all students).</li>
-        </ul>
-    </section>
+        <!-- Required Documents Section -->
+        <section id="documents" class="required-documents">
+            <h2>Required Documents</h2>
+            <p>The following documents are required to be submitted before taking the exam:</p>
+            <ul>
+                <li><strong>Transcript of Records (TOR)</strong> for transferees and shiftees.</li>
+                <li>Copy of valid <strong>School ID</strong> (required for all students).</li>
+                <li><strong>Birth Certificate</strong> (required for all students).</li>
+            </ul>
+        </section>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
