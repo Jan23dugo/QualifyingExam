@@ -59,9 +59,10 @@ session_start();
             <h2>Exam Requirements</h2>
             <p>To qualify for the CCIS exam, students must meet the following requirements:</p>
             <ul>
-                <li>Must be a <strong>registered transferee, shiftee, or ladderized</strong> student.</li>
-                <li>Must have <strong>completed the required prerequisite courses.</strong></li>
-                <li>Must <strong>not</strong> have grade lower than <strong>2.00 (or 85).</strong></li>
+                <li>Must <strong>not</strong> have a <strong>failing grade or grade lower than 2.00 (or 85)</strong></li>
+                <li>Must be an <strong>incoming Second Year if transferee or shiftee</strong> (must have completed at least 2 semester).
+                    <br>If ladderized, must be <strong>graduated on their 3-year diplomat program</strong>. </li>
+                <li>Must have <strong>no failing grade, dropped, incomplete, and withdrawn mark</strong> in any subjects.</li>
             </ul>
         </section>
 
@@ -70,16 +71,11 @@ session_start();
             <h2>Required Documents</h2>
             <p>The following documents are required to be submitted before taking the exam:</p>
             <ul>
-                <li><strong>Transcript of Records (TOR)</strong> for transferees and shiftees.</li>
-                <li>Copy of valid <strong>School ID</strong> (required for all students).</li>
-                <li><strong>Birth Certificate</strong> (required for all students).</li>
+                <li>Submit a copy of your <strong>Transcript of Records (TOR), <br>or Informative or Certified Copy of Grades</strong> <br>(initial requirement of the college only) </li>
+                <li>Provide a <strong>valid School ID</strong></li>
             </ul>
         </section>
     </div>
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
-        </div>
-    </footer>
+    <?php include 'footer.php'?>
 </body>
 </html>
