@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
 
         // Redirect to test2.php (or create-exam-test.php) with the exam_id to add questions
-        header("Location: ../admin/test2.php?exam_id=$exam_id");
+        header("Location: ../admin/create_exam_version3.html?exam_id=$exam_id");
         exit();
     } else {
         echo "Error: " . $stmt->error;

@@ -42,7 +42,7 @@ session_start();
         <p>Please click or tap your destination.</p>
         <div class="index-buttons">
             <button class="index-button"><a href="registerFront.php">Student Register</a></button>
-            <button class="index-button"><a href="loginAdmin.php">Admin Login</a></button>
+            <button class="index-button"><a href="admin/loginAdmin.php">Admin Login</a></button>
         </div>
         <p class="terms">
             By using this service, you understand and agree to the
@@ -50,6 +50,5 @@ session_start();
             <a href="#">Privacy Statement</a>.
         </p>
     </div>
-    <?php include 'footer.php'?>
 </body>
 </html>

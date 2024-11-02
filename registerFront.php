@@ -236,7 +236,7 @@ session_start();
     </form>
 </section>
 
-<?php include 'footer.php'?>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

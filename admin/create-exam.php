@@ -126,7 +126,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Exam ID</th>
+                                
                                 <th>Exam Name</th>
                                 <th>Description</th>
                                 <th>Duration</th>
