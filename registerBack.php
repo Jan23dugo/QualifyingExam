@@ -364,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 addDebugOutput("Starting OCR Process");
                 
                 if (!class_exists('thiagoalessio\TesseractOCR\TesseractOCR')) {
-                    throw new Exception("Tesseract OCR library not found");
+                    throw new Exception("OCR system is not available. Please try again later.");
                 }
 
                 $ocr = new TesseractOCR($tor_path);
@@ -372,7 +372,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ocr_output = $ocr->run();
                 
                 if (empty($ocr_output)) {
-                    throw new Exception("OCR failed to extract text from the document");
+                    $_SESSION['ocr_error'] = "Unable to process the uploaded document. Please ensure you have uploaded a valid Transcript of Records with clear, readable text.";
+                    header("Location: registration_success.php");
+                    exit();
+                }
+
+                // Basic validation of OCR output
+                $required_keywords = ['TRANSCRIPT','Transcript', 'Records', 'RECORDS', 'UNIT', 'Units', 'Unit', 'UNITS', 'Credit Unit/s',
+                 'GRADE', 'Grade','SUBJECT', 'Subject', 'Subject Code', 'Subject Description', 'Course Code', 'Course Description'];
+                $found_keywords = 0;
+                
+                foreach ($required_keywords as $keyword) {
+                    if (stripos($ocr_output, $keyword) !== false) {
+                        $found_keywords++;
+                    }
+                }
+
+                if ($found_keywords < 2) {
+                    $_SESSION['ocr_error'] = "The uploaded document does not appear to be a valid Transcript of Records. Please ensure you are uploading the correct document.";
+                    header("Location: registration_success.php");
+                    exit();
                 }
 
                 addDebugOutput("Raw OCR Output:", $ocr_output);

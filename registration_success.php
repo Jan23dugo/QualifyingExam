@@ -129,7 +129,11 @@ session_start();
         <?php if (isset($_SESSION['success'])): ?>
             <script>
                 window.onload = function() {
-                    showEligibilityModal();
+                    <?php if (isset($_SESSION['ocr_error'])): ?>
+                        showOcrErrorModal();
+                    <?php elseif (isset($_SESSION['success'])): ?>
+                        showEligibilityModal();
+                    <?php endif; ?>
                 }
             </script>
         <?php endif; ?>
@@ -202,6 +206,31 @@ session_start();
         </div>
         <?php endif; ?>
 
+        <!-- OCR Error Modal -->
+        <div id="ocrErrorModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeOcrErrorModal()">&times;</span>
+                <h2>Document Verification Error</h2>
+                <div class="eligibility-status not-eligible">
+                    <?php
+                    if (isset($_SESSION['ocr_error'])) {
+                        echo "<p><strong>Error Processing Document:</strong></p>";
+                        echo "<p>" . htmlspecialchars($_SESSION['ocr_error']) . "</p>";
+                        echo "<p>Please ensure you have uploaded:</p>";
+                        echo "<ul>";
+                        echo "<li>A clear, readable copy of your Transcript of Records</li>";
+                        echo "<li>The document contains your grades and subject information</li>";
+                        echo "<li>The image is not blurry or distorted</li>";
+                        echo "</ul>";
+                        unset($_SESSION['ocr_error']);
+                    }
+                    ?>
+                </div>
+                <button class="btn btn-secondary" onclick="closeOcrErrorModal()">Close</button>
+                <a href="registerFront.php" class="btn">Try Again</a>
+            </div>
+        </div>
+
         <a href="registerFront.php" class="btn">Back to Registration</a>
     </div>
 
@@ -231,6 +260,14 @@ session_start();
 
         function closeDebugModal() {
             document.getElementById('debugModal').style.display = 'none';
+        }
+
+        function showOcrErrorModal() {
+            document.getElementById('ocrErrorModal').style.display = 'block';
+        }
+
+        function closeOcrErrorModal() {
+            document.getElementById('ocrErrorModal').style.display = 'none';
         }
 
         // Close modals when clicking outside
