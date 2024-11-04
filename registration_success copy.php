@@ -46,17 +46,6 @@ session_start();
             cursor: pointer;
         }
 
-        .confirm-container {
-            max-width: 800px;
-            min-height: 200px;
-            margin: 0 auto;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            background-color: #73343a;
-            color: #faf3d5;
-        }
-
         .success-container {
             text-align: center;
             padding: 20px;
@@ -90,23 +79,9 @@ session_start();
         }
 
         .success-message {
-            color: #faf3d5;
-            margin-top: 10px;
-            margin: 30px 0;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .success-message h2 {
-            font-size: 35px;
-            font-weight: bold;
-            text-align: center;
-            color: #faf3d5;
-        }
-
-        .success-message p {
-            font-size: 18px;
-            text-align: center;
+            color: #4CAF50;
+            font-size: 1.2em;
+            margin-bottom: 20px;
         }
 
         .matches-info {
@@ -123,22 +98,16 @@ session_start();
             margin: 20px 0;
             padding: 10px;
             border-radius: 5px;
-            align-items: center;
-            text-align: center;
         }
 
         .eligible {
-            background-color: #e5b168;
+            background-color: #d4edda;
             border-color: #c3e6cb;
-            color: black;
+            color: #155724;
             padding: 15px;
             margin-bottom: 20px;
             border: 1px solid transparent;
             border-radius: 4px;
-        }
-
-        .eligible h2 {
-            color: #73343a;
         }
 
         .not-eligible {
@@ -146,15 +115,9 @@ session_start();
             border-color: #f5c6cb;
             color: #721c24;
             padding: 15px;
-            margin: 20px auto;
+            margin-bottom: 20px;
             border: 1px solid transparent;
             border-radius: 4px;
-            align-items: center;
-            text-align: left;
-        }
-
-        .not-eligible p, li {
-            text-align: left;
         }
     </style>
 </head>
@@ -176,15 +139,15 @@ session_start();
         <?php endif; ?>
 
         <!-- Eligibility Modal -->
-        <div id="eligibilityModal" class="confirm-container">
-            <div class="success-message">
+        <div id="eligibilityModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEligibilityModal()">&times;</span>
                 <h2>Registration Status</h2>
                 <?php
                 if (isset($_SESSION['is_eligible'])) {
                     if ($_SESSION['is_eligible']) {
                         echo "<div class='eligibility-status eligible'>";
-                        echo "<h2>Your registration has been submitted successfully!</h2>";
-                        echo "<p>Congratulations! Based on your grades you are qualified to take the Qualifying Exam</p>";
+                        echo "<p>Congratulations! You are eligible.</p>";
                         if (isset($_SESSION['success'])) {
                             echo "<p>" . htmlspecialchars($_SESSION['success']) . "</p>";
                         }
@@ -203,6 +166,7 @@ session_start();
                     unset($_SESSION['eligibility_message']);
                 }
                 ?>
+                <button class="btn btn-secondary" onclick="closeEligibilityModal()">Close</button>
             </div>
         </div>
 
@@ -243,14 +207,14 @@ session_start();
         <?php endif; ?>
 
         <!-- OCR Error Modal -->
-        <div id="ocrErrorModal" class="confirm-container">
-            <div class="success-message">
+        <div id="ocrErrorModal" class="modal">
+            <div class="modal-content">
                 <span class="close" onclick="closeOcrErrorModal()">&times;</span>
                 <h2>Document Verification Error</h2>
                 <div class="eligibility-status not-eligible">
                     <?php
                     if (isset($_SESSION['ocr_error'])) {
-                        echo "<h3><strong>!! Error Processing Document !!</strong></h3>";
+                        echo "<p><strong>Error Processing Document:</strong></p>";
                         echo "<p>" . htmlspecialchars($_SESSION['ocr_error']) . "</p>";
                         echo "<p>Please ensure you have uploaded:</p>";
                         echo "<ul>";
@@ -262,10 +226,12 @@ session_start();
                     }
                     ?>
                 </div>
-                <a href="index.php" class="btn btn-secondary">Home</a>
-                <a href="registerFront.php" class="btn btn-secondary">Try Again</a>
+                <button class="btn btn-secondary" onclick="closeOcrErrorModal()">Close</button>
+                <a href="registerFront.php" class="btn">Try Again</a>
             </div>
         </div>
+
+        <a href="registerFront.php" class="btn">Back to Registration</a>
     </div>
 
     <script>

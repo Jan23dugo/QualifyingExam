@@ -180,7 +180,7 @@ session_start();
             <div class="form-group">
                 <div class="form-field" id="year-level-field">
                     <label for="year_level">Current Year Level</label>
-                    <input type="number" id="year_level" name="year_level">
+                    <input type="number" id="year_level" name="year_level" required>
                 </div>
                 <div class="form-field" id="previous-school-field">
     <label for="previous_school">Name of Previous School</label>
@@ -241,7 +241,6 @@ session_start();
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const previousProgramSelect = document.getElementById("previous_program");
-    const yearLevelField = document.getElementById("year-level-field");
 
     // Function to populate the dropdown from JSON
     function populatePreviousProgramSelect() {
@@ -277,15 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
         let isValid = true;
 
         inputs.forEach(input => {
-            // Skip year_level validation for ladderized students
-            if (input.id === 'year_level' && 
-                document.getElementById('student_type').value === 'ladderized') {
-                return;
-            }
-            
-            if (input.hasAttribute('required') && !input.checkValidity()) {
+            if (!input.checkValidity()) {
                 isValid = false;
-                input.reportValidity();
+                input.reportValidity(); // This will show validation messages
             }
         });
 
@@ -316,45 +309,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-// Handle student type change logic
-window.handleStudentTypeChange = function() {
-    const studentType = document.getElementById('student_type').value;
-    const previousProgramSelect = document.getElementById("previous_program");
+    // Handle student type change logic
+    window.handleStudentTypeChange = function() {
+        const studentType = document.getElementById('student_type').value; // Get selected student type
 
-    if (studentType === 'ladderized') {
-        // Hide year level field
-        yearLevelField.style.display = 'none';
-        
-        // Clear existing options and add only DICT
-        previousProgramSelect.innerHTML = `
-            <option value="Diploma in Information and Communication Technology (DICT)" selected>
-                Diploma in Information and Communication Technology (DICT)
-            </option>
-        `;
-        previousProgramSelect.disabled = true;
-    } else {
-        // Show year level field
-        yearLevelField.style.display = 'block';
-        previousProgramSelect.disabled = false;
-        
-        // Clear and add default option
-        previousProgramSelect.innerHTML = '<option value="">--Select Previous Program--</option>';
-        
-        // Add other program options
-        fetch('assets/data/courses.json')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(course => {
-                    const option = document.createElement("option");
-                    option.value = course;
-                    option.textContent = course;
-                    previousProgramSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error loading programs:', error));
-    }
-};
-
+        if (studentType === 'ladderized') {
+            // Set previous program to DICT
+            previousProgramSelect.value = 'Diploma in Information and Communication Technology (DICT)'; // Ensure DICT is in your JSON options if you're setting it directly
+        } else {
+            previousProgramSelect.value = ''; // Reset to default if not ladderized
+        }
+    };
 
     // Initially populate the previous program dropdown
     populatePreviousProgramSelect();

@@ -246,6 +246,13 @@ function registerStudent($conn, $studentData, $subjects) {
     $reference_id = uniqid('STU_', true);
     $studentData['reference_id'] = $reference_id;
     
+    // Set year_level to NULL for ladderized students
+    if ($studentData['student_type'] === 'ladderized') {
+        $studentData['year_level'] = null;
+        // Ensure DICT is set as previous program
+        $studentData['previous_program'] = 'Diploma in Information and Communication Technology (DICT)';
+    }
+    
     $stmt = $conn->prepare("INSERT INTO students (
         last_name, first_name, middle_name, gender, dob, email, contact_number, street, 
         student_type, previous_school, year_level, previous_program, desired_program, 
@@ -275,7 +282,7 @@ function registerStudent($conn, $studentData, $subjects) {
 
     if ($stmt->execute()) {
         $student_id = $stmt->insert_id;
-        $_SESSION['success'] = "Registration successful! Your reference ID is: " . $reference_id;
+        $_SESSION['success'] = "Your reference ID is: " . $reference_id;
         $_SESSION['reference_id'] = $reference_id;
         $_SESSION['student_id'] = $student_id;
         
@@ -364,35 +371,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 addDebugOutput("Starting OCR Process");
                 
                 if (!class_exists('thiagoalessio\TesseractOCR\TesseractOCR')) {
-                    throw new Exception("OCR system is not available. Please try again later.");
+                    $_SESSION['ocr_error'] = "OCR system is not available. Please try again later.";
+                    header("Location: registration_success.php");
+                    exit();
                 }
 
                 $ocr = new TesseractOCR($tor_path);
                 $ocr->executable(TESSERACT_PATH);
-                $ocr_output = $ocr->run();
+                
+                try {
+                    $ocr_output = $ocr->run();
+                } catch (Exception $ocrException) {
+                    // Catch specific OCR execution errors and provide a cleaner message
+                    $_SESSION['ocr_error'] = "Unable to process the uploaded document. Please ensure your document is clear and readable.";
+                    header("Location: registration_success.php");
+                    exit();
+                }
                 
                 if (empty($ocr_output)) {
-                    $_SESSION['ocr_error'] = "Unable to process the uploaded document. Please ensure you have uploaded a valid Transcript of Records with clear, readable text.";
+                    $_SESSION['ocr_error'] = "The system could not read any text from the uploaded document. Please ensure you have uploaded:
+                        \n- A clear, high-quality image
+                        \n- An official Transcript of Records
+                        \n- A document that is not password protected";
                     header("Location: registration_success.php");
                     exit();
                 }
 
-                // Basic validation of OCR output
-                $required_keywords = ['TRANSCRIPT','Transcript', 'Records', 'RECORDS', 'UNIT', 'Units', 'Unit', 'UNITS', 'Credit Unit/s',
-                 'GRADE', 'Grade','SUBJECT', 'Subject', 'Subject Code', 'Subject Description', 'Course Code', 'Course Description'];
+                // Store the raw OCR output in debug but don't show it in the error message
+                addDebugOutput("Raw OCR Output:", $ocr_output);
+
+                // Basic validation of OCR output to check if it's a TOR
+                $required_keywords = [
+                    'TRANSCRIPT','Transcript', 'Records', 'RECORDS', 'UNIT', 'Units', 'Unit', 'UNITS', 'Credit Unit/s',
+                    'GRADE', 'Grade','SUBJECT', 'Subject', 'Subject Code', 'Subject Description', 'Course Code', 'Course Description'
+                ];
                 $found_keywords = 0;
+                $found_words = [];
                 
                 foreach ($required_keywords as $keyword) {
                     if (stripos($ocr_output, $keyword) !== false) {
                         $found_keywords++;
+                        $found_words[] = $keyword;
                     }
                 }
 
-                if ($found_keywords < 2) {
-                    $_SESSION['ocr_error'] = "The uploaded document does not appear to be a valid Transcript of Records. Please ensure you are uploading the correct document.";
+                // Require at least 4 keywords to consider it a valid TOR
+                if ($found_keywords < 4) {
+                    $_SESSION['ocr_error'] = "The uploaded document does not appear to be a valid Transcript of Records. Please ensure you are uploading an official TOR that contains grades and subject information.";
                     header("Location: registration_success.php");
                     exit();
                 }
+
+                addDebugOutput("Document Validation:", [
+                    'Keywords Found' => $found_keywords,
+                    'Matched Words' => $found_words
+                ]);
 
                 addDebugOutput("Raw OCR Output:", $ocr_output);
 
@@ -427,9 +460,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
 
             } catch (Exception $e) {
-                addDebugOutput("Error in OCR Process:", $e->getMessage());
-                $_SESSION['last_error'] = "OCR Error: " . $e->getMessage();
-                header("Location: registerFront.php");
+                // Log the full error for debugging but show a cleaner message to users
+                error_log("OCR Error: " . $e->getMessage());
+                $_SESSION['ocr_error'] = "There was an error processing your document. Please try uploading again with a clearer image.";
+                header("Location: registration_success.php");
                 exit();
             }
 
@@ -446,10 +480,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email' => $_POST['email'] ?? '',
                     'contact_number' => $_POST['contact_number'] ?? '',
                     'street' => $_POST['street'] ?? '',
-                    'student_type' => $student_type,
+                    'student_type' => $_POST['student_type'] ?? '',
                     'previous_school' => $_POST['previous_school'] ?? '',
-                    'year_level' => $_POST['year_level'] ?? '',
-                    'previous_program' => $_POST['previous_program'] ?? '',
+                    'year_level' => ($_POST['student_type'] === 'ladderized') ? null : ($_POST['year_level'] ?? ''),
+                    'previous_program' => ($_POST['student_type'] === 'ladderized') ? 
+                        'Diploma in Information and Communication Technology (DICT)' : 
+                        ($_POST['previous_program'] ?? ''),
                     'desired_program' => $_POST['desired_program'] ?? '',
                     'tor_path' => $tor_path,
                     'school_id_path' => $school_id_path,
@@ -469,17 +505,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
         } else {
-            throw new Exception("Both TOR and School ID files are required.");
+            $_SESSION['ocr_error'] = "Please upload both TOR and School ID files.";
+            header("Location: registration_success.php");
+            exit();
         }
     } catch (Exception $e) {
-        $_SESSION['last_error'] = $e->getMessage();
-        header("Location: registerFront.php");
+        $_SESSION['ocr_error'] = $e->getMessage();
+        header("Location: registration_success.php");
         exit();
     }
 }
 
 // If we reach here, something went wrong
-$_SESSION['last_error'] = "An unexpected error occurred.";
-header("Location: registerFront.php");
+$_SESSION['ocr_error'] = "An unexpected error occurred.";
+header("Location: registration_success.php");
 exit();
 ?>
