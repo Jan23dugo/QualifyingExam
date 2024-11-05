@@ -26,6 +26,50 @@
             max-width: 600px;
             text-align: center;
         }
+
+        #question-list {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        #question-list div {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        #question-list button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        #question-list button:hover {
+            background: #f0f0f0;
+        }
+
+        .question-details {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .question-details p {
+            margin: 5px 0;
+        }
+
+        .question-actions {
+            margin-top: 10px;
+        }
+
+        .question-actions button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +148,7 @@
 
     <script>
         let questions = [];
+        const currentExamId = getExamId(); // Store exam ID globally
         let editingIndex = null;
 
         function showTab(tab) {
@@ -181,36 +226,106 @@
 
         function saveQuestion(type) {
             const questionText = document.getElementById("questionText").value;
-            let question = { type, text: questionText };
+            const newQuestion = {
+                text: questionText,
+                type: type,
+                question_text: questionText,  // for backend compatibility
+                question_type: type          // for backend compatibility
+            };
 
-            if (type === "multiple-choice") {
-                question.options = {
-                    A: document.getElementById("optionA").value,
-                    B: document.getElementById("optionB").value,
-                    C: document.getElementById("optionC").value,
-                    D: document.getElementById("optionD").value,
-                };
-                question.answer = document.getElementById("mcAnswer").value;
-            } else if (type === "true-false") {
-                question.answer = document.getElementById("tfAnswer").value;
-            } else if (type === "matching") {
-                question.term = document.getElementById("term").value;
-                question.match = document.getElementById("match").value;
-            } else if (type === "coding") {
-                question.code = document.getElementById("codeAnswer").value;
-            } else if (type === "identification") {
-                question.answer = document.getElementById("identificationAnswer").value;
+            // Add type-specific data
+            switch(type) {
+                case 'multiple-choice':
+                    newQuestion.options = {
+                        A: document.getElementById("optionA").value,
+                        B: document.getElementById("optionB").value,
+                        C: document.getElementById("optionC").value,
+                        D: document.getElementById("optionD").value
+                    };
+                    newQuestion.answer = document.getElementById("mcAnswer").value;
+                    break;
+                case 'true-false':
+                    newQuestion.answer = document.getElementById("tfAnswer").value;
+                    break;
+                case 'matching':
+                    newQuestion.term = document.getElementById("term").value;
+                    newQuestion.match = document.getElementById("match").value;
+                    break;
+                case 'coding':
+                    newQuestion.code = document.getElementById("codeAnswer").value;
+                    break;
+                case 'identification':
+                    newQuestion.answer = document.getElementById("identificationAnswer").value;
+                    break;
             }
 
+            // Add to local array first
             if (editingIndex !== null) {
-                questions[editingIndex] = question;
+                questions[editingIndex] = newQuestion;
                 editingIndex = null;
             } else {
-                questions.push(question);
+                questions.push(newQuestion);
             }
 
+            // Update the display immediately
             renderQuestions();
-            document.getElementById("form-container").style.display = "none";
+
+            // Then save to backend
+            const formData = new FormData();
+            formData.append('action', 'add_question');
+            formData.append('exam_id', getExamId());
+            formData.append('question_type', type);
+            formData.append('question_text', questionText);
+
+            // Add type-specific data to formData
+            switch(type) {
+                case 'multiple-choice':
+                    formData.append('optionA', document.getElementById("optionA").value);
+                    formData.append('optionB', document.getElementById("optionB").value);
+                    formData.append('optionC', document.getElementById("optionC").value);
+                    formData.append('optionD', document.getElementById("optionD").value);
+                    formData.append('mcAnswer', document.getElementById("mcAnswer").value);
+                    break;
+                case 'true-false':
+                    formData.append('tfAnswer', document.getElementById("tfAnswer").value);
+                    break;
+                case 'matching':
+                    formData.append('term', document.getElementById("term").value);
+                    formData.append('match', document.getElementById("match").value);
+                    break;
+                case 'coding':
+                    formData.append('codeAnswer', document.getElementById("codeAnswer").value);
+                    break;
+                case 'identification':
+                    formData.append('identificationAnswer', document.getElementById("identificationAnswer").value);
+                    break;
+            }
+
+            fetch('add-questionsBack.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the question with the ID from the server
+                    const lastIndex = questions.length - 1;
+                    questions[lastIndex].question_id = data.data.question_id;
+                    document.getElementById("form-container").style.display = "none";
+                } else {
+                    alert('Error: ' + data.message);
+                    // Remove the question from the local array if save failed
+                    questions.pop();
+                    renderQuestions();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving question. Please try again.');
+                // Remove the question from the local array if save failed
+                questions.pop();
+                renderQuestions();
+            });
         }
 
         function renderQuestions() {
@@ -218,11 +333,12 @@
             questionList.innerHTML = "";
 
             questions.forEach((question, index) => {
-                const listItem = document.createElement("li");
+                const listItem = document.createElement("div");
+                listItem.style.marginBottom = "10px";
                 listItem.innerHTML = `
-                    <strong>Question ${index + 1}:</strong> ${question.text} (${question.type})
-                    <button onclick="editQuestion(${index})">Edit</button>
-                    <button onclick="removeQuestion(${index})">Remove</button>
+                    Question ${index + 1}: ${question.text || question.question_text} (${question.type || question.question_type}) 
+                    <button onclick="editQuestion(${index})" style="margin-left: 10px;">Edit</button>
+                    <button onclick="removeQuestion(${index})" style="margin-left: 5px;">Remove</button>
                 `;
                 questionList.appendChild(listItem);
             });
@@ -268,31 +384,135 @@
             document.getElementById("question-modal").style.display = "none";
         }
 
-        // Render questions on the "Questions" tab (unchanged function)
-        function renderQuestions() {
-            const questionList = document.getElementById("question-list");
-            questionList.innerHTML = "";
-
-            questions.forEach((question, index) => {
-                const listItem = document.createElement("li");
-                listItem.innerHTML = `
-                    <strong>Question ${index + 1}:</strong> ${question.text} (${question.type})
-                    <button onclick="editQuestion(${index})">Edit</button>
-                    <button onclick="removeQuestion(${index})">Remove</button>
-                `;
-                questionList.appendChild(listItem);
-            });
-        }
-
         function editQuestion(index) {
             editingIndex = index;
             showForm(questions[index].type);
         }
 
         function removeQuestion(index) {
-            questions.splice(index, 1);
-            renderQuestions();
+            const question = questions[index];
+            if (!question || !question.question_id) {
+                console.error('Invalid question');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'remove_question');
+            formData.append('exam_id', getExamId());
+            formData.append('question_id', question.question_id);
+
+            fetch('add-questionsBack.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    questions.splice(index, 1);
+                    renderQuestions();
+                } else {
+                    alert('Error removing question: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error removing question. Please try again.');
+            });
         }
+
+        // Get the exam_id from URL parameter
+        function getExamId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('exam_id');
+        }
+
+        // Function to load existing questions
+        function loadQuestions() {
+            const examId = getExamId();
+            if (!examId) {
+                console.error('No exam ID found');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'get_questions');
+            formData.append('exam_id', examId);
+
+            fetch('add-questionsBack.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success' && data.data) {
+                    questions = data.data.map(q => ({
+                        question_id: q.question_id,
+                        text: q.question_text,
+                        type: q.question_type,
+                        options: q.options || {},
+                        answer: q.answer,
+                        term: q.term,
+                        match: q.match,
+                        code: q.code
+                    }));
+                    renderQuestions();
+                } else {
+                    console.error('Error loading questions:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Add this to load questions when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestions();
+        });
+
+        // Add some CSS to style the questions list
+        const styles = `
+            #question-list {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            #question-list li {
+                background: #f5f5f5;
+                margin: 10px 0;
+                padding: 15px;
+                border-radius: 4px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .edit-btn, .remove-btn {
+                margin-left: 10px;
+                padding: 5px 10px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+
+            .edit-btn {
+                background: #4CAF50;
+                color: white;
+            }
+
+            .remove-btn {
+                background: #f44336;
+                color: white;
+            }
+        `;
+
+        // Add the styles to the document
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = styles;
+        document.head.appendChild(styleSheet);
+
+        // Load questions when the page loads
+        window.addEventListener('load', function() {
+            loadQuestions();
+        });
     </script>
 </body>
 </html>
