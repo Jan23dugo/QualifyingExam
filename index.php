@@ -25,7 +25,7 @@ session_start();
                     </div>
                 </li>
                 <li><a href=eligibilitychecker.php>ELIGIBILITY CHECKER</a></li>
-                <li><a href=takeanexam.php>TAKE AN EXAM</a></li>
+                <li><a href=take_exam.php>TAKE AN EXAM</a></li>
             </ul>
         </nav>
     </div>

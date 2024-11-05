@@ -270,6 +270,8 @@ while ($row = $result->fetch_assoc()) {
             <button class="active">Questions</button>
             <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Preview</a>
             <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Settings</a>
+            <a href="assign_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Assign</a>
+            <a href="exam_results.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Results</a>
           </div>
 
           <div class="form-container">
