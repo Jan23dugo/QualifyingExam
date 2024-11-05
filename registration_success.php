@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// Clear any old session messages at the start
+if (isset($_SESSION['success']) && isset($_SESSION['ocr_error'])) {
+    // If both exist, prioritize showing the error
+    unset($_SESSION['success']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -142,19 +148,34 @@ session_start();
         }
 
         .not-eligible {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+            background-color: #e5b168;
+            border-color: transparent;
+            color: #73343a;
             padding: 15px;
             margin: 20px auto;
             border: 1px solid transparent;
             border-radius: 4px;
             align-items: center;
-            text-align: left;
+            text-align: center;
         }
 
-        .not-eligible p, li {
-            text-align: left;
+        .not-eligible h3 {
+            color: #73343a;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .not-eligible p, .not-eligible li {
+            color: #73343a;
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .not-eligible ul {
+            list-style-position: inside;
+            padding-left: 0;
+            margin: 15px 0;
         }
     </style>
 </head>
@@ -163,24 +184,37 @@ session_start();
     <?php include 'navbar.php'?>
     
     <div class="success-container">
-        <?php if (isset($_SESSION['success'])): ?>
-            <script>
-                window.onload = function() {
-                    <?php if (isset($_SESSION['ocr_error'])): ?>
-                        showOcrErrorModal();
-                    <?php elseif (isset($_SESSION['success'])): ?>
-                        showEligibilityModal();
-                    <?php endif; ?>
-                }
-            </script>
-        <?php endif; ?>
+        <script>
+            window.onload = function() {
+                <?php if (isset($_SESSION['success'])) {
+                    echo "showEligibilityModal();";
+                } ?>
+            }
+        </script>
 
         <!-- Eligibility Modal -->
         <div id="eligibilityModal" class="confirm-container">
             <div class="success-message">
                 <h2>Registration Status</h2>
                 <?php
-                if (isset($_SESSION['is_eligible'])) {
+                if (isset($_SESSION['ocr_error'])) {
+                    echo "<div class='eligibility-status not-eligible'>";
+                    echo "<h2>Document Verification Error</h2>";
+                    echo "<p>" . htmlspecialchars($_SESSION['ocr_error']) . "</p>";
+                    echo "<p>Please ensure you have uploaded:</p>";
+                    echo "<ul>";
+                    echo "<li>A valid Transcript of Records (TOR)</li>";
+                    echo "<li>A clear, readable copy of the document</li>";
+                    echo "<li>The document contains your grades and subject information</li>";
+                    echo "<li>The image is not blurry or distorted</li>";
+                    echo "</ul>";
+                    echo "</div>";
+                    echo "<div style='text-align: center; margin-top: 20px;'>";
+                    echo "<a href='registerFront.php' class='btn btn-secondary'>Try Again</a>";
+                    echo "<a href='index.php' class='btn btn-secondary'>Home</a>";
+                    echo "</div>";
+                    unset($_SESSION['ocr_error']);
+                } elseif (isset($_SESSION['is_eligible'])) {
                     if ($_SESSION['is_eligible']) {
                         echo "<div class='eligibility-status eligible'>";
                         echo "<h2>Your registration has been submitted successfully!</h2>";
@@ -241,31 +275,6 @@ session_start();
             </div>
         </div>
         <?php endif; ?>
-
-        <!-- OCR Error Modal -->
-        <div id="ocrErrorModal" class="confirm-container">
-            <div class="success-message">
-                <span class="close" onclick="closeOcrErrorModal()">&times;</span>
-                <h2>Document Verification Error</h2>
-                <div class="eligibility-status not-eligible">
-                    <?php
-                    if (isset($_SESSION['ocr_error'])) {
-                        echo "<h3><strong>!! Error Processing Document !!</strong></h3>";
-                        echo "<p>" . htmlspecialchars($_SESSION['ocr_error']) . "</p>";
-                        echo "<p>Please ensure you have uploaded:</p>";
-                        echo "<ul>";
-                        echo "<li>A clear, readable copy of your Transcript of Records</li>";
-                        echo "<li>The document contains your grades and subject information</li>";
-                        echo "<li>The image is not blurry or distorted</li>";
-                        echo "</ul>";
-                        unset($_SESSION['ocr_error']);
-                    }
-                    ?>
-                </div>
-                <a href="index.php" class="btn btn-secondary">Home</a>
-                <a href="registerFront.php" class="btn btn-secondary">Try Again</a>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -296,18 +305,11 @@ session_start();
             document.getElementById('debugModal').style.display = 'none';
         }
 
-        function showOcrErrorModal() {
-            document.getElementById('ocrErrorModal').style.display = 'block';
-        }
-
-        function closeOcrErrorModal() {
-            document.getElementById('ocrErrorModal').style.display = 'none';
-        }
-
         // Close modals when clicking outside
         window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = 'none';
+            var modal = document.getElementById('ocrErrorModal');
+            if (event.target == modal) {
+                closeOcrErrorModal();
             }
         }
 
