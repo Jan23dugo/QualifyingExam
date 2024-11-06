@@ -1,4 +1,5 @@
 <?php
+
 include_once __DIR__ . '/../config/config.php';
 
 // Get exam_id from query string
@@ -52,6 +53,7 @@ $results = $results_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <!-- Include your existing stylesheets -->
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/styles.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <style>
         .results-container {
@@ -108,6 +110,13 @@ $results = $results_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     </div>
                     
                     <div class="results-container">
+                        <div class="d-flex justify-content-end mb-3">
+                            <a href="generate_exam_report.php?exam_id=<?php echo $exam_id; ?>" 
+                               class="btn btn-success">
+                                <i class="fas fa-download"></i> Download Results PDF
+                            </a>
+                        </div>
+                        
                         <table class="table">
                             <thead>
                                 <tr>

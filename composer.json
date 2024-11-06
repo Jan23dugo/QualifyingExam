@@ -1,7 +1,8 @@
 {
     "require": {
         "php": ">=7.4",
-        "thiagoalessio/tesseract_ocr": "^2.13"
+        "thiagoalessio/tesseract_ocr": "^2.13",
+        "tecnickcom/tcpdf": "^6.7"
     },
     "autoload": {
         "psr-4": {
