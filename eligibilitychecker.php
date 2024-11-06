@@ -34,13 +34,13 @@
                     <!-- Headers -->
                     <div class="result-label">Student Name</div>
                     <div class="result-label">Program Applying To</div>
-                    <div class="result-label">Exam Schedule</div>
+                    <div class="result-label">Reference ID</div>
                 </div>
                 <hr>
                 <div class="eligibility-result-table">
                     <div class="result-value" id="student-name"></div>
                     <div class="result-value" id="program-applying-to"></div>
-                    <div class="result-value" id="exam-schedule"></div>
+                    <div class="result-value" id="referenceid"></div>
                 </div>
             </div>
             <div class="not-eligible">
@@ -49,12 +49,6 @@
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 CCIS Qualifying Exam. All rights reserved.</p>
-        </div>
-    </footer>
-
     <script>
         const eligibleIDs = ['REF12345', 'REF67890', 'REF11111'];
 
@@ -62,14 +56,14 @@
             var referenceId = document.getElementById("reference-id").value;
             var studentName = document.getElementById("student-name");
             var programApplyingTo = document.getElementById("program-applying-to");
-            var examSchedule = document.getElementById("exam-schedule");
+            var referenceID = document.getElementById("referenceid")
             var notEligibleMsg = document.getElementById("not-eligible-msg");
             var resultsSection = document.getElementById("results-section");
 
             notEligibleMsg.style.display = "none";
             studentName.innerText = "";
             programApplyingTo.innerText = "";
-            examSchedule.innerText = "";
+            referenceID.innerText = "";
             resultsSection.style.display = "none";
 
             if (referenceId.trim() === "") {
@@ -81,7 +75,7 @@
             if (eligibleIDs.includes(referenceId)) {
                 studentName.innerText = "John Doe";  // Example data
                 programApplyingTo.innerText = "Bachelor of Science in Information Technology";  // Example program
-                examSchedule.innerText = "October 15, 2024, 9:00 AM";  // Example schedule
+                referenceID.innerText = "REF12345";
                 
                 resultsSection.style.display = "block";
             } else {
