@@ -1,0 +1,274 @@
+Raw OCR Text:
+TAP SYSTER	Alabang - Zapote Road, Pamplona 3, Las Pintas City, Metro Manila 1740, Philippines
+www.perpetualdalla.edu.ph . +63(02) 671-06-39
+OFFICIAL TRANSCRIPT OF RECORDS
+: ACABADO, JERRY MAE RIPALDA
+: 19-0179-116
+Course Title	Grade Credit Unit's Completion
+FCL 1101	PIL 1000	The Perpetualite: Identity and Dignity	Komunikasyon sa Akademikong Filipino	1.00	1.00	3.0	2.0
+GEC 1000	Understanding the Self	1.00	3.0	3.0
+GEC 4000	GEC 50CO	Purposive Communication	Mathematics in the Modem Werld	1.00	3.0
+NSTP 1101	Nacional Service Training Program I	1.25	3.0
+PE 1101	Foundations of Physical Education	1.00	1.25	20	3.0
+PSY 1101	Introduction to Psychology
+FCL 1202	The Perpetualite: A Man of God	1.00	1.75	2.0
+GEC 6000	The Contemporary World	1.50	3.0
+GEC 8000	GEE 1000	Science, Technology, and Society	Living in the IT Era - Lec	1.75
+GEE 10COL	Living in the IT Era - Lab	MY SYSTEMI	1.25	1.0
+NSTP 1202	National Service Training Progrm 2	1.00	1.00	3.0	2.0
+PE 1202	PSY 1202	Rhythmic Activities	Psychological Statistics - Lec	1.25	3.0
+PSY 1202L	Psychological Statistics - Lab	1.25	2.0
+ENG 1000	English for the Profession	1.00	1.00	3.0	2.0
+FCL 2103	The Perpetualite: Called to Perfection	1.00	3.0
+FIL 3000	Hasining na Pagpapahayag	Ethics	1.25	3.0
+GEC 2000	GEE 2000	The Entrepreneurial Mind	1.25	3.0
+PE 2103	Individual/Dual Sports	1.00	20
+PSY 2103	Physiology/Biological Psychology	1.50	1.75	3.0	3.0
+PSY 2104	Developmental Psychology	Theories of Personality	1.50	3.0
+PSY 2105
+FCL 2204	The Perpetualite: A Man for Others	1.00	1.25	2.0	3.0
+GEC 3000	Readings In Philippine History	Arts Appreciation	1.25	3.0
+GEC 7000	PE 2204	Team Sports	1.00	2.0
+PSY 220G	Experimental Psychology - Lec	1.00	1.29	2.0
+PSY 2206L	Experimental Psychology - Lab	The Life and Works of Rizal	1.35	3.0
+RZL 1000
+FCL 3105	The Perpetualite: A Filipino Christian Leader	1.00	1.50	2.0	3.0
+PSY 3105	Cognitive Psychology	Field Methods in Psychology - Lec	1.25	3.0
+PSY 3107	PSY 3107L	Field Methods in Psychology - Lab	1.50	2.0
+PSY 3108	Social Psychology	1.25	3.0
+PSY 3109	Industrial/Organizational Psychology	1.25	1.25	3.0	10
+PSY 3110	Group Dynamics
+FOL 3205	The Perpetualite: Minister of Life	1.00	1.25	20
+PSY 2211	Psychological Assessment - Lec	...
+NOT VALID WITHOUT SCHOOL SEAL
+
+
+
+Final Extracted Subjects:
+Array
+(
+    [0] => Array
+        (
+            [subject_code] => PIL 1000
+            [description] => Komunikasyon sa Akademikong Filipino
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [1] => Array
+        (
+            [subject_code] => GEC 1000
+            [description] => Understanding the Self
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [2] => Array
+        (
+            [subject_code] => GEC 4000
+            [description] => Mathematics in the Modern World
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [3] => Array
+        (
+            [subject_code] => NSTP 1101
+            [description] => National Service Training Program I
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [4] => Array
+        (
+            [subject_code] => PE 1101
+            [description] => Foundations of Physical Education
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [5] => Array
+        (
+            [subject_code] => FCL 1202
+            [description] => The Perpetualite: A Man of God
+            [units] => 2.0
+            [grade] => 1.75
+        )
+
+    [6] => Array
+        (
+            [subject_code] => GEC 6000
+            [description] => The Contemporary World
+            [units] => 3.0
+            [grade] => 1.50
+        )
+
+    [7] => Array
+        (
+            [subject_code] => GEE 1000
+            [description] => MY SYSTEMI
+            [units] => 1.0
+            [grade] => 1.25
+        )
+
+    [8] => Array
+        (
+            [subject_code] => NSTP 1202
+            [description] => National Service Training Program 2
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [9] => Array
+        (
+            [subject_code] => PSY 1202
+            [description] => Psychological Statistics - Lec
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [10] => Array
+        (
+            [subject_code] => PSY 1202L
+            [description] => Psychological Statistics - Lab
+            [units] => 2.0
+            [grade] => 1.25
+        )
+
+    [11] => Array
+        (
+            [subject_code] => ENG 1000
+            [description] => English for the Profession
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [12] => Array
+        (
+            [subject_code] => FCL 2103
+            [description] => The Perpetualite: Called to Perfection
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [13] => Array
+        (
+            [subject_code] => FIL 3000
+            [description] => Ethics
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [14] => Array
+        (
+            [subject_code] => GEE 2000
+            [description] => The Entrepreneurial Mind
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [15] => Array
+        (
+            [subject_code] => PE 2103
+            [description] => Individual/Dual Sports
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [16] => Array
+        (
+            [subject_code] => PSY 2103
+            [description] => Physiology/Biological Psychology
+            [units] => 3.0
+            [grade] => 1.75
+        )
+
+    [17] => Array
+        (
+            [subject_code] => PSY 2104
+            [description] => Theories of Personality
+            [units] => 3.0
+            [grade] => 1.50
+        )
+
+    [18] => Array
+        (
+            [subject_code] => FCL 2204
+            [description] => The Perpetualite: A Man for Others
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [19] => Array
+        (
+            [subject_code] => GEC 3000
+            [description] => Arts Appreciation
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [20] => Array
+        (
+            [subject_code] => PE 2204
+            [description] => Team Sports
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [21] => Array
+        (
+            [subject_code] => PSY 220G
+            [description] => Experimental Psychology - Lec
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [22] => Array
+        (
+            [subject_code] => FCL 3105
+            [description] => The Perpetualite: A Filipino Christian Leader
+            [units] => 3.0
+            [grade] => 1.50
+        )
+
+    [23] => Array
+        (
+            [subject_code] => PSY 3105
+            [description] => Field Methods in Psychology - Lec
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [24] => Array
+        (
+            [subject_code] => PSY 3107L
+            [description] => Field Methods in Psychology - Lab
+            [units] => 2.0
+            [grade] => 1.50
+        )
+
+    [25] => Array
+        (
+            [subject_code] => PSY 3108
+            [description] => Social Psychology
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [26] => Array
+        (
+            [subject_code] => PSY 3109
+            [description] => Industrial/Organizational Psychology
+            [units] => 1.0
+            [grade] => 1.25
+        )
+
+    [27] => Array
+        (
+            [subject_code] => FOL 3205
+            [description] => The Perpetualite: Minister of Life
+            [units] => 2.0
+            [grade] => 1.25
+        )
+
+)

@@ -199,7 +199,7 @@ $assigned_students = array_column($assigned_result->fetch_all(MYSQLI_ASSOC), 'st
                         <div class="row">
                             <div class="col-md-4">
                                 <select id="trackFilter" class="form-control">
-                                    <option value="">Filter</option>
+                                    <option value="">All</option>
                                     <option value="tech">Tech</option>
                                     <option value="non-tech">Non-Tech</option>
                                 </select>
@@ -217,7 +217,7 @@ $assigned_students = array_column($assigned_result->fetch_all(MYSQLI_ASSOC), 'st
                                         </th>
                                         <th>Student ID</th>
                                         <th>Name</th>
-                                        <th>Track</th>
+                                        <th>Student Type</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -288,57 +288,58 @@ $assigned_students = array_column($assigned_result->fetch_all(MYSQLI_ASSOC), 'st
     </div>
     <script src="assets/js/script.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectAll = document.getElementById('selectAll');
-            const studentCheckboxes = document.querySelectorAll('input[name="student_ids[]"]');
-            const trackFilter = document.getElementById('trackFilter');
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const studentCheckboxes = document.querySelectorAll('input[name="student_ids[]"]');
+    const trackFilter = document.getElementById('trackFilter');
+    
+    // Get filter value from URL if it exists
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterValue = urlParams.get('filter');
+    if (filterValue) {
+        trackFilter.value = filterValue;
+        filterStudents(filterValue);
+    }
             
-            // Get filter value from URL if it exists
-            const urlParams = new URLSearchParams(window.location.search);
-            const filterValue = urlParams.get('filter');
-            if (filterValue) {
-                trackFilter.value = filterValue;
-                filterStudents(filterValue);
-            }
-            
-            // Select All functionality
-            selectAll.addEventListener('change', function() {
-                studentCheckboxes.forEach(checkbox => {
-                    const row = checkbox.closest('tr');
-                    if (row.style.display !== 'none') {
-                        checkbox.checked = selectAll.checked;
-                    }
-                });
-            });
-            
-            // Track filter functionality
-            trackFilter.addEventListener('change', function() {
-                const selectedTrack = this.value;
-                filterStudents(selectedTrack);
-                
-                // Update URL with filter
-                const url = new URL(window.location.href);
-                if (selectedTrack) {
-                    url.searchParams.set('filter', selectedTrack);
-                } else {
-                    url.searchParams.delete('filter');
-                }
-                window.history.replaceState({}, '', url);
-            });
-            
-            function filterStudents(selectedTrack) {
-                document.querySelectorAll('.student-row').forEach(row => {
-                    const rowTrack = row.getAttribute('data-track');
-                    if (!selectedTrack || 
-                        (selectedTrack === 'tech' && rowTrack.includes('tech')) ||
-                        (selectedTrack === 'non-tech' && !rowTrack.includes('tech'))) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+             // Select All functionality
+    selectAll.addEventListener('change', function() {
+        studentCheckboxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            if (row.style.display !== 'none') {
+                checkbox.checked = selectAll.checked;
             }
         });
+    });
+            
+ // Track filter functionality
+ trackFilter.addEventListener('change', function() {
+        const selectedTrack = this.value;
+        filterStudents(selectedTrack);
+        
+        // Update URL with filter
+        const url = new URL(window.location.href);
+        if (selectedTrack) {
+            url.searchParams.set('filter', selectedTrack);
+        } else {
+            url.searchParams.delete('filter');
+        }
+        window.history.replaceState({}, '', url);
+    });
+            
+    function filterStudents(selectedTrack) {
+        document.querySelectorAll('.student-row').forEach(row => {
+            const rowTrack = row.getAttribute('data-track');
+            
+            if (!selectedTrack || 
+                (selectedTrack === 'tech' && rowTrack === 'tech') ||
+                (selectedTrack === 'non-tech' && rowTrack === 'non-tech')) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+});
     </script>
 </body>
 </html> 

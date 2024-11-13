@@ -5,11 +5,7 @@ session_start();
 
 // Include necessary files and libraries
 include('config/config.php');
-require 'vendor/autoload.php';
-use thiagoalessio\TesseractOCR\TesseractOCR;
-ini_set('error_log', __DIR__ . '/logs/php-error.log');
 require 'send_email.php';
-require_once 'config/tesseract_config.php';
 
 // Session management
 if (session_status() == PHP_SESSION_NONE) {
@@ -47,90 +43,157 @@ function validateUploadedFile($file) {
 // Extract subjects from OCR text
 function extractSubjects($text) {
     $subjects = [];
+    $logFile = __DIR__ . '/logs/subject_extraction_' . date('Y-m-d_H-i-s') . '.txt';
+    file_put_contents($logFile, "Raw OCR Text:\n" . $text . "\n\n", FILE_APPEND);
     
-    // Split text into lines to process each line individually
-    $lines = explode("\n", $text);
+    // Split into lines and clean
+    $lines = array_map('trim', explode("\n", $text));
     
-    $subjectCodes = [];
-    $descriptions = [];
-    $units = [];
-    $grades = [];
+    $currentSubject = null;
+    $inSubjectsSection = false;
     
-    $currentSection = ''; // Track which section we're parsing
+    // Common OCR corrections
+    $corrections = [
+        'Nacional' => 'National',
+        'Progrm' => 'Program',
+        'Werld' => 'World',
+        'Modem' => 'Modern',
+        'Securey' => 'Security',
+        'Spritualty' => 'Spirituality',
+        'Enics' => 'Ethics'
+    ];
     
     foreach ($lines as $line) {
-        $line = trim($line);
-        if (empty($line)) continue; // Skip empty lines
+        if (empty($line)) continue;
         
-        // Detect sections based on known headers
-        if (strpos($line, 'Subject Code') !== false) {
-            $currentSection = 'subject_code';
-            continue;
-        }
-        if (strpos($line, 'Description') !== false) {
-            $currentSection = 'description';
-            continue;
-        }
-        if (strpos($line, 'Units') !== false) {
-            $currentSection = 'units';
-            continue;
-        }
-        if (strpos($line, 'Final Grade') !== false) {
-            $currentSection = 'grade';
+        // Start capturing subjects after seeing these headers
+        if (preg_match('/(SUBJECT CODE|DESCRIPTIVE TITLE|TERM\s+SUBJECT CODE)/i', $line)) {
+            $inSubjectsSection = true;
             continue;
         }
         
-        // Based on the current section, add the line to the respective array
-        if ($currentSection === 'subject_code' && preg_match('/(COMP|CWTS|GEED|PHED)\s+\d{5}/', $line)) {
-            $subjectCodes[] = $line;
+        if (!$inSubjectsSection) continue;
+        
+        // Stop processing if we hit the grading system section
+        if (preg_match('/GRADING SYSTEM|NOTHING FOLLOWS/i', $line)) {
+            break;
         }
-        elseif ($currentSection === 'description') {
-            $descriptions[] = $line;
-        }
-        elseif ($currentSection === 'units' && preg_match('/\d+\.\d/', $line)) {
-            $units[] = $line;
-        }
-        elseif ($currentSection === 'grade' && preg_match('/\d\.\d{2}/', $line)) {
-            $grades[] = $line;
+        
+        // Split line by tabs or multiple spaces
+        $parts = preg_split('/\t+|\s{3,}/', $line);
+        $parts = array_map('trim', array_filter($parts));
+        
+        if (empty($parts)) continue;
+        
+        // Look for subject code pattern
+        foreach ($parts as $index => $part) {
+            // Match common subject code patterns
+            if (preg_match('/^[A-Z]+\d*-?[A-Z]?(?:LEC|LAB)?-[A-Z]$/i', $part) || 
+                preg_match('/^(?:CHEM|GEC|HRM|CLT|MGT|NSTP)[A-Z0-9]+(?:-[A-Z])?$/i', $part)) {
+                
+                // If we have a previous subject with all required fields, save it
+                if ($currentSubject && 
+                    !empty($currentSubject['description']) && 
+                    $currentSubject['grade'] !== null && 
+                    $currentSubject['units'] !== null) {
+                    $subjects[] = $currentSubject;
+                }
+                
+                // Start new subject
+                $currentSubject = [
+                    'subject_code' => $part,
+                    'description' => '',
+                    'grade' => null,
+                    'units' => null
+                ];
+                
+                // Try to get description from remaining parts
+                $descParts = [];
+                for ($i = $index + 1; $i < count($parts); $i++) {
+                    $nextPart = trim($parts[$i]);
+                    // Stop if we hit a grade or unit
+                    if (preg_match('/^[1-5][\.,]\d{2}$/', $nextPart) || 
+                        preg_match('/^[1-6](?:[\.,]0)?$/', $nextPart)) {
+                        break;
+                    }
+                    $descParts[] = $nextPart;
+                }
+                if (!empty($descParts)) {
+                    $currentSubject['description'] = implode(' ', $descParts);
+                }
+                
+                // Look for grade and units in remaining parts
+                foreach ($parts as $p) {
+                    // Match grade (1.00 to 5.00)
+                    if (preg_match('/^[1-5][\.,]\d{2}$/', $p)) {
+                        $grade = str_replace(',', '.', $p);
+                        $currentSubject['grade'] = number_format(floatval($grade), 2);
+                    }
+                    // Match units (typically 1-6)
+                    elseif (preg_match('/^[1-6](?:[\.,]0)?$/', $p)) {
+                        $units = str_replace(',', '.', $p);
+                        $currentSubject['units'] = number_format(floatval($units), 1);
+                    }
+                }
+                
+                break;
+            }
         }
     }
     
-    // Combine subject codes, descriptions, units, and grades
-    $numSubjects = min(count($subjectCodes), count($descriptions), count($units), count($grades)); // Ensure all arrays are equal in size
-    for ($i = 0; $i < $numSubjects; $i++) {
-        $subjects[] = [
-            'subject_code' => $subjectCodes[$i],
-            'description' => $descriptions[$i],
-            'units' => floatval($units[$i]),
-            'grade' => floatval($grades[$i])
-        ];
+    // Add the last subject if complete
+    if ($currentSubject && 
+        !empty($currentSubject['description']) && 
+        $currentSubject['grade'] !== null && 
+        $currentSubject['units'] !== null) {
+        $subjects[] = $currentSubject;
     }
-
-    return $subjects;
+    
+    // Filter out invalid subjects
+    $subjects = array_filter($subjects, function($subject) {
+        return !empty($subject['subject_code']) && 
+               !empty($subject['description']) && 
+               $subject['grade'] !== null && 
+               $subject['units'] !== null &&
+               $subject['units'] > 0 && 
+               $subject['units'] <= 6.0 &&
+               floatval($subject['grade']) >= 1.00 && 
+               floatval($subject['grade']) <= 5.00 &&
+               !preg_match('/NOTHING FOLLOWS/i', $subject['description']);
+    });
+    
+    // Log the results
+    file_put_contents($logFile, "\nProcessed Subjects:\n" . print_r(array_values($subjects), true), FILE_APPEND);
+    
+    return array_values($subjects);
 }
 
 // 1. Function to compare parsed subjects with coded courses in the database and save matches
 function matchCreditedSubjects($conn, $subjects, $student_id) {
     addDebugOutput("Starting Subject Matching Process");
+    $_SESSION['matches'] = [];
     
     foreach ($subjects as $subject) {
-        $code = strtolower(trim($subject['subject_code']));  
-        $description = strtolower(trim($subject['description']));  
+        // Clean and standardize the description
+        $description = strtolower(trim($subject['description']));
+        // Remove extra spaces and standardize common words
+        $description = preg_replace('/\s+/', ' ', $description);
         $units = $subject['units'];
-
+        
         addDebugOutput("Checking Subject:", [
-            'code' => $code,
             'description' => $description,
-            'units' => $units
+            'units' => $units,
+            'grade' => $subject['grade']
         ]);
 
+        // Modified query to match only by description (using LIKE for better matching)
         $sql = "SELECT * FROM coded_courses 
-                WHERE LOWER(subject_code) = ? 
-                AND LOWER(subject_description) = ? 
+                WHERE LOWER(subject_description) LIKE ? 
                 AND units = ?";
 
+        $description_pattern = "%" . $description . "%";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssd", $code, $description, $units);
+        $stmt->bind_param("sd", $description_pattern, $units);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -138,20 +201,31 @@ function matchCreditedSubjects($conn, $subjects, $student_id) {
             while ($row = $result->fetch_assoc()) {
                 addDebugOutput("Match Found:", $row);
                 
-                $insert_sql = "INSERT INTO matched_courses (subject_code, subject_description, units, student_id, matched_at) 
-                               VALUES (?, ?, ?, ?, NOW())";
+                // Insert the matched course
+                $insert_sql = "INSERT INTO matched_courses 
+                             (subject_code, subject_description, units, student_id, matched_at, original_code, grade) 
+                             VALUES (?, ?, ?, ?, NOW(), ?, ?)";
+                             
                 $insert_stmt = $conn->prepare($insert_sql);
-                $insert_stmt->bind_param("ssdi", $row['subject_code'], $row['subject_description'], $row['units'], $student_id);
+                $insert_stmt->bind_param(
+                    "ssdiss", 
+                    $row['subject_code'],        // Our database subject code
+                    $row['subject_description'], // Our database description
+                    $row['units'],              // Units
+                    $student_id,                // Student ID
+                    $subject['subject_code'],   // Original subject code from TOR
+                    $subject['grade']           // Grade from TOR
+                );
                 $insert_stmt->execute();
+                
+                $_SESSION['matches'][] = "✓ Matched: {$subject['subject_code']} - {$subject['description']} ({$subject['units']} units) with grade {$subject['grade']}";
             }
-            $_SESSION['matches'][] = "Subject matched: {$subject['subject_code']} - {$subject['description']} ({$subject['units']} units)";
         } else {
             addDebugOutput("No Match Found for Subject", [
-                'searched_code' => $code,
                 'searched_description' => $description,
                 'searched_units' => $units
             ]);
-            $_SESSION['matches'][] = "No match for: {$subject['subject_code']} - {$subject['description']} ({$subject['units']} units)";
+            $_SESSION['matches'][] = "✗ No match for: {$subject['subject_code']} - {$subject['description']} ({$subject['units']} units)";
         }
     }
 }
@@ -242,8 +316,28 @@ function isTechStudent($subjects) {
 
 // Function to register the student with updated fields
 // Function to register the student with updated fields and also pass subjects
+// Function to register the student with updated fields and also pass subjects
 function registerStudent($conn, $studentData, $subjects) {
-    $reference_id = uniqid('STU_', true);
+    // Get current year
+    $year = date('Y');
+    
+    // Generate a unique number (5 digits)
+    $unique = str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+    
+    // Create reference ID in format CCIS-YEAR-UNIQUE
+    $reference_id = "CCIS-{$year}-{$unique}";
+    
+    // Check if reference ID already exists
+    $check_stmt = $conn->prepare("SELECT reference_id FROM students WHERE reference_id = ?");
+    $check_stmt->bind_param("s", $reference_id);
+    $check_stmt->execute();
+    
+    // If reference ID exists, generate a new one
+    while ($check_stmt->get_result()->num_rows > 0) {
+        $unique = str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+        $reference_id = "CCIS-{$year}-{$unique}";
+        $check_stmt->execute();
+    }
     $studentData['reference_id'] = $reference_id;
     
     // Set year_level to NULL for ladderized students
@@ -346,6 +440,135 @@ function addDebugOutput($message, $data = null) {
     $_SESSION['debug_output'] .= "</div>";
 }
 
+// Add Azure Computer Vision SDK
+require 'vendor/autoload.php';
+use MicrosoftAzure\Storage\Common\ServicesBuilder;
+use GuzzleHttp\Client;
+
+// Add Azure configuration
+function performOCR($imagePath) {
+    require_once 'config/azure_config.php';
+    
+    try {
+        $client = new GuzzleHttp\Client();
+        
+        // First API call to submit the image
+        $response = $client->post(AZURE_ENDPOINT . "vision/v3.2/read/analyze", [
+            'headers' => [
+                'Content-Type' => 'application/octet-stream',
+                'Ocp-Apim-Subscription-Key' => AZURE_KEY
+            ],
+            'body' => file_get_contents($imagePath)
+        ]);
+        
+        if (!$response->hasHeader('Operation-Location')) {
+            throw new Exception("No Operation-Location header received from Azure");
+        }
+        
+        $operationLocation = $response->getHeader('Operation-Location')[0];
+        
+        // Poll for results
+        $maxRetries = 10;
+        $retryCount = 0;
+        $result = null;
+        
+        do {
+            sleep(1);
+            $resultResponse = $client->get($operationLocation, [
+                'headers' => [
+                    'Ocp-Apim-Subscription-Key' => AZURE_KEY
+                ]
+            ]);
+            
+            $result = json_decode($resultResponse->getBody(), true);
+            $retryCount++;
+        } while (($result['status'] ?? '') !== 'succeeded' && $retryCount < $maxRetries);
+
+        // Process the results
+        $lines = [];
+        foreach ($result['analyzeResult']['readResults'] as $page) {
+            foreach ($page['lines'] as $line) {
+                $box = $line['boundingBox'];
+                $y = $box[1]; // vertical position
+                $x = $box[0]; // horizontal position
+                $text = trim($line['text']);
+                
+                // Skip empty lines and headers
+                if (empty($text) || preg_match('/(UNIVERSITY|SEMESTER|Course Code|Page|Student Name|ID Number)/i', $text)) {
+                    continue;
+                }
+                
+                $lines[] = [
+                    'text' => $text,
+                    'x' => $x,
+                    'y' => $y
+                ];
+            }
+        }
+        
+        // Sort lines by vertical position first, then horizontal
+        usort($lines, function($a, $b) {
+            $yDiff = $a['y'] - $b['y'];
+            return $yDiff == 0 ? $a['x'] - $b['x'] : $yDiff;
+        });
+        
+        // Group lines into rows based on Y position
+        $rows = [];
+        $currentRow = [];
+        $lastY = null;
+        $yThreshold = 10; // Pixels threshold for same row
+        
+        foreach ($lines as $line) {
+            if ($lastY === null || abs($line['y'] - $lastY) > $yThreshold) {
+                if (!empty($currentRow)) {
+                    // Sort items in current row by X position
+                    usort($currentRow, function($a, $b) {
+                        return $a['x'] - $b['x'];
+                    });
+                    $rows[] = array_column($currentRow, 'text');
+                }
+                $currentRow = [];
+                $lastY = $line['y'];
+            }
+            $currentRow[] = $line;
+        }
+        
+        // Add the last row
+        if (!empty($currentRow)) {
+            usort($currentRow, function($a, $b) {
+                return $a['x'] - $b['x'];
+            });
+            $rows[] = array_column($currentRow, 'text');
+        }
+        
+        // Convert rows to structured text
+        $structuredText = '';
+        foreach ($rows as $row) {
+            $structuredText .= implode("\t", $row) . "\n";
+        }
+        
+        return $structuredText;
+        
+    } catch (Exception $e) {
+        error_log("OCR Error: " . $e->getMessage());
+        throw $e;
+    }
+}
+
+function preprocessImage($imagePath) {
+    // Get image info
+    $imageInfo = getimagesize($imagePath);
+    if ($imageInfo === false) {
+        throw new Exception("Invalid image file");
+    }
+    
+    // Log image details
+    error_log("Image Type: " . $imageInfo['mime']);
+    error_log("Image Dimensions: " . $imageInfo[0] . "x" . $imageInfo[1]);
+    
+    return $imagePath;
+}
+
 // Main processing code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -366,27 +589,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $school_id_path = 'uploads/school_id/' . basename($_FILES['school_id']['name']);
             move_uploaded_file($_FILES['school_id']['tmp_name'], __DIR__ . '/' . $school_id_path);
 
+            // Preprocess the image before OCR
+            $tor_path = preprocessImage($tor_path);
+
             // Add this function at the top
             try {
                 addDebugOutput("Starting OCR Process");
                 
-                if (!class_exists('thiagoalessio\TesseractOCR\TesseractOCR')) {
-                    $_SESSION['ocr_error'] = "OCR system is not available. Please try again later.";
-                    header("Location: registration_success.php");
-                    exit();
-                }
-
-                $ocr = new TesseractOCR($tor_path);
-                $ocr->executable(TESSERACT_PATH);
-                
-                try {
-                    $ocr_output = $ocr->run();
-                } catch (Exception $ocrException) {
-                    // Catch specific OCR execution errors and provide a cleaner message
-                    $_SESSION['ocr_error'] = "Unable to process the uploaded document. Please ensure your document is clear and readable.";
-                    header("Location: registration_success.php");
-                    exit();
-                }
+                // Replace Tesseract OCR with Azure OCR
+                $ocr_output = performOCR($tor_path);
                 
                 if (empty($ocr_output)) {
                     $_SESSION['ocr_error'] = "The system could not read any text from the uploaded document. Please ensure you have uploaded:
@@ -403,7 +614,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Basic validation of OCR output to check if it's a TOR
                 $required_keywords = [
                     'TRANSCRIPT','Transcript', 'Records', 'RECORDS', 'UNIT', 'Units', 'Unit', 'UNITS', 'Credit Unit/s',
-                    'GRADE', 'Grade','SUBJECT', 'Subject', 'Subject Code', 'Subject Description', 'Course Code', 'Course Description'
+                    'GRADE', 'Grade','SUBJECT', 'Subject', 'Subject Code', 'Subject Description', 'Course Code', 'Course Code','Course Description'
                 ];
                 $found_keywords = 0;
                 $found_words = [];

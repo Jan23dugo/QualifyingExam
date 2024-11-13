@@ -1,0 +1,62 @@
+Raw OCR Text:
+Republic of the Philippines
+MANILA
+OFFICIAL TRANSCRIPT OF RECORDS
+Name:	JANNAH LESLY YAMOYAM DUGO	Female	Date of Birth: 08/16/2004	Nabonality: FILIPINO
+Address	Of19 Sorrento Oasis, G. Rosario, Pasig City	JANNAH LESLY Y. DUGO	ID No TUPM-22-0914
+Entrance Credes From LEPANTO NATIONAL HIGH SCHOOL	Address:	Paco, Mankayan, Benguel	Date Graduated' Last Attended: July 2022
+Maior	BACHELOR OF SCIENCE IN HOTEL AND RESTAURANT MANAGEMENT	Date Admitted September 2022
+Date of Graduation:	NSTP Serial No.	Not Applicable
+TERM	SUBJECT CODE AND DESCRIPTIVE TITLE	GRADES	Completion	CREDITS
+First Semestar	CHEMGENT-M	General Chemistry	Final	1.75
+2022-2023	CHEMGENIL-M	GECZ-M	General Chemistry: Laboratory	Readings in Philippine History:	150	1:25
+GECZ-M	GECA-M	Mathematics in the Modem World	1.00	1.25
+HRM111-M	Science, Technology and Society	Risk Management as Applied to Safety, Securey	1.75
+and Sanitation	Macro Perspective of Tourism and Hospitality	1.50	---------------
+HRM113LAB-M	Kitchen Essentials & Basic Food Preparation	Hütchen Essentials & Basic Food Preparation	1,50	1.50
+HRMITJLEC-M	NSTP1-M	National Service Training Program 1	1.25	3
+CLT12SLEC-M	CLT125LAB-M	Food Chemistry, Laboratory	Food Chemistry	1.00	1.26	1
+2022-2023	GECI-M	Understanding the Self	1.50
+GECI-M	The Contemporary World	Religions, Religious Experience and Spritualty	1.29	1.25
+HRM121LEC-M	GEE1ZA-M	Micro Perspective of Tourism and Hospitality	1.50
+HRM122LAS-M	Asian Cuisine: Laboratory	Asian Cuisine	1.50	1.50
+HRM122LEC-M	HRM123LEC-M	Professional Development and Applied Enics	1.50
+MGT110-14	Operation Management	1.50
+NSTPZ-M	*********** NOTHING FOLLOWS -***********	National Service Training Program 2
+GRADING SYSTEM	0517291
+1.29	1,0	Superior	3.00	Patted	O.R. No
+1.75	Very Good	Wery Good	Oflocally Dropeet	OR Iund
+-2.00	Good	Cool	Amount Pad	P100.00
+2668319
+N 230906-3-0	A ROBRKIADO	Checked by HELEN M VILLANUEVA
+
+
+
+Processed Subjects:
+Array
+(
+    [0] => Array
+        (
+            [subject_code] => NSTP1-M
+            [description] => National Service Training Program 1
+            [grade] => 1.25
+            [units] => 3.0
+        )
+
+    [1] => Array
+        (
+            [subject_code] => CLT125LAB-M
+            [description] => Food Chemistry, Laboratory
+            [grade] => 1.26
+            [units] => 1.0
+        )
+
+    [2] => Array
+        (
+            [subject_code] => NSTPZ-M
+            [description] => *********** NOTHING FOLLOWS -***********
+            [grade] => 1.75
+            [units] => 1.0
+        )
+
+)

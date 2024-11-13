@@ -171,6 +171,7 @@ $conn->query($create_answers_table);
     <title>Take Exam</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/styles.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/loader.js"></script>
     <style>
         .reference-form {
             max-width: 400px;
@@ -245,6 +246,36 @@ $conn->query($create_answers_table);
     border: 1px solid #dee2e6;
 }
         /* Keep your existing styles */
+        .programming-question {
+            margin-bottom: 2rem;
+        }
+        
+        .code-editor-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .code-editor {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .code-output {
+            background: #1e1e1e;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .code-output .error {
+            color: #ff6b6b;
+        }
     </style>
 </head>
 <body>
@@ -422,19 +453,46 @@ $conn->query($create_answers_table);
                                         <?php endforeach; ?>
                                         
                                     <?php elseif ($question['type'] === 'programming'): ?>
-                                        <div>
-                                            <p>Programming Language: <?php echo htmlspecialchars($question['programming_language']); ?></p>
-                                            <textarea class="programming-editor" 
-                                                    name="answers[<?php echo $question['id']; ?>]"
-                                                    placeholder="Write your code here..."></textarea>
-                                            
-                                            <h5 class="mt-3">Test Cases:</h5>
-                                            <?php foreach ($question['test_cases'] as $test_case): ?>
-                                                <div class="test-case">
-                                                    <div><strong>Input:</strong> <?php echo htmlspecialchars($test_case['input_data']); ?></div>
-                                                    <div><strong>Expected Output:</strong> <?php echo htmlspecialchars($test_case['expected_output']); ?></div>
+                                        <div class="programming-question">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="question-content">
+                                                        <div class="mt-2 mb-3"><?php echo htmlspecialchars($question['text']); ?></div>
+                                                        
+                                                        <?php if (!empty($question['test_cases'])): ?>
+                                                            <h5 class="mt-3">Test Cases:</h5>
+                                                            <?php foreach ($question['test_cases'] as $test_case): ?>
+                                                                <div class="test-case">
+                                                                    <div><strong>Input:</strong> <?php echo htmlspecialchars($test_case['input_data']); ?></div>
+                                                                    <div><strong>Expected Output:</strong> <?php echo htmlspecialchars($test_case['expected_output']); ?></div>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        <?php endif; ?>
+                                                    </div>
                                                 </div>
-                                            <?php endforeach; ?>
+                                                <div class="col-md-6">
+                                                    <div class="code-editor-container">
+                                                        <div class="language-selector mb-2">
+                                                            <label>Language:</label>
+                                                            <select class="form-control" id="language-select-<?php echo $question['id']; ?>">
+                                                                <option value="java">Java</option>
+                                                                <option value="python">Python</option>
+                                                                <option value="c">C</option>
+                                                            </select>
+                                                        </div>
+                                                        <div id="code-editor-<?php echo $question['id']; ?>" class="code-editor"></div>
+                                                        <div class="editor-actions mt-2">
+                                                            <button type="button" class="btn btn-primary run-code" 
+                                                                    data-question-id="<?php echo $question['id']; ?>">
+                                                                Run Code
+                                                            </button>
+                                                        </div>
+                                                        <div id="output-<?php echo $question['id']; ?>" class="code-output mt-2"></div>
+                                                        <input type="hidden" name="answers[<?php echo $question['id']; ?>]" 
+                                                               id="code-input-<?php echo $question['id']; ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -484,5 +542,108 @@ $conn->query($create_answers_table);
     <?php endif; ?>
     
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+    class CodeEditor {
+        constructor(language, containerId) {
+            this.language = language;
+            this.containerId = containerId;
+            this.editor = null;
+            this.init();
+        }
+
+        init() {
+            require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs' }});
+            require(['vs/editor/editor.main'], () => {
+                this.editor = monaco.editor.create(document.getElementById(this.containerId), {
+                    value: this.getDefaultCode(),
+                    language: this.getMonacoLanguage(),
+                    theme: 'vs-dark',
+                    minimap: { enabled: false },
+                    automaticLayout: true,
+                    fontSize: 14,
+                    scrollBeyondLastLine: false,
+                    lineNumbers: true,
+                    lineHeight: 21
+                });
+
+                // Update hidden input when code changes
+                this.editor.onDidChangeModelContent(() => {
+                    const inputId = this.containerId.replace('code-editor-', 'code-input-');
+                    document.getElementById(inputId).value = this.editor.getValue();
+                });
+            });
+        }
+
+        getMonacoLanguage() {
+            const languageMap = {
+                'python': 'python',
+                'java': 'java',
+                'c': 'c'
+            };
+            return languageMap[this.language.toLowerCase()] || 'plaintext';
+        }
+
+        getDefaultCode() {
+            const templates = {
+                'java': 'public class Main {\n    public static void main(String[] args) {\n        // Write your code here\n        \n    }\n}',
+                'python': '# Write your code here\n',
+                'c': '#include <stdio.h>\n\nint main() {\n    // Write your code here\n    \n    return 0;\n}'
+            };
+            return templates[this.language.toLowerCase()] || '// Write your code here\n';
+        }
+
+        getCode() {
+            return this.editor ? this.editor.getValue() : '';
+        }
+
+        setCode(code) {
+            if (this.editor) {
+                this.editor.setValue(code);
+            }
+        }
+    }
+
+    // Initialize code editors when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize code editors for programming questions
+        document.querySelectorAll('.programming-question').forEach(question => {
+            const editorDiv = question.querySelector('.code-editor');
+            const questionId = editorDiv.id.split('-')[2];
+            const languageSelect = document.getElementById(`language-select-${questionId}`);
+            
+            const editor = new CodeEditor(languageSelect.value, `code-editor-${questionId}`);
+            
+            // Language change handler
+            languageSelect.addEventListener('change', () => {
+                editor.language = languageSelect.value;
+                editor.init();
+            });
+            
+            // Run code handler
+            question.querySelector('.run-code').addEventListener('click', async () => {
+                const code = editor.getCode();
+                const language = languageSelect.value;
+                const outputDiv = document.getElementById(`output-${questionId}`);
+                
+                try {
+                    const response = await fetch('api/execute_code.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code, language, testCases: [{ input: '', output: '' }] })
+                    });
+                    
+                    const result = await response.json();
+                    outputDiv.innerHTML = `
+                        <h5>Output:</h5>
+                        <pre>${result.results[0].actualOutput || ''}</pre>
+                        ${result.results[0].error ? `<pre class="error">${result.results[0].error}</pre>` : ''}
+                    `;
+                } catch (error) {
+                    outputDiv.innerHTML = `<pre class="error">Error: ${error.message}</pre>`;
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>

@@ -177,6 +177,62 @@ if (isset($_SESSION['success']) && isset($_SESSION['ocr_error'])) {
             padding-left: 0;
             margin: 15px 0;
         }
+
+        .credited-subjects-table {
+            margin: 20px 0;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .credited-subjects-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #faf3d5;
+            color: #73343a;
+        }
+
+        .credited-subjects-table th,
+        .credited-subjects-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #73343a;
+        }
+
+        .credited-subjects-table th {
+            background-color: #73343a;
+            color: #faf3d5;
+            font-weight: bold;
+        }
+
+        .credited-subjects-table tr:nth-child(even) {
+            background-color: #f4d6a3;
+        }
+
+        .credited-subjects-table tr:hover {
+            background-color: #e5b168;
+        }
+
+        .no-credits-message {
+            background-color: #f4d6a3;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .no-credits-message p {
+            color: #73343a;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .no-credits-message ul {
+            color: #73343a;
+            margin-left: 20px;
+        }
+
+        .modal-content {
+            max-width: 800px; /* Increased width for better table display */
+        }
     </style>
 </head>
 <body>
@@ -245,15 +301,55 @@ if (isset($_SESSION['success']) && isset($_SESSION['ocr_error'])) {
             <div class="modal-content">
                 <span class="close" onclick="closeCreditedSubjectsModal()">&times;</span>
                 <h2>Credited Subjects</h2>
+                
                 <?php
-                if (isset($_SESSION['matches'])) {
-                    echo "<div class='matches-info'>";
+                if (isset($_SESSION['matches']) && !empty($_SESSION['matches'])) {
+                    $hasCredits = false;
+                    echo "<div class='credited-subjects-table'>";
+                    echo "<table>
+                            <thead>
+                                <tr>
+                                    <th>Original Code</th>
+                                    <th>CCIS Code</th>
+                                    <th>Subject Description</th>
+                                    <th>Units</th>
+                                    <th>Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+                    
                     foreach ($_SESSION['matches'] as $match) {
-                        echo "<div>" . htmlspecialchars($match) . "</div>";
+                        // Only process successful matches (those starting with ✓)
+                        if (strpos($match, '✓') === 0) {
+                            $hasCredits = true;
+                            // Extract information from the match string
+                            preg_match('/✓ Matched: (.*?) - (.*?) \((.*?) units\) with grade (.*?)$/', $match, $parts);
+                            if (count($parts) >= 5) {
+                                echo "<tr>
+                                        <td>{$parts[1]}</td>
+                                        <td>{$parts[1]}</td>
+                                        <td>{$parts[2]}</td>
+                                        <td>{$parts[3]}</td>
+                                        <td>{$parts[4]}</td>
+                                      </tr>";
+                            }
+                        }
+                    }
+                    echo "</tbody></table>";
+                    
+                    if (!$hasCredits) {
+                        echo "<div class='no-credits-message'>
+                                <p>No subjects were credited. This might be because:</p>
+                                <ul>
+                                    <li>The subjects don't match our curriculum</li>
+                                    <li>The units are different</li>
+                                    <li>The grades don't meet our requirements</li>
+                                </ul>
+                              </div>";
                     }
                     echo "</div>";
-                    unset($_SESSION['matches']);
                 }
+                unset($_SESSION['matches']);
                 ?>
                 <button class="btn" onclick="closeCreditedSubjectsModal()">Close</button>
             </div>

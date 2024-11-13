@@ -1,0 +1,352 @@
+Raw OCR Text:
+FCL 1101	University of Perpetual Help System DALTA	1.00	2.0
+PIL 1000	TAP SYSTER	1.00	3.0
+GEC 1000	Alabang - Zapote Road, Pamplona 3, Las Pintas City, Metro Manila 1740, Philippines	1.00	3.0
+GEC 4000	www.perpetualdalla.edu.ph . +63(02) 671-06-39	1.00	3.0
+NSTP 1101	OFFICE OF THE UNIVERSITY REGISTRAR	1.25	3.0
+PE 1101	OFFICIAL TRANSCRIPT OF RECORDS	1.00	3.0
+PSY 1101	Student Name	1.25	2.0
+FCL 1202	: ACABADO, JERRY MAE RIPALDA	1.00	3.0
+GEC 6000	ID Number	1.75	2.0
+GEC 8000	: 19-0179-116	1.50	3.0
+GEE 1000	Page 2 of 3	1.75	1.0
+NSTP 1202	Course Title	1.25	3.0
+PE 1202	Grade Credit Unit's Completion	1.00	2.0
+PSY 1202	The Perpetualite: Identity and Dignity	1.00	3.0
+PSY 1202L	Komunikasyon sa Akademikong Filipino	1.25	2.0
+ENG 1000	Understanding the Self	1.25	3.0
+FCL 2103	Purposive Communication	1.00	2.0
+FIL 3000	GEC 50CO	1.00	3.0
+GEC 2000	Mathematics in the Modem Werld	1.00	3.0
+GEE 2000	Nacional Service Training Program I	1.25	3.0
+PE 2103	Foundations of Physical Education	1.25	2.0
+PSY 2103	Introduction to Psychology	1.00	3.0
+PSY 2104	The Perpetualite: A Man of God	1.75	3.0
+PSY 2105	The Contemporary World	1.50	3.0
+FCL 2204	Science, Technology, and Society	1.50	2.0
+GEC 3000	Living in the IT Era - Lec	1.00	3.0
+GEC 7000	MY SYSTEMI	1.25	3.0
+PE 2204	GEE 10COL	1.25	2.0
+PSY 220G	Living in the IT Era - Lab	1.00	2.0
+PSY 2206L	National Service Training Progrm 2	1.00	3.0
+RZL 1000	Rhythmic Activities	1.00	2.0
+FCL 3105	Psychological Statistics - Lec	1.50	3.0
+PSY 3105	Psychological Statistics - Lab	1.25	3.0
+PSY 3107	English for the Profession	1.50	2.0
+PSY 3107L	The Perpetualite: Called to Perfection	1.25	3.0
+PSY 3108	Hasining na Pagpapahayag	1.25	1.0
+PSY 3109	Ethics	1.25	3.0
+PSY 3110	The Entrepreneurial Mind	1.00	2.0
+FOL 3205	Individual/Dual Sports	1.25	
+PSY 2211	Physiology/Biological Psychology		
+
+
+
+Final Extracted Subjects:
+Array
+(
+    [0] => Array
+        (
+            [subject_code] => FCL 1101
+            [description] => University of Perpetual Help System DALTA
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [1] => Array
+        (
+            [subject_code] => PIL 1000
+            [description] => TAP SYSTER
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [2] => Array
+        (
+            [subject_code] => GEC 1000
+            [description] => Alabang - Zapote Road, Pamplona 3, Las Pintas City, Metro Manila 1740, Philippines
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [3] => Array
+        (
+            [subject_code] => GEC 4000
+            [description] => www.perpetualdalla.edu.ph . +63(02) 671-06-39
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [4] => Array
+        (
+            [subject_code] => NSTP 1101
+            [description] => OFFICE OF THE UNIVERSITY REGISTRAR
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [5] => Array
+        (
+            [subject_code] => PE 1101
+            [description] => OFFICIAL TRANSCRIPT OF RECORDS
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [6] => Array
+        (
+            [subject_code] => PSY 1101
+            [description] => Student Name
+            [units] => 2.0
+            [grade] => 1.25
+        )
+
+    [7] => Array
+        (
+            [subject_code] => FCL 1202
+            [description] => : ACABADO, JERRY MAE RIPALDA
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [8] => Array
+        (
+            [subject_code] => GEC 6000
+            [description] => ID Number
+            [units] => 2.0
+            [grade] => 1.75
+        )
+
+    [9] => Array
+        (
+            [subject_code] => GEC 8000
+            [description] => : 19-0179-116
+            [units] => 3.0
+            [grade] => 1.50
+        )
+
+    [10] => Array
+        (
+            [subject_code] => GEE 1000
+            [description] => Page 2 of 3
+            [units] => 1.0
+            [grade] => 1.75
+        )
+
+    [11] => Array
+        (
+            [subject_code] => NSTP 1202
+            [description] => Course Title
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [12] => Array
+        (
+            [subject_code] => PE 1202
+            [description] => Grade Credit Unit's Completion
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [13] => Array
+        (
+            [subject_code] => PSY 1202
+            [description] => The Perpetualite: Identity and Dignity
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [14] => Array
+        (
+            [subject_code] => PSY 1202L
+            [description] => Komunikasyon sa Akademikong Filipino
+            [units] => 2.0
+            [grade] => 1.25
+        )
+
+    [15] => Array
+        (
+            [subject_code] => ENG 1000
+            [description] => Understanding the Self
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [16] => Array
+        (
+            [subject_code] => FCL 2103
+            [description] => Purposive Communication
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [17] => Array
+        (
+            [subject_code] => FIL 3000
+            [description] => GEC 50CO
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [18] => Array
+        (
+            [subject_code] => GEC 2000
+            [description] => Mathematics in the Modem Werld
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [19] => Array
+        (
+            [subject_code] => GEE 2000
+            [description] => Nacional Service Training Program I
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [20] => Array
+        (
+            [subject_code] => PE 2103
+            [description] => Foundations of Physical Education
+            [units] => 2.0
+            [grade] => 1.25
+        )
+
+    [21] => Array
+        (
+            [subject_code] => PSY 2103
+            [description] => Introduction to Psychology
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [22] => Array
+        (
+            [subject_code] => PSY 2104
+            [description] => The Perpetualite: A Man of God
+            [units] => 3.0
+            [grade] => 1.75
+        )
+
+    [23] => Array
+        (
+            [subject_code] => PSY 2105
+            [description] => The Contemporary World
+            [units] => 3.0
+            [grade] => 1.50
+        )
+
+    [24] => Array
+        (
+            [subject_code] => FCL 2204
+            [description] => Science, Technology, and Society
+            [units] => 2.0
+            [grade] => 1.50
+        )
+
+    [25] => Array
+        (
+            [subject_code] => GEC 3000
+            [description] => Living in the IT Era - Lec
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [26] => Array
+        (
+            [subject_code] => GEC 7000
+            [description] => MY SYSTEMI
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [27] => Array
+        (
+            [subject_code] => PE 2204
+            [description] => GEE 10COL
+            [units] => 2.0
+            [grade] => 1.25
+        )
+
+    [28] => Array
+        (
+            [subject_code] => PSY 220G
+            [description] => Living in the IT Era - Lab
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [29] => Array
+        (
+            [subject_code] => PSY 2206L
+            [description] => National Service Training Progrm 2
+            [units] => 3.0
+            [grade] => 1.00
+        )
+
+    [30] => Array
+        (
+            [subject_code] => RZL 1000
+            [description] => Rhythmic Activities
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+    [31] => Array
+        (
+            [subject_code] => FCL 3105
+            [description] => Psychological Statistics - Lec
+            [units] => 3.0
+            [grade] => 1.50
+        )
+
+    [32] => Array
+        (
+            [subject_code] => PSY 3105
+            [description] => Psychological Statistics - Lab
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [33] => Array
+        (
+            [subject_code] => PSY 3107
+            [description] => English for the Profession
+            [units] => 2.0
+            [grade] => 1.50
+        )
+
+    [34] => Array
+        (
+            [subject_code] => PSY 3107L
+            [description] => The Perpetualite: Called to Perfection
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [35] => Array
+        (
+            [subject_code] => PSY 3108
+            [description] => Hasining na Pagpapahayag
+            [units] => 1.0
+            [grade] => 1.25
+        )
+
+    [36] => Array
+        (
+            [subject_code] => PSY 3109
+            [description] => Ethics
+            [units] => 3.0
+            [grade] => 1.25
+        )
+
+    [37] => Array
+        (
+            [subject_code] => PSY 3110
+            [description] => The Entrepreneurial Mind
+            [units] => 2.0
+            [grade] => 1.00
+        )
+
+)

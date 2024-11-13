@@ -1,0 +1,54 @@
+.programming-question {
+    margin-bottom: 2rem;
+}
+
+.code-editor-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.code-editor {
+    height: 400px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.code-output {
+    background: #1e1e1e;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+}
+
+.code-output pre {
+    margin: 0;
+    white-space: pre-wrap;
+    color: inherit;
+}
+
+.code-output .error {
+    color: #ff6b6b;
+}
+
+.sample-case {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.sample-case pre {
+    background: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.text-center {
+    text-align: center;
+} 

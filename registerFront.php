@@ -179,7 +179,7 @@ session_start();
             <h2>Academic Information</h2>
             <div class="form-group">
                 <div class="form-field" id="year-level-field">
-                    <label for="year_level">Current Year Level</label>
+                    <label for="year_level">Years of Residency</label>
                     <input type="number" id="year_level" name="year_level">
                 </div>
                 <div class="form-field" id="previous-school-field">

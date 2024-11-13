@@ -2,7 +2,8 @@
     "require": {
         "php": ">=7.4",
         "thiagoalessio/tesseract_ocr": "^2.13",
-        "tecnickcom/tcpdf": "^6.7"
+        "tecnickcom/tcpdf": "^6.7",
+        "guzzlehttp/guzzle": "^7.9"
     },
     "autoload": {
         "psr-4": {

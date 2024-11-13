@@ -1,0 +1,100 @@
+Raw OCR Text:
+TAP SYSTER
+University of Perpetual Help System DALTA
+Alabang - Zapote Road, Pamplona 3, Las Pintas City, Metro Manila 1740, Philippines
+www.perpetualdalla.edu.ph . +63(02) 671-06-39
+Student Name	ID Number
+FCL 1101	PIL 1000
+GEC 1000	GEC 4000
+GEC 50CO
+NSTP 1101	PE 1101
+PSY 1101
+FCL 1202	GEC 6000
+GEC 8000	GEE 1000
+GEE 10COL	NSTP 1202
+PE 1202	PSY 1202
+PSY 1202L
+ENG 1000	FCL 2103
+FIL 3000
+GEC 2000	GEE 2000
+PE 2103	PSY 2103
+PSY 2104	PSY 2105
+FCL 2204	GEC 3000
+GEC 7000	PE 2204
+PSY 220G	PSY 2206L
+RZL 1000
+FCL 3105	PSY 3105
+PSY 3107	PSY 3107L
+PSY 3108	PSY 3109
+PSY 3110
+FOL 3205	PSY 2211
+OFFICE OF THE UNIVERSITY REGISTRAR
+OFFICIAL TRANSCRIPT OF RECORDS
+: ACABADO, JERRY MAE RIPALDA
+: 19-0179-116
+Course Title
+The Perpetualite: Identity and Dignity	Komunikasyon sa Akademikong Filipino
+Understanding the Self
+Purposive Communication	Mathematics in the Modem Werld
+Nacional Service Training Program I
+Foundations of Physical Education	Introduction to Psychology
+The Perpetualite: A Man of God
+The Contemporary World	Science, Technology, and Society
+Living in the IT Era - Lec
+Living in the IT Era - Lab	National Service Training Progrm 2
+Rhythmic Activities	Psychological Statistics - Lec
+Psychological Statistics - Lab
+MY SYSTEMI
+English for the Profession	The Perpetualite: Called to Perfection
+Hasining na Pagpapahayag	Ethics
+The Entrepreneurial Mind	Individual/Dual Sports
+Physiology/Biological Psychology
+Developmental Psychology	Theories of Personality
+The Perpetualite: A Man for Others
+Arts Appreciation	Readings In Philippine History
+Team Sports	Experimental Psychology - Lec
+Experimental Psychology - Lab	The Life and Works of Rizal
+The Perpetualite: A Filipino Christian Leader
+Cognitive Psychology	Field Methods in Psychology - Lec
+Field Methods in Psychology - Lab	Social Psychology
+Industrial/Organizational Psychology
+Group Dynamics
+The Perpetualite: Minister of Life	Psychological Assessment - Lec
+...
+NOT VALID WITHOUT SCHOOL SEAL
+Page 2 of 3
+Grade Credit Unit's Completion
+1.00	2.0	1.00	3.0
+3.0	1.00	3.0
+1.00	3.0
+1.25	3.0	1.00	20
+1.25	3.0
+1.00	2.0	1.75
+3.0	1.50
+1.75	1.25	1.0
+1.00	3.0	1.00	2.0
+1.25	3.0
+1.25	2.0
+1.00	3.0	1.00	2.0
+1.00	3.0
+1.25	3.0	1.25	3.0
+1.00	20	1.75	3.0
+1.50	3.0
+1.50	3.0
+1.00	2.0	1.25	3.0
+1.25	3.0
+1.00	2.0	1.00
+1.29	2.0
+1.35	3.0
+1.00	2.0	1.50	3.0
+1.25	3.0
+1.50	2.0	1.25	3.0
+1.25	10	1.25	3.0
+1.00	20	1.25
+
+
+
+Final Extracted Subjects:
+Array
+(
+)
