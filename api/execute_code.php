@@ -1,121 +1,58 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . '/../config/config.php';
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// JDoodle API Configuration
+define('JDOODLE_CLIENT_ID', '8c686c1b1579a59d4b1757074bb59fd2'); // Replace with your JDoodle client ID
+define('JDOODLE_CLIENT_SECRET', '33aff191a34149669be03ad9e1853e67a894f9460fff913952c1e2441ea4ac77'); // Replace with your JDoodle client secret
+define('JDOODLE_API_URL', 'https://api.jdoodle.com/v1/execute');
 
-// Validate request
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
-}
-
-$input = json_decode(file_get_contents('php://input'), true);
-$language = $input['language'] ?? '';
-$code = $input['code'] ?? '';
-$testCases = $input['testCases'] ?? [];
-
-// Configure JDoodle API
-$JDOODLE_API = 'https://api.jdoodle.com/v1/execute';
-$CLIENT_ID = 'your-client-id';  // Replace with your JDoodle client ID
-$CLIENT_SECRET = 'your-client-secret';  // Replace with your JDoodle client secret
-
-function executeCode($language, $code, $input) {
-    global $JDOODLE_API, $CLIENT_ID, $CLIENT_SECRET;
-
-    // Language IDs for JDoodle API
+function executeCode($code, $language) {
     $languageMap = [
-        'python' => ['python3', '4'],
-        'java' => ['java', '4'],
-        'c' => ['c', '5']
+        'java' => ['java', 3],
+        'python' => ['python3', 3],
+        'c' => ['c', 4],
+        'cpp' => ['cpp', 3],
+        'javascript' => ['nodejs', 3]
     ];
 
-    if (!isset($languageMap[$language])) {
-        throw new Exception("Unsupported programming language");
-    }
-
-    [$langName, $langVersion] = $languageMap[$language];
-
-    // Prepare the submission data
     $postData = [
-        'clientId' => $CLIENT_ID,
-        'clientSecret' => $CLIENT_SECRET,
+        'clientId' => JDOODLE_CLIENT_ID,
+        'clientSecret' => JDOODLE_CLIENT_SECRET,
         'script' => $code,
-        'language' => $langName,
-        'versionIndex' => $langVersion,
-        'stdin' => $input
+        'language' => $languageMap[$language][0],
+        'versionIndex' => $languageMap[$language][1]
     ];
 
-    $curl = curl_init($JDOODLE_API);
-    curl_setopt_array($curl, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => json_encode($postData)
-    ]);
+    $ch = curl_init(JDOODLE_API_URL);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 
-    $response = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
 
     if ($error) {
-        throw new Exception("Code execution failed: $error");
-    }
-
-    $result = json_decode($response, true);
-    
-    return [
-        'stdout' => $result['output'] ?? '',
-        'stderr' => $result['error'] ?? '',
-        'statusCode' => $result['statusCode'] ?? 0,
-        'memory' => $result['memory'] ?? '',
-        'cpuTime' => $result['cpuTime'] ?? ''
-    ];
-}
-
-try {
-    if (!in_array($language, ['java', 'python', 'c'])) {
-        throw new Exception("Unsupported programming language");
-    }
-
-    $results = [];
-    if (empty($testCases)) {
-        $testCases = [['input' => '', 'output' => '']];
-    }
-
-    foreach ($testCases as $testCase) {
-        $result = executeCode($language, $code, $testCase['input']);
-        
-        $output = '';
-        if (!empty($result['stdout'])) {
-            $output .= $result['stdout'];
-        }
-        if (!empty($result['stderr'])) {
-            $output .= "\nError:\n" . $result['stderr'];
-        }
-
-        $results[] = [
-            'input' => $testCase['input'],
-            'expectedOutput' => $testCase['output'],
-            'actualOutput' => $output,
-            'cpuTime' => $result['cpuTime'],
-            'memory' => $result['memory']
+        return [
+            'success' => false,
+            'error' => $error
         ];
     }
 
-    echo json_encode([
-        'success' => true,
-        'results' => $results
-    ]);
+    return json_decode($response, true);
+}
 
-} catch (Exception $e) {
-    error_log("Error in execute_code.php: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+// Handle incoming requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!isset($input['code']) || !isset($input['language'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing required parameters']);
+        exit;
+    }
+
+    $result = executeCode($input['code'], $input['language']);
+    echo json_encode($result);
 } 

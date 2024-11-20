@@ -624,22 +624,38 @@ $conn->query($create_answers_table);
                 const code = editor.getCode();
                 const language = languageSelect.value;
                 const outputDiv = document.getElementById(`output-${questionId}`);
+                const runButton = question.querySelector('.run-code');
                 
                 try {
+                    runButton.disabled = true;
+                    runButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Running...';
+                    outputDiv.innerHTML = '<div class="text-muted">Executing code...</div>';
+                    
                     const response = await fetch('api/execute_code.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ code, language, testCases: [{ input: '', output: '' }] })
+                        body: JSON.stringify({ code, language })
                     });
                     
                     const result = await response.json();
-                    outputDiv.innerHTML = `
-                        <h5>Output:</h5>
-                        <pre>${result.results[0].actualOutput || ''}</pre>
-                        ${result.results[0].error ? `<pre class="error">${result.results[0].error}</pre>` : ''}
-                    `;
+                    
+                    if (result.output) {
+                        outputDiv.innerHTML = `
+                            <div class="output-header">Output:</div>
+                            <pre class="output-content">${result.output}</pre>
+                            <div class="output-stats">
+                                <span>Memory: ${result.memory} KB</span>
+                                <span>CPU Time: ${result.cpuTime} sec</span>
+                            </div>
+                        `;
+                    } else if (result.error) {
+                        outputDiv.innerHTML = `<pre class="error">${result.error}</pre>`;
+                    }
                 } catch (error) {
                     outputDiv.innerHTML = `<pre class="error">Error: ${error.message}</pre>`;
+                } finally {
+                    runButton.disabled = false;
+                    runButton.innerHTML = 'Run Code';
                 }
             });
         });
