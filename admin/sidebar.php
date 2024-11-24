@@ -44,6 +44,12 @@
                     <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="question_bank.php" class="nav-link">
+                    <i class="nav-icon fas fa-question-circle"></i>
+                    <p>Question Bank</p>
+                </a>
+            </li>
         </ul>
         <div class="text-center d-none d-md-inline">
             <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>

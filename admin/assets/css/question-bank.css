@@ -1,0 +1,153 @@
+/* Question Bank Styles */
+
+/* Badge Styles */
+.badge {
+    padding: 8px 12px;
+    font-weight: 500;
+}
+
+.badge-info {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.badge-primary {
+    background-color: #e8eaf6;
+    color: #1a237e;
+}
+
+.badge-success {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    margin-bottom: 30px;
+    background: #fff;
+}
+
+.card-header {
+    background: #fff !important;
+    border-bottom: 1px solid #eee;
+    padding: 1.5rem;
+}
+
+/* Table Styles */
+.table td, 
+.table th {
+    vertical-align: middle;
+}
+
+/* Button Styles */
+.btn-outline-primary, 
+.btn-outline-danger {
+    padding: .25rem .5rem;
+    margin: 0 2px;
+}
+
+/* Filter Section */
+.filter-section {
+    margin-bottom: 1.5rem;
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.option-wrapper .input-group {
+    margin-bottom: 0.5rem;
+}
+
+.option-wrapper .input-group-text {
+    background-color: #f8f9fa;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Custom Container Padding */
+.content-wrapper {
+    padding: 20px;
+    margin-left: 250px; /* Adjust based on your sidebar width */
+}
+
+/* Add responsive adjustments */
+@media (max-width: 768px) {
+    .content-wrapper {
+        margin-left: 0;
+        padding: 15px;
+    }
+}
+
+/* Ensure table is responsive */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Add some spacing to the content header */
+.content-header {
+    padding-bottom: 1rem;
+}
+
+/* Question Card Styles */
+.question-card {
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+.question-card:hover {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.question-content {
+    flex: 1;
+    padding-right: 1rem;
+}
+
+.question-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Options List Styles */
+.options-list {
+    margin-top: 0.5rem;
+}
+
+.option {
+    padding: 0.3rem 0;
+}
+
+.option i {
+    margin-right: 0.5rem;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5em 0.8em;
+}
+
+/* Filter Section Styles */
+.filter-section {
+    background-color: #f8f9fc;
+    border-radius: 0.35rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: #f8f9fc;
+}
+
+.new-category-input {
+    display: none;
+    margin-top: 0.5rem;
+} 
