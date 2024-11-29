@@ -206,8 +206,17 @@ include('../config/config.php');
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Question</button>
+                        <div class="d-flex justify-content-between w-100">
+                            <div>
+                                <button type="button" class="btn btn-success" id="addAnotherQuestion">
+                                    <i class="fas fa-plus"></i> Add Another Question
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Save Question(s)</button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -346,11 +355,11 @@ include('../config/config.php');
                     <div class="mb-3">
                         <label class="form-label">Correct Answer</label>
                         <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="correct_answer" value="true" id="true" required>
-                            <label class="btn btn-outline-primary" for="true">True</label>
+                            <input type="radio" class="btn-check" name="correct_answer" value="True" id="btnTrue" required>
+                            <label class="btn btn-outline-primary" for="btnTrue">True</label>
                             
-                            <input type="radio" class="btn-check" name="correct_answer" value="false" id="false">
-                            <label class="btn btn-outline-primary" for="false">False</label>
+                            <input type="radio" class="btn-check" name="correct_answer" value="False" id="btnFalse" required>
+                            <label class="btn btn-outline-primary" for="btnFalse">False</label>
                         </div>
                     </div>`;
             } else if (questionType === 'essay') {
@@ -535,50 +544,196 @@ include('../config/config.php');
             $('input[name="new_category"]').prop('required', false).val('');
         });
 
-        // Add form submission handling
+        // Replace the existing form submission handler with this updated version
         $('#addQuestionForm').on('submit', function(e) {
             e.preventDefault();
             
+            // Get all questions data
+            const questions = collectQuestionsData();
+            
             // Basic validation
-            if (!$('select[name="category"]').val() && !$('input[name="new_category"]').val()) {
-                alert('Please select or enter a category');
+            if (questions.length === 0) {
+                alert('Please add at least one question');
                 return false;
             }
             
+            // Submit the questions
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: {
+                    action: 'add_multiple',
+                    questions: JSON.stringify(questions)  // Stringify the questions array
+                },
+                success: function(response) {
+                    try {
+                        const result = JSON.parse(response);
+                        if (result.status === 'success') {
+                            alert('Questions saved successfully!');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('Error processing the request');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr, status, error);
+                    alert('Error submitting the questions');
+                }
+            });
+        });
+
+        // Add these new functions to handle multiple questions
+        let questionsList = [];
+
+        function collectQuestionsData() {
+            const currentQuestion = {
+                category: $('#categorySelect').val() === 'new' ? $('input[name="new_category"]').val() : $('#categorySelect').val(),
+                question_type: $('#questionType').val(),
+                question_text: $('textarea[name="question_text"]').val(),
+            };
+
+            // Add type-specific data
+            switch(currentQuestion.question_type) {
+                case 'multiple_choice':
+                    currentQuestion.options = [];
+                    $('input[name="options[]"]').each(function() {
+                        currentQuestion.options.push($(this).val());
+                    });
+                    currentQuestion.correct_answer = $('input[name="correct_answer"]:checked').val();
+                    break;
+                case 'true_false':
+                    currentQuestion.correct_answer = $('.btn-check:checked').val() || null;
+                    if (!currentQuestion.correct_answer) {
+                        throw new Error('Please select True or False');
+                    }
+                    break;
+                case 'essay':
+                    currentQuestion.answer_guidelines = $('textarea[name="answer_guidelines"]').val();
+                    break;
+                case 'programming':
+                    currentQuestion.programming_language = $('select[name="programming_language"]').val();
+                    currentQuestion.problem_description = $('textarea[name="problem_description"]').val();
+                    currentQuestion.input_format = $('textarea[name="input_format"]').val();
+                    currentQuestion.output_format = $('textarea[name="output_format"]').val();
+                    currentQuestion.constraints = $('textarea[name="constraints"]').val();
+                    // Collect test cases
+                    currentQuestion.test_cases = [];
+                    $('.test-case').each(function() {
+                        currentQuestion.test_cases.push({
+                            input: $(this).find('textarea[name="test_case_input[]"]').val(),
+                            output: $(this).find('textarea[name="test_case_output[]"]').val(),
+                            explanation: $(this).find('textarea[name="test_case_explanation[]"]').val()
+                        });
+                    });
+                    break;
+            }
+
+            return questionsList.concat([currentQuestion]);
+        }
+
+        // Add this code to handle the "Add Another Question" button
+        $('#addAnotherQuestion').click(function() {
+            // Validate current question
+            if (!validateCurrentQuestion()) {
+                return;
+            }
+            
+            // Add current question to the list
+            const currentQuestion = collectQuestionsData()[questionsList.length];
+            questionsList.push(currentQuestion);
+            
+            // Update questions counter
+            updateQuestionsCounter();
+            
+            // Clear form for next question
+            clearQuestionForm();
+            
+            // Show success message
+            showTemporaryMessage('Question added! Add another one or click Save to finish.');
+        });
+
+        function validateCurrentQuestion() {
             if (!$('textarea[name="question_text"]').val().trim()) {
                 alert('Please enter the question text');
                 return false;
             }
             
-            // For multiple choice, ensure at least one option is marked as correct
-            if ($('#questionType').val() === 'multiple_choice') {
+            const questionType = $('#questionType').val();
+            
+            if (questionType === 'multiple_choice') {
                 if (!$('input[name="correct_answer"]:checked').length) {
                     alert('Please select a correct answer');
                     return false;
                 }
+            } else if (questionType === 'true_false') {
+                if (!$('.btn-check:checked').length) {
+                    alert('Please select True or False as the correct answer');
+                    return false;
+                }
             }
             
-            // Submit the form
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(response) {
-                    try {
-                        const result = JSON.parse(response);
-                        if (result.status === 'success') {
-                            location.reload(); // Reload the page to show the new question
-                        } else {
-                            alert('Error: ' + result.message);
-                        }
-                    } catch (e) {
-                        alert('Error processing the request');
-                    }
-                },
-                error: function() {
-                    alert('Error submitting the question');
-                }
-            });
+            return true;
+        }
+
+        function clearQuestionForm() {
+            // Clear question text
+            $('textarea[name="question_text"]').val('');
+            
+            // Reset type-specific fields
+            switch($('#questionType').val()) {
+                case 'multiple_choice':
+                    $('input[name="options[]"]').val('');
+                    $('input[name="correct_answer"]').prop('checked', false);
+                    break;
+                case 'true_false':
+                    $('input[name="correct_answer"]').prop('checked', false);
+                    break;
+                case 'essay':
+                    $('textarea[name="answer_guidelines"]').val('');
+                    break;
+                case 'programming':
+                    $('textarea[name="problem_description"]').val('');
+                    $('textarea[name="input_format"]').val('');
+                    $('textarea[name="output_format"]').val('');
+                    $('textarea[name="constraints"]').val('');
+                    // Clear test cases except the first one
+                    const firstTestCase = $('.test-case:first');
+                    $('#testCasesContainer').empty().append(firstTestCase.clone());
+                    firstTestCase.find('textarea').val('');
+                    break;
+            }
+        }
+
+        function updateQuestionsCounter() {
+            // Add this HTML right after the modal title if it doesn't exist
+            if ($('#questionsCounter').length === 0) {
+                $('.modal-title').after('<div id="questionsCounter" class="ms-3 badge bg-primary"></div>');
+            }
+            $('#questionsCounter').text(`Questions: ${questionsList.length + 1}`);
+        }
+
+        function showTemporaryMessage(message) {
+            // Add this HTML if it doesn't exist
+            if ($('#temporaryMessage').length === 0) {
+                $('.modal-body').prepend('<div id="temporaryMessage" class="alert alert-success" style="display: none;"></div>');
+            }
+            
+            $('#temporaryMessage')
+                .text(message)
+                .fadeIn()
+                .delay(3000)
+                .fadeOut();
+        }
+
+        // Reset questions list when modal is closed
+        $('#addQuestionModal').on('hidden.bs.modal', function() {
+            questionsList = [];
+            $('#questionsCounter').remove();
+            clearQuestionForm();
         });
 
         // Handle import category selection
