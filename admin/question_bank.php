@@ -227,31 +227,36 @@ include('../config/config.php');
     <div class="modal fade" id="importQuestionModal" tabindex="-1" aria-labelledby="importQuestionModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="handlers/import_questions.php" method="POST" enctype="multipart/form-data" id="importQuestionForm">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Import Questions</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Questions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="importForm">
                         <div class="mb-3">
                             <label class="form-label">Select Category</label>
-                            <select class="form-control" name="category" required>
-                                <option value="">Choose Category</option>
-                                <option value="new">+ Add New Category</option>
-                                <?php
-                                $sql = "SELECT DISTINCT category FROM question_bank ORDER BY category";
-                                $result = $conn->query($sql);
-                                if ($result->num_rows > 0) {
-                                    while($row = $result->fetch_assoc()) {
-                                        echo "<option value='" . htmlspecialchars($row['category']) . "'>" . 
-                                             htmlspecialchars($row['category']) . "</option>";
+                            <div class="input-group">
+                                <select class="form-control" name="category" id="importCategorySelect" required>
+                                    <option value="">Choose Category</option>
+                                    <option value="new">+ Add New Category</option>
+                                    <?php
+                                    $sql = "SELECT DISTINCT category FROM question_bank ORDER BY category";
+                                    $result = $conn->query($sql);
+                                    if ($result->num_rows > 0) {
+                                        while($row = $result->fetch_assoc()) {
+                                            echo "<option value='" . htmlspecialchars($row['category']) . "'>" . 
+                                                 htmlspecialchars($row['category']) . "</option>";
+                                        }
                                     }
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div id="importNewCategoryInput" class="mb-3" style="display: none;">
-                            <input type="text" class="form-control" name="new_category" placeholder="Enter new category name">
+                                    ?>
+                                </select>
+                            </div>
+                            <div id="importNewCategoryInput" class="mt-2" style="display: none;">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="new_category" id="newCategoryName" placeholder="Enter new category name">
+                                    <button type="button" class="btn btn-outline-secondary" id="cancelNewCategory">Cancel</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Upload File</label>
@@ -263,12 +268,12 @@ include('../config/config.php');
                                 <i class="fas fa-download"></i> Download CSV Template
                             </a>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Import</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="importSubmitBtn">Import</button>
+                </div>
             </div>
         </div>
     </div>
@@ -737,45 +742,123 @@ include('../config/config.php');
         });
 
         // Handle import category selection
-        $('select[name="category"]').change(function() {
+        $('#importCategorySelect').change(function() {
             if ($(this).val() === 'new') {
                 $('#importNewCategoryInput').show();
-                $('input[name="new_category"]').prop('required', true);
+                $('#newCategoryName').prop('required', true).focus();
+                $(this).prop('required', false);
             } else {
                 $('#importNewCategoryInput').hide();
-                $('input[name="new_category"]').prop('required', false);
+                $('#newCategoryName').prop('required', false);
+                $(this).prop('required', true);
             }
         });
 
-        // Handle import form submission
-        $('#importQuestionForm').on('submit', function(e) {
-            e.preventDefault();
+        // Handle cancel new category
+        $('#cancelNewCategory').click(function() {
+            $('#importCategorySelect').val('').prop('required', true);
+            $('#importNewCategoryInput').hide();
+            $('#newCategoryName').prop('required', false).val('');
+        });
+
+        // Update the import submit handler
+        $('#importSubmitBtn').click(function() {
+            const form = document.getElementById('importForm');
+            const formData = new FormData(form);
+            const submitBtn = $(this);
             
-            let formData = new FormData(this);
-            
+            // Handle new category
+            const selectedCategory = $('#importCategorySelect').val();
+            if (selectedCategory === 'new') {
+                const newCategory = $('#newCategoryName').val().trim();
+                if (!newCategory) {
+                    alert('Please enter a category name');
+                    $('#newCategoryName').focus();
+                    return;
+                }
+                formData.set('category', newCategory);
+            } else if (!selectedCategory) {
+                alert('Please select a category');
+                $('#importCategorySelect').focus();
+                return;
+            }
+
+            // Disable the submit button and show loading state
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Importing...');
+
+            // Show loading message
+            const modalBody = $('#importQuestionModal .modal-body');
+            if ($('#importLoadingMessage').length === 0) {
+                modalBody.append('<div id="importLoadingMessage" class="alert alert-info mt-3" style="display: none;"></div>');
+            }
+            $('#importLoadingMessage').html('Importing questions...').fadeIn();
+
+            // Log the FormData contents for debugging
+            console.log('Category being sent:', formData.get('category'));
+            console.log('File being sent:', formData.get('question_file'));
+
             $.ajax({
-                url: $(this).attr('action'),
+                url: 'handlers/import_questions.php',
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    console.log('Server response:', response);
+                    
                     try {
-                        const result = JSON.parse(response);
+                        const result = typeof response === 'string' ? JSON.parse(response) : response;
+                        
                         if (result.status === 'success') {
-                            alert('Questions imported successfully!');
-                            location.reload();
+                            $('#importLoadingMessage')
+                                .removeClass('alert-info alert-danger')
+                                .addClass('alert-success')
+                                .html(`Success! ${result.total_imported} questions imported.`);
+                            
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1500);
                         } else {
-                            alert('Error: ' + result.message);
+                            $('#importLoadingMessage')
+                                .removeClass('alert-info alert-success')
+                                .addClass('alert-danger')
+                                .html('Error: ' + (result.message || 'Unknown error occurred'));
+                            
+                            submitBtn.prop('disabled', false).html('Import');
                         }
                     } catch (e) {
-                        alert('Error processing the import');
+                        console.error('Parse error:', e);
+                        console.log('Raw response:', response);
+                        
+                        $('#importLoadingMessage')
+                            .removeClass('alert-info alert-success')
+                            .addClass('alert-danger')
+                            .html('Error processing the import response');
+                        
+                        submitBtn.prop('disabled', false).html('Import');
                     }
                 },
-                error: function() {
-                    alert('Error uploading file');
+                error: function(xhr, status, error) {
+                    console.error('Ajax error:', {xhr, status, error});
+                    
+                    $('#importLoadingMessage')
+                        .removeClass('alert-info alert-success')
+                        .addClass('alert-danger')
+                        .html('Error uploading file: ' + error);
+                    
+                    submitBtn.prop('disabled', false).html('Import');
                 }
             });
+        });
+
+        // Reset form when modal is closed
+        $('#importQuestionModal').on('hidden.bs.modal', function() {
+            $('#importForm')[0].reset();
+            $('#importSubmitBtn').prop('disabled', false).html('Import');
+            $('#importLoadingMessage').remove();
+            $('#importNewCategoryInput').hide();
+            $('#newCategoryName').prop('required', false).val('');
+            $('#importCategorySelect').prop('required', true);
         });
 
         // Handle category deletion

@@ -1,0 +1,1663 @@
+2024-11-30 09:08:32 - Debug: Starting import process
+2024-11-30 09:08:32 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\phpC67A.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:08:32 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:08:32 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:08:32 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:08:32 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:08:32 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:08:32 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:08:32 - Debug: Started database transaction
+2024-11-30 09:08:32 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:08:32 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:08:32 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:08:32 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:13:33 - Debug: Starting import process
+2024-11-30 09:13:33 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php5EFE.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:13:33 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:13:33 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:13:33 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:13:33 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:13:33 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:13:33 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:13:33 - Debug: Started database transaction
+2024-11-30 09:13:33 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:13:33 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:13:33 - Debug: Question inserted with ID
+Data: 41
+2024-11-30 09:13:33 - Debug: Processing multiple choice options for question
+Data: 41
+2024-11-30 09:13:33 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 41
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:13:33 - Debug: Choice 1 inserted successfully
+2024-11-30 09:13:33 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 41
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:13:33 - Debug: Choice 2 inserted successfully
+2024-11-30 09:13:33 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 41
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:13:33 - Debug: Choice 3 inserted successfully
+2024-11-30 09:13:33 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 41
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:13:33 - Debug: Choice 4 inserted successfully
+2024-11-30 09:13:33 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:13:33 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:13:33 - Debug: Question inserted with ID
+Data: 42
+2024-11-30 09:13:33 - Debug: Processing true/false options for question
+Data: 42
+2024-11-30 09:13:33 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 42
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:13:33 - Debug: True/false choices inserted successfully
+2024-11-30 09:15:29 - Debug: Starting import process
+2024-11-30 09:15:29 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php24EC.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:15:29 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:15:29 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:15:29 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:15:29 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:15:29 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:15:29 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:15:29 - Debug: Started database transaction
+2024-11-30 09:15:29 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:15:29 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:15:29 - Debug: Question inserted with ID
+Data: 43
+2024-11-30 09:15:29 - Debug: Processing multiple choice options for question
+Data: 43
+2024-11-30 09:15:29 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 43
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:15:29 - Debug: Choice 1 inserted successfully
+2024-11-30 09:15:29 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 43
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:15:29 - Debug: Choice 2 inserted successfully
+2024-11-30 09:15:29 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 43
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:15:29 - Debug: Choice 3 inserted successfully
+2024-11-30 09:15:29 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 43
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:15:29 - Debug: Choice 4 inserted successfully
+2024-11-30 09:15:29 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:15:29 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:15:29 - Debug: Question inserted with ID
+Data: 44
+2024-11-30 09:15:29 - Debug: Processing true/false options for question
+Data: 44
+2024-11-30 09:15:29 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 44
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:15:29 - Debug: True/false choices inserted successfully
+2024-11-30 09:18:00 - Debug: Starting import process
+2024-11-30 09:18:00 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php718A.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:18:00 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:18:00 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:18:00 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:18:00 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:18:00 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:18:00 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:18:00 - Debug: Started database transaction
+2024-11-30 09:18:00 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:18:00 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:18:00 - Debug: Question inserted with ID
+Data: 45
+2024-11-30 09:18:00 - Debug: Processing multiple choice options for question
+Data: 45
+2024-11-30 09:18:00 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 45
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:00 - Debug: Choice 1 inserted successfully
+2024-11-30 09:18:00 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 45
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:18:00 - Debug: Choice 2 inserted successfully
+2024-11-30 09:18:00 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 45
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:00 - Debug: Choice 3 inserted successfully
+2024-11-30 09:18:00 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 45
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:00 - Debug: Choice 4 inserted successfully
+2024-11-30 09:18:00 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:18:00 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:18:00 - Debug: Question inserted with ID
+Data: 46
+2024-11-30 09:18:00 - Debug: Processing true/false options for question
+Data: 46
+2024-11-30 09:18:00 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 46
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:18:00 - Debug: True/false choices inserted successfully
+2024-11-30 09:18:19 - Debug: Starting import process
+2024-11-30 09:18:19 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\phpBE42.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:18:19 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:18:19 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:18:19 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:18:19 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:18:19 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:18:19 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:18:19 - Debug: Started database transaction
+2024-11-30 09:18:19 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:18:19 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:18:19 - Debug: Question inserted with ID
+Data: 47
+2024-11-30 09:18:19 - Debug: Processing multiple choice options for question
+Data: 47
+2024-11-30 09:18:19 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 47
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:19 - Debug: Choice 1 inserted successfully
+2024-11-30 09:18:19 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 47
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:18:19 - Debug: Choice 2 inserted successfully
+2024-11-30 09:18:19 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 47
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:19 - Debug: Choice 3 inserted successfully
+2024-11-30 09:18:19 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 47
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:19 - Debug: Choice 4 inserted successfully
+2024-11-30 09:18:19 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:18:19 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:18:19 - Debug: Question inserted with ID
+Data: 48
+2024-11-30 09:18:19 - Debug: Processing true/false options for question
+Data: 48
+2024-11-30 09:18:19 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 48
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:18:19 - Debug: True/false choices inserted successfully
+2024-11-30 09:18:25 - Debug: Starting import process
+2024-11-30 09:18:25 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\phpD517.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:18:25 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:18:25 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:18:25 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:18:25 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:18:25 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:18:25 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:18:25 - Debug: Started database transaction
+2024-11-30 09:18:25 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:18:25 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:18:25 - Debug: Question inserted with ID
+Data: 49
+2024-11-30 09:18:25 - Debug: Processing multiple choice options for question
+Data: 49
+2024-11-30 09:18:25 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 49
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:25 - Debug: Choice 1 inserted successfully
+2024-11-30 09:18:25 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 49
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:18:25 - Debug: Choice 2 inserted successfully
+2024-11-30 09:18:25 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 49
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:25 - Debug: Choice 3 inserted successfully
+2024-11-30 09:18:25 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 49
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:18:25 - Debug: Choice 4 inserted successfully
+2024-11-30 09:18:25 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:18:25 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:18:25 - Debug: Question inserted with ID
+Data: 50
+2024-11-30 09:18:25 - Debug: Processing true/false options for question
+Data: 50
+2024-11-30 09:18:25 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 50
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:18:25 - Debug: True/false choices inserted successfully
+2024-11-30 09:22:17 - Debug: Starting import process
+2024-11-30 09:22:17 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php5FF5.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:22:17 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:22:17 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:22:17 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:22:17 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:22:17 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:22:17 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:22:17 - Debug: Started database transaction
+2024-11-30 09:22:17 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:22:17 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:22:17 - Debug: Question inserted with ID
+Data: 51
+2024-11-30 09:22:17 - Debug: Processing multiple choice options for question
+Data: 51
+2024-11-30 09:22:17 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 51
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:22:17 - Debug: Choice 1 inserted successfully
+2024-11-30 09:22:17 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 51
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:22:17 - Debug: Choice 2 inserted successfully
+2024-11-30 09:22:17 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 51
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:22:17 - Debug: Choice 3 inserted successfully
+2024-11-30 09:22:17 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 51
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:22:17 - Debug: Choice 4 inserted successfully
+2024-11-30 09:22:17 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:22:17 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:22:17 - Debug: Question inserted with ID
+Data: 52
+2024-11-30 09:22:17 - Debug: Processing true/false options for question
+Data: 52
+2024-11-30 09:22:17 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 52
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:22:17 - Debug: True/false choices inserted successfully
+2024-11-30 09:25:14 - Debug: Starting import process
+2024-11-30 09:25:14 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php12ED.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:25:14 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:25:14 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:25:14 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:25:14 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:25:14 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:25:14 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:25:14 - Debug: Started database transaction
+2024-11-30 09:25:14 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:25:14 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:25:14 - Debug: Question inserted with ID
+Data: 53
+2024-11-30 09:25:14 - Debug: Processing multiple choice options for question
+Data: 53
+2024-11-30 09:25:14 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 53
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:25:14 - Debug: Choice 1 inserted successfully
+2024-11-30 09:25:14 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 53
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:25:14 - Debug: Choice 2 inserted successfully
+2024-11-30 09:25:14 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 53
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:25:14 - Debug: Choice 3 inserted successfully
+2024-11-30 09:25:14 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 53
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:25:14 - Debug: Choice 4 inserted successfully
+2024-11-30 09:25:14 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:25:14 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:25:14 - Debug: Question inserted with ID
+Data: 54
+2024-11-30 09:25:14 - Debug: Processing true/false options for question
+Data: 54
+2024-11-30 09:25:14 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 54
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:25:14 - Debug: True/false choices inserted successfully
+2024-11-30 09:25:43 - Debug: Starting import process
+2024-11-30 09:25:43 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php8438.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:25:43 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:25:43 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:25:43 - Debug: Processing row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:25:43 - Debug: Processing row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:25:43 - Debug: Processing row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:25:43 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:25:43 - Debug: Started database transaction
+2024-11-30 09:25:43 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:25:43 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:25:43 - Debug: Question inserted with ID
+Data: 55
+2024-11-30 09:25:43 - Debug: Processing multiple choice options for question
+Data: 55
+2024-11-30 09:25:43 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 55
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:25:43 - Debug: Choice 1 inserted successfully
+2024-11-30 09:25:43 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 55
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:25:43 - Debug: Choice 2 inserted successfully
+2024-11-30 09:25:43 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 55
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:25:43 - Debug: Choice 3 inserted successfully
+2024-11-30 09:25:43 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 55
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:25:43 - Debug: Choice 4 inserted successfully
+2024-11-30 09:25:43 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:25:43 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:25:43 - Debug: Question inserted with ID
+Data: 56
+2024-11-30 09:25:43 - Debug: Processing true/false options for question
+Data: 56
+2024-11-30 09:25:43 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 56
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:25:43 - Debug: True/false choices inserted successfully
+2024-11-30 09:28:06 - Debug: Starting import process
+2024-11-30 09:28:06 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\phpB232.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:28:06 - Debug: Selected category
+Data: Non-Tech Questions
+2024-11-30 09:28:06 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:28:06 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:28:06 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:28:06 - Debug: Reading row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:28:06 - Debug: Skipping row with empty question type
+Data: 3
+2024-11-30 09:28:06 - Debug: Total valid rows found
+Data: 2
+2024-11-30 09:28:06 - Debug: Started database transaction
+2024-11-30 09:28:06 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:28:06 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:28:06 - Debug: Question inserted with ID
+Data: 57
+2024-11-30 09:28:06 - Debug: Processing multiple choice options for question
+Data: 57
+2024-11-30 09:28:06 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 57
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:28:06 - Debug: Choice 1 inserted successfully
+2024-11-30 09:28:06 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 57
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:28:06 - Debug: Choice 2 inserted successfully
+2024-11-30 09:28:06 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 57
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:28:06 - Debug: Choice 3 inserted successfully
+2024-11-30 09:28:06 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 57
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:28:06 - Debug: Choice 4 inserted successfully
+2024-11-30 09:28:06 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:28:06 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => Non-Tech Questions
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:28:06 - Debug: Question inserted with ID
+Data: 58
+2024-11-30 09:28:06 - Debug: Processing true/false options for question
+Data: 58
+2024-11-30 09:28:06 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 58
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:28:06 - Debug: True/false choices inserted successfully
+2024-11-30 09:28:06 - Debug: Import summary
+Data: Array
+(
+    [total_questions] => 2
+    [last_question_id] => 58
+    [transaction_status] => ready to commit
+)
+
+2024-11-30 09:28:06 - Debug: Transaction committed successfully
+2024-11-30 09:38:40 - Debug: Starting import process
+2024-11-30 09:38:40 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (11).csv
+    [full_path] => question_template (11).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php5EB3.tmp
+    [error] => 0
+    [size] => 183
+)
+
+2024-11-30 09:38:40 - Debug: Selected category
+Data: testing
+2024-11-30 09:38:40 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+)
+
+2024-11-30 09:38:40 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+)
+
+2024-11-30 09:38:40 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+)
+
+2024-11-30 09:38:40 - Debug: Reading row 3
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:38:40 - Debug: Skipping row with empty question type
+Data: 3
+2024-11-30 09:38:40 - Debug: Total valid rows found
+Data: 2
+2024-11-30 09:38:40 - Debug: Started database transaction
+2024-11-30 09:38:40 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+)
+
+2024-11-30 09:38:40 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => testing
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:38:40 - Debug: Question inserted with ID
+Data: 59
+2024-11-30 09:38:40 - Debug: Processing multiple choice options for question
+Data: 59
+2024-11-30 09:38:40 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 59
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:38:40 - Debug: Choice 1 inserted successfully
+2024-11-30 09:38:40 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 59
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:38:40 - Debug: Choice 2 inserted successfully
+2024-11-30 09:38:40 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 59
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:38:40 - Debug: Choice 3 inserted successfully
+2024-11-30 09:38:40 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 59
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:38:40 - Debug: Choice 4 inserted successfully
+2024-11-30 09:38:40 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+)
+
+2024-11-30 09:38:40 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => testing
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:38:40 - Debug: Question inserted with ID
+Data: 60
+2024-11-30 09:38:40 - Debug: Processing true/false options for question
+Data: 60
+2024-11-30 09:38:40 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 60
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:38:40 - Debug: True/false choices inserted successfully
+2024-11-30 09:38:40 - Debug: Import summary
+Data: Array
+(
+    [total_questions] => 2
+    [last_question_id] => 60
+    [transaction_status] => ready to commit
+)
+
+2024-11-30 09:38:40 - Debug: Transaction committed successfully
