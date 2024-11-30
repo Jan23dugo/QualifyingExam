@@ -150,4 +150,33 @@
 .new-category-input {
     display: none;
     margin-top: 0.5rem;
+}
+
+/* Add these styles for programming questions */
+.programming-details pre {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 0;
+}
+
+.programming-details .table pre {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.programming-details code {
+    font-family: 'Source Code Pro', monospace;
+}
+
+.programming-details .table {
+    font-size: 0.9rem;
+}
+
+.programming-details .table th {
+    background-color: #f8f9fa;
 } 

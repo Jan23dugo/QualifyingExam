@@ -1,2 +1,26 @@
 2024-11-30 09:01:42 - Error: Column 'question_type' cannot be null
 2024-11-30 09:02:09 - Error: Column 'question_type' cannot be null
+2024-11-30 09:42:42 - Error: Failed to complete import
+Data: Array
+(
+    [error] => Data truncated for column 'question_type' at row 1
+    [trace] => #0 C:\laragon\www\QualifyingExam\admin\handlers\import_questions.php(152): mysqli_stmt->execute()
+#1 {main}
+)
+
+2024-11-30 09:44:09 - Error: Failed to complete import
+Data: Array
+(
+    [error] => Data truncated for column 'question_type' at row 1
+    [trace] => #0 C:\laragon\www\QualifyingExam\admin\handlers\import_questions.php(152): mysqli_stmt->execute()
+#1 {main}
+)
+
+2024-11-30 09:48:18 - Error: Failed to complete import
+Data: Array
+(
+    [error] => Data truncated for column 'question_type' at row 1
+    [trace] => #0 C:\laragon\www\QualifyingExam\admin\handlers\import_questions.php(177): mysqli_stmt->execute()
+#1 {main}
+)
+

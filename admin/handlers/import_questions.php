@@ -34,6 +34,18 @@ function logDebug($message, $data = null) {
 // At the start of the file, after the existing error reporting setup
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+// Add this function at the top of your file
+function validateQuestionType($type) {
+    $valid_types = ['multiple_choice', 'true_false', 'programming', 'essay'];
+    $type = trim(strtolower($type));
+    
+    if (!in_array($type, $valid_types)) {
+        throw new Exception("Invalid question type: '$type'. Must be one of: " . implode(', ', $valid_types));
+    }
+    
+    return $type;
+}
+
 try {
     // Log the start of import process
     logDebug("Starting import process");
@@ -120,6 +132,14 @@ try {
         $data = array_combine($headers, $row);
         logDebug("Processing row " . ($rowIndex + 1), $data);
 
+        // Validate and clean question type
+        try {
+            $data['question_type'] = validateQuestionType($data['question_type']);
+        } catch (Exception $e) {
+            logError("Invalid row " . ($rowIndex + 1) . ": " . $e->getMessage());
+            continue; // Skip this row
+        }
+
         // Skip rows with empty question type (likely blank rows)
         if (empty(trim($data['question_type']))) {
             logDebug("Skipping empty row", $rowIndex + 1);
@@ -136,11 +156,16 @@ try {
 
         // Insert question
         $sql = "INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)";
-        logDebug("Executing SQL", [
-            'sql' => $sql,
-            'category' => $category,
+        logDebug("Inserting question with data", [
+            'row_number' => $rowIndex + 1,
             'question_type' => $data['question_type'],
-            'question_text' => $data['question_text']
+            'question_text' => $data['question_text'],
+            'category' => $category,
+            'data_length' => [
+                'question_type_length' => strlen($data['question_type']),
+                'question_text_length' => strlen($data['question_text']),
+                'category_length' => strlen($category)
+            ]
         ]);
         
         $stmt = $conn->prepare($sql);
@@ -215,6 +240,128 @@ try {
                 throw new Exception("Error inserting true/false choices: " . $stmt->error);
             }
             logDebug("True/false choices inserted successfully");
+        }
+        elseif ($data['question_type'] === 'programming') {
+            logDebug("Processing programming question for question", $questionId);
+            
+            // Insert programming details
+            $sql = "INSERT INTO question_bank_programming (
+                question_id, 
+                programming_language, 
+                problem_description, 
+                input_format, 
+                output_format, 
+                constraints,
+                solution_template
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            
+            logDebug("Inserting programming details", [
+                'question_id' => $questionId,
+                'programming_language' => $data['choice1'], // programming language is in choice1
+                'problem_description' => $data['choice2'], // description is in choice2
+                'input_format' => $data['choice3'], // input format is in choice3
+                'output_format' => $data['choice4'], // output format is in choice4
+                'constraints' => $data['constraints'],
+                'solution_template' => $data['solution_template']
+            ]);
+            
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Prepare failed for programming details: " . $conn->error);
+            }
+            
+            $stmt->bind_param("issssss", 
+                $questionId,
+                $data['choice1'], // programming language
+                $data['choice2'], // problem description
+                $data['choice3'], // input format
+                $data['choice4'], // output format
+                $data['constraints'],
+                $data['solution_template']
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Error inserting programming details: " . $stmt->error);
+            }
+            logDebug("Programming details inserted successfully");
+            
+            // Insert test cases
+            $sql = "INSERT INTO question_bank_test_cases (
+                question_id, 
+                test_input, 
+                expected_output, 
+                explanation,
+                is_hidden
+            ) VALUES (?, ?, ?, ?, ?)";
+            
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Prepare failed for test cases: " . $conn->error);
+            }
+            
+            // Insert visible test cases
+            if (!empty($data['test_input1'])) {
+                $isHidden = 0;
+                $stmt->bind_param("isssi", 
+                    $questionId,
+                    $data['test_input1'],
+                    $data['test_output1'],
+                    $data['test_explanation1'],
+                    $isHidden
+                );
+                if (!$stmt->execute()) {
+                    throw new Exception("Error inserting test case 1: " . $stmt->error);
+                }
+                logDebug("Test case 1 inserted successfully");
+            }
+            
+            if (!empty($data['test_input2'])) {
+                $isHidden = 0;
+                $stmt->bind_param("isssi", 
+                    $questionId,
+                    $data['test_input2'],
+                    $data['test_output2'],
+                    $data['test_explanation2'],
+                    $isHidden
+                );
+                if (!$stmt->execute()) {
+                    throw new Exception("Error inserting test case 2: " . $stmt->error);
+                }
+                logDebug("Test case 2 inserted successfully");
+            }
+            
+            // Insert hidden test cases
+            if (!empty($data['hidden_test_input1'])) {
+                $isHidden = 1;
+                $explanation = ''; // Hidden test cases don't need explanations
+                $stmt->bind_param("isssi", 
+                    $questionId,
+                    $data['hidden_test_input1'],
+                    $data['hidden_test_output1'],
+                    $explanation,
+                    $isHidden
+                );
+                if (!$stmt->execute()) {
+                    throw new Exception("Error inserting hidden test case 1: " . $stmt->error);
+                }
+                logDebug("Hidden test case 1 inserted successfully");
+            }
+            
+            if (!empty($data['hidden_test_input2'])) {
+                $isHidden = 1;
+                $explanation = ''; // Hidden test cases don't need explanations
+                $stmt->bind_param("isssi", 
+                    $questionId,
+                    $data['hidden_test_input2'],
+                    $data['hidden_test_output2'],
+                    $explanation,
+                    $isHidden
+                );
+                if (!$stmt->execute()) {
+                    throw new Exception("Error inserting hidden test case 2: " . $stmt->error);
+                }
+                logDebug("Hidden test case 2 inserted successfully");
+            }
         }
     }
 

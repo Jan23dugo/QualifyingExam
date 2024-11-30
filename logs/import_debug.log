@@ -1661,3 +1661,1167 @@ Data: Array
 )
 
 2024-11-30 09:38:40 - Debug: Transaction committed successfully
+2024-11-30 09:42:42 - Debug: Starting import process
+2024-11-30 09:42:42 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (12).csv
+    [full_path] => question_template (12).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php112E.tmp
+    [error] => 0
+    [size] => 776
+)
+
+2024-11-30 09:42:42 - Debug: Selected category
+Data: with programming
+2024-11-30 09:42:42 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+    [7] => constraints
+    [8] => solution_template
+    [9] => test_input1
+    [10] => test_output1
+    [11] => test_explanation1
+    [12] => test_input2
+    [13] => test_output2
+    [14] => test_explanation2
+    [15] => hidden_test_input1
+    [16] => hidden_test_output1
+    [17] => hidden_test_input2
+    [18] => hidden_test_output2
+)
+
+2024-11-30 09:42:42 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:42:42 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:42:42 - Debug: Reading row 3
+Data: Array
+(
+    [0] => programming
+    [1] => Write a function that adds two numbers
+    [2] => python
+    [3] => Create a function called addNumbers that takes two parameters and returns their sum
+    [4] => Two integers a and b, one per line
+    [5] => Single integer - the sum of a and b
+    [6] => 
+    [7] => -100 <= a,b <= 100
+    [8] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [9] => 5\n3
+    [10] => 8
+    [11] => 5 + 3 = 8
+    [12] => -2\n7
+    [13] => 5
+    [14] => -2 + 7 = 5
+    [15] => 100\n-50
+    [16] => 50
+    [17] => -100\n-100
+    [18] => -200
+)
+
+2024-11-30 09:42:42 - Debug: Reading row 4
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:42:42 - Debug: Skipping row with empty question type
+Data: 4
+2024-11-30 09:42:42 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:42:42 - Debug: Started database transaction
+2024-11-30 09:42:42 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:42:42 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => with programming
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:42:42 - Debug: Question inserted with ID
+Data: 61
+2024-11-30 09:42:42 - Debug: Processing multiple choice options for question
+Data: 61
+2024-11-30 09:42:42 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 61
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:42:42 - Debug: Choice 1 inserted successfully
+2024-11-30 09:42:42 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 61
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:42:42 - Debug: Choice 2 inserted successfully
+2024-11-30 09:42:42 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 61
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:42:42 - Debug: Choice 3 inserted successfully
+2024-11-30 09:42:42 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 61
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:42:42 - Debug: Choice 4 inserted successfully
+2024-11-30 09:42:42 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:42:42 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => with programming
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:42:42 - Debug: Question inserted with ID
+Data: 62
+2024-11-30 09:42:42 - Debug: Processing true/false options for question
+Data: 62
+2024-11-30 09:42:42 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 62
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:42:42 - Debug: True/false choices inserted successfully
+2024-11-30 09:42:42 - Debug: Processing row 3
+Data: Array
+(
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+    [choice1] => python
+    [choice2] => Create a function called addNumbers that takes two parameters and returns their sum
+    [choice3] => Two integers a and b, one per line
+    [choice4] => Single integer - the sum of a and b
+    [correct_choice_number] => 
+    [constraints] => -100 <= a,b <= 100
+    [solution_template] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [test_input1] => 5\n3
+    [test_output1] => 8
+    [test_explanation1] => 5 + 3 = 8
+    [test_input2] => -2\n7
+    [test_output2] => 5
+    [test_explanation2] => -2 + 7 = 5
+    [hidden_test_input1] => 100\n-50
+    [hidden_test_output1] => 50
+    [hidden_test_input2] => -100\n-100
+    [hidden_test_output2] => -200
+)
+
+2024-11-30 09:42:42 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => with programming
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+)
+
+2024-11-30 09:44:09 - Debug: Starting import process
+2024-11-30 09:44:09 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (12).csv
+    [full_path] => question_template (12).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php6226.tmp
+    [error] => 0
+    [size] => 776
+)
+
+2024-11-30 09:44:09 - Debug: Selected category
+Data: w programming
+2024-11-30 09:44:09 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+    [7] => constraints
+    [8] => solution_template
+    [9] => test_input1
+    [10] => test_output1
+    [11] => test_explanation1
+    [12] => test_input2
+    [13] => test_output2
+    [14] => test_explanation2
+    [15] => hidden_test_input1
+    [16] => hidden_test_output1
+    [17] => hidden_test_input2
+    [18] => hidden_test_output2
+)
+
+2024-11-30 09:44:09 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:44:09 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:44:09 - Debug: Reading row 3
+Data: Array
+(
+    [0] => programming
+    [1] => Write a function that adds two numbers
+    [2] => python
+    [3] => Create a function called addNumbers that takes two parameters and returns their sum
+    [4] => Two integers a and b, one per line
+    [5] => Single integer - the sum of a and b
+    [6] => 
+    [7] => -100 <= a,b <= 100
+    [8] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [9] => 5\n3
+    [10] => 8
+    [11] => 5 + 3 = 8
+    [12] => -2\n7
+    [13] => 5
+    [14] => -2 + 7 = 5
+    [15] => 100\n-50
+    [16] => 50
+    [17] => -100\n-100
+    [18] => -200
+)
+
+2024-11-30 09:44:09 - Debug: Reading row 4
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:44:09 - Debug: Skipping row with empty question type
+Data: 4
+2024-11-30 09:44:09 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:44:09 - Debug: Started database transaction
+2024-11-30 09:44:09 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:44:09 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => w programming
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+)
+
+2024-11-30 09:44:09 - Debug: Question inserted with ID
+Data: 63
+2024-11-30 09:44:09 - Debug: Processing multiple choice options for question
+Data: 63
+2024-11-30 09:44:09 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 63
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:44:09 - Debug: Choice 1 inserted successfully
+2024-11-30 09:44:09 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 63
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:44:09 - Debug: Choice 2 inserted successfully
+2024-11-30 09:44:09 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 63
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:44:09 - Debug: Choice 3 inserted successfully
+2024-11-30 09:44:09 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 63
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:44:09 - Debug: Choice 4 inserted successfully
+2024-11-30 09:44:09 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:44:09 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => w programming
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+)
+
+2024-11-30 09:44:09 - Debug: Question inserted with ID
+Data: 64
+2024-11-30 09:44:09 - Debug: Processing true/false options for question
+Data: 64
+2024-11-30 09:44:09 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 64
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:44:09 - Debug: True/false choices inserted successfully
+2024-11-30 09:44:09 - Debug: Processing row 3
+Data: Array
+(
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+    [choice1] => python
+    [choice2] => Create a function called addNumbers that takes two parameters and returns their sum
+    [choice3] => Two integers a and b, one per line
+    [choice4] => Single integer - the sum of a and b
+    [correct_choice_number] => 
+    [constraints] => -100 <= a,b <= 100
+    [solution_template] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [test_input1] => 5\n3
+    [test_output1] => 8
+    [test_explanation1] => 5 + 3 = 8
+    [test_input2] => -2\n7
+    [test_output2] => 5
+    [test_explanation2] => -2 + 7 = 5
+    [hidden_test_input1] => 100\n-50
+    [hidden_test_output1] => 50
+    [hidden_test_input2] => -100\n-100
+    [hidden_test_output2] => -200
+)
+
+2024-11-30 09:44:09 - Debug: Executing SQL
+Data: Array
+(
+    [sql] => INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)
+    [category] => w programming
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+)
+
+2024-11-30 09:48:18 - Debug: Starting import process
+2024-11-30 09:48:18 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (13).csv
+    [full_path] => question_template (13).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\php322A.tmp
+    [error] => 0
+    [size] => 776
+)
+
+2024-11-30 09:48:18 - Debug: Selected category
+Data: w programming
+2024-11-30 09:48:18 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+    [7] => constraints
+    [8] => solution_template
+    [9] => test_input1
+    [10] => test_output1
+    [11] => test_explanation1
+    [12] => test_input2
+    [13] => test_output2
+    [14] => test_explanation2
+    [15] => hidden_test_input1
+    [16] => hidden_test_output1
+    [17] => hidden_test_input2
+    [18] => hidden_test_output2
+)
+
+2024-11-30 09:48:18 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:48:18 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:48:18 - Debug: Reading row 3
+Data: Array
+(
+    [0] => programming
+    [1] => Write a function that adds two numbers
+    [2] => python
+    [3] => Create a function called addNumbers that takes two parameters and returns their sum
+    [4] => Two integers a and b, one per line
+    [5] => Single integer - the sum of a and b
+    [6] => 
+    [7] => -100 <= a,b <= 100
+    [8] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [9] => 5\n3
+    [10] => 8
+    [11] => 5 + 3 = 8
+    [12] => -2\n7
+    [13] => 5
+    [14] => -2 + 7 = 5
+    [15] => 100\n-50
+    [16] => 50
+    [17] => -100\n-100
+    [18] => -200
+)
+
+2024-11-30 09:48:18 - Debug: Reading row 4
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:48:18 - Debug: Skipping row with empty question type
+Data: 4
+2024-11-30 09:48:18 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:48:18 - Debug: Started database transaction
+2024-11-30 09:48:18 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:48:18 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 1
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [category] => w programming
+    [data_length] => Array
+        (
+            [question_type_length] => 15
+            [question_text_length] => 14
+            [category_length] => 13
+        )
+
+)
+
+2024-11-30 09:48:18 - Debug: Question inserted with ID
+Data: 65
+2024-11-30 09:48:18 - Debug: Processing multiple choice options for question
+Data: 65
+2024-11-30 09:48:18 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 65
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:48:18 - Debug: Choice 1 inserted successfully
+2024-11-30 09:48:18 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 65
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:48:18 - Debug: Choice 2 inserted successfully
+2024-11-30 09:48:18 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 65
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:48:18 - Debug: Choice 3 inserted successfully
+2024-11-30 09:48:18 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 65
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:48:18 - Debug: Choice 4 inserted successfully
+2024-11-30 09:48:18 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:48:18 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 2
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [category] => w programming
+    [data_length] => Array
+        (
+            [question_type_length] => 10
+            [question_text_length] => 16
+            [category_length] => 13
+        )
+
+)
+
+2024-11-30 09:48:18 - Debug: Question inserted with ID
+Data: 66
+2024-11-30 09:48:18 - Debug: Processing true/false options for question
+Data: 66
+2024-11-30 09:48:18 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 66
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:48:18 - Debug: True/false choices inserted successfully
+2024-11-30 09:48:18 - Debug: Processing row 3
+Data: Array
+(
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+    [choice1] => python
+    [choice2] => Create a function called addNumbers that takes two parameters and returns their sum
+    [choice3] => Two integers a and b, one per line
+    [choice4] => Single integer - the sum of a and b
+    [correct_choice_number] => 
+    [constraints] => -100 <= a,b <= 100
+    [solution_template] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [test_input1] => 5\n3
+    [test_output1] => 8
+    [test_explanation1] => 5 + 3 = 8
+    [test_input2] => -2\n7
+    [test_output2] => 5
+    [test_explanation2] => -2 + 7 = 5
+    [hidden_test_input1] => 100\n-50
+    [hidden_test_output1] => 50
+    [hidden_test_input2] => -100\n-100
+    [hidden_test_output2] => -200
+)
+
+2024-11-30 09:48:18 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 3
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+    [category] => w programming
+    [data_length] => Array
+        (
+            [question_type_length] => 11
+            [question_text_length] => 38
+            [category_length] => 13
+        )
+
+)
+
+2024-11-30 09:49:07 - Debug: Starting import process
+2024-11-30 09:49:07 - Debug: File upload details
+Data: Array
+(
+    [name] => question_template (13).csv
+    [full_path] => question_template (13).csv
+    [type] => text/csv
+    [tmp_name] => C:\Windows\Temp\phpEEF3.tmp
+    [error] => 0
+    [size] => 776
+)
+
+2024-11-30 09:49:07 - Debug: Selected category
+Data: with programming
+2024-11-30 09:49:07 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => choice1
+    [3] => choice2
+    [4] => choice3
+    [5] => choice4
+    [6] => correct_choice_number
+    [7] => constraints
+    [8] => solution_template
+    [9] => test_input1
+    [10] => test_output1
+    [11] => test_explanation1
+    [12] => test_input2
+    [13] => test_output2
+    [14] => test_explanation2
+    [15] => hidden_test_input1
+    [16] => hidden_test_output1
+    [17] => hidden_test_input2
+    [18] => hidden_test_output2
+)
+
+2024-11-30 09:49:07 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => Three
+    [3] => Four
+    [4] => Five
+    [5] => Six
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:49:07 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => The sky is blue.
+    [2] => True
+    [3] => False
+    [4] => 
+    [5] => 
+    [6] => 1
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+    [13] => 
+    [14] => 
+    [15] => 
+    [16] => 
+    [17] => 
+    [18] => 
+)
+
+2024-11-30 09:49:07 - Debug: Reading row 3
+Data: Array
+(
+    [0] => programming
+    [1] => Write a function that adds two numbers
+    [2] => python
+    [3] => Create a function called addNumbers that takes two parameters and returns their sum
+    [4] => Two integers a and b, one per line
+    [5] => Single integer - the sum of a and b
+    [6] => 
+    [7] => -100 <= a,b <= 100
+    [8] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [9] => 5\n3
+    [10] => 8
+    [11] => 5 + 3 = 8
+    [12] => -2\n7
+    [13] => 5
+    [14] => -2 + 7 = 5
+    [15] => 100\n-50
+    [16] => 50
+    [17] => -100\n-100
+    [18] => -200
+)
+
+2024-11-30 09:49:07 - Debug: Reading row 4
+Data: Array
+(
+    [0] =>  
+)
+
+2024-11-30 09:49:07 - Debug: Skipping row with empty question type
+Data: 4
+2024-11-30 09:49:07 - Debug: Total valid rows found
+Data: 3
+2024-11-30 09:49:07 - Debug: Started database transaction
+2024-11-30 09:49:07 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => Three
+    [choice2] => Four
+    [choice3] => Five
+    [choice4] => Six
+    [correct_choice_number] => 2
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:49:07 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 1
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [category] => with programming
+    [data_length] => Array
+        (
+            [question_type_length] => 15
+            [question_text_length] => 14
+            [category_length] => 16
+        )
+
+)
+
+2024-11-30 09:49:07 - Debug: Question inserted with ID
+Data: 67
+2024-11-30 09:49:07 - Debug: Processing multiple choice options for question
+Data: 67
+2024-11-30 09:49:07 - Debug: Inserting choice 1
+Data: Array
+(
+    [question_id] => 67
+    [choice_text] => Three
+    [is_correct] => 0
+)
+
+2024-11-30 09:49:07 - Debug: Choice 1 inserted successfully
+2024-11-30 09:49:07 - Debug: Inserting choice 2
+Data: Array
+(
+    [question_id] => 67
+    [choice_text] => Four
+    [is_correct] => 1
+)
+
+2024-11-30 09:49:07 - Debug: Choice 2 inserted successfully
+2024-11-30 09:49:07 - Debug: Inserting choice 3
+Data: Array
+(
+    [question_id] => 67
+    [choice_text] => Five
+    [is_correct] => 0
+)
+
+2024-11-30 09:49:07 - Debug: Choice 3 inserted successfully
+2024-11-30 09:49:07 - Debug: Inserting choice 4
+Data: Array
+(
+    [question_id] => 67
+    [choice_text] => Six
+    [is_correct] => 0
+)
+
+2024-11-30 09:49:07 - Debug: Choice 4 inserted successfully
+2024-11-30 09:49:07 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [choice1] => True
+    [choice2] => False
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => 1
+    [constraints] => 
+    [solution_template] => 
+    [test_input1] => 
+    [test_output1] => 
+    [test_explanation1] => 
+    [test_input2] => 
+    [test_output2] => 
+    [test_explanation2] => 
+    [hidden_test_input1] => 
+    [hidden_test_output1] => 
+    [hidden_test_input2] => 
+    [hidden_test_output2] => 
+)
+
+2024-11-30 09:49:07 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 2
+    [question_type] => true_false
+    [question_text] => The sky is blue.
+    [category] => with programming
+    [data_length] => Array
+        (
+            [question_type_length] => 10
+            [question_text_length] => 16
+            [category_length] => 16
+        )
+
+)
+
+2024-11-30 09:49:07 - Debug: Question inserted with ID
+Data: 68
+2024-11-30 09:49:07 - Debug: Processing true/false options for question
+Data: 68
+2024-11-30 09:49:07 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 68
+    [isTrue] => 1
+    [isFalse] => 0
+)
+
+2024-11-30 09:49:07 - Debug: True/false choices inserted successfully
+2024-11-30 09:49:07 - Debug: Processing row 3
+Data: Array
+(
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+    [choice1] => python
+    [choice2] => Create a function called addNumbers that takes two parameters and returns their sum
+    [choice3] => Two integers a and b, one per line
+    [choice4] => Single integer - the sum of a and b
+    [correct_choice_number] => 
+    [constraints] => -100 <= a,b <= 100
+    [solution_template] => def addNumbers(a, b):\n    # Your code here\n    pass
+    [test_input1] => 5\n3
+    [test_output1] => 8
+    [test_explanation1] => 5 + 3 = 8
+    [test_input2] => -2\n7
+    [test_output2] => 5
+    [test_explanation2] => -2 + 7 = 5
+    [hidden_test_input1] => 100\n-50
+    [hidden_test_output1] => 50
+    [hidden_test_input2] => -100\n-100
+    [hidden_test_output2] => -200
+)
+
+2024-11-30 09:49:07 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 3
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers
+    [category] => with programming
+    [data_length] => Array
+        (
+            [question_type_length] => 11
+            [question_text_length] => 38
+            [category_length] => 16
+        )
+
+)
+
+2024-11-30 09:49:07 - Debug: Question inserted with ID
+Data: 69
+2024-11-30 09:49:07 - Debug: Processing programming question for question
+Data: 69
+2024-11-30 09:49:07 - Debug: Inserting programming details
+Data: Array
+(
+    [question_id] => 69
+    [programming_language] => python
+    [problem_description] => Create a function called addNumbers that takes two parameters and returns their sum
+    [input_format] => Two integers a and b, one per line
+    [output_format] => Single integer - the sum of a and b
+    [constraints] => -100 <= a,b <= 100
+    [solution_template] => def addNumbers(a, b):\n    # Your code here\n    pass
+)
+
+2024-11-30 09:49:07 - Debug: Programming details inserted successfully
+2024-11-30 09:49:07 - Debug: Test case 1 inserted successfully
+2024-11-30 09:49:07 - Debug: Test case 2 inserted successfully
+2024-11-30 09:49:07 - Debug: Hidden test case 1 inserted successfully
+2024-11-30 09:49:07 - Debug: Hidden test case 2 inserted successfully
+2024-11-30 09:49:07 - Debug: Import summary
+Data: Array
+(
+    [total_questions] => 3
+    [last_question_id] => 69
+    [transaction_status] => ready to commit
+)
+
+2024-11-30 09:49:07 - Debug: Transaction committed successfully
