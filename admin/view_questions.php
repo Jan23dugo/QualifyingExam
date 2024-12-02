@@ -319,44 +319,25 @@ $category = $_GET['category'];
         // Update the edit button click handler
         $('.edit-question').click(function() {
             const questionId = $(this).data('question-id');
-            console.log('Edit clicked for question:', questionId); // Debug log
-            loadQuestionForEdit(questionId);
+            // Fetch question data directly from get_question.php
+            fetch(`get_question.php?id=${questionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        populateEditForm(data.question);
+                        const editModal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
+                        editModal.show();
+                    } else {
+                        alert('Error loading question: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading question data');
+                });
         });
 
-        function loadQuestionForEdit(questionId) {
-            $.ajax({
-                url: 'handlers/question_handler.php',
-                method: 'POST',
-                data: {
-                    action: 'get_question',
-                    question_id: questionId
-                },
-                success: function(response) {
-                    try {
-                        console.log('Response:', response); // Debug log
-                        const result = JSON.parse(response);
-                        if (result.status === 'success') {
-                            populateEditForm(result.data);
-                            const editModal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
-                            editModal.show();
-                        } else {
-                            alert('Error: ' + result.message);
-                        }
-                    } catch (e) {
-                        console.error('Error parsing response:', e);
-                        alert('Error processing the request');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    alert('Error loading question data');
-                }
-            });
-        }
-
         function populateEditForm(question) {
-            console.log('Populating form with:', question); // Debug log
-            
             $('#editQuestionId').val(question.question_id);
             $('#editQuestionType').val(question.question_type);
             $('#editQuestionText').val(question.question_text);
@@ -365,60 +346,35 @@ $category = $_GET['category'];
             $('#editAnswerSection').empty();
 
             // Populate type-specific fields
-            switch(question.question_type) {
-                case 'multiple_choice':
-                    let html = `
-                        <div class="mb-3">
-                            <label class="form-label">Options</label>
-                            <div id="editOptionsContainer">`;
-                    
-                    question.choices.forEach((choice, index) => {
-                        html += `
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" name="options[]" value="${escapeHtml(choice.text)}" required>
-                                <div class="input-group-text">
-                                    <input type="radio" name="correct_answer" value="${index}" ${choice.is_correct ? 'checked' : ''}>
-                                    <label class="ms-2 mb-0">Correct</label>
-                                </div>
-                                <button type="button" class="btn btn-outline-danger remove-option">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>`;
-                    });
-
-                    html += `</div>
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="editAddOptionBtn">
-                            <i class="fas fa-plus"></i> Add Option
-                        </button>
-                        </div>`;
-                    $('#editAnswerSection').html(html);
-                    break;
-
-                case 'true_false':
-                    const tfHtml = `
-                        <div class="mb-3">
-                            <label class="form-label">Correct Answer</label>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="correct_answer" value="True" id="editTrue" 
-                                    ${question.correct_answer === 'True' ? 'checked' : ''}>
-                                <label class="btn btn-outline-primary" for="editTrue">True</label>
-                                
-                                <input type="radio" class="btn-check" name="correct_answer" value="False" id="editFalse"
-                                    ${question.correct_answer === 'False' ? 'checked' : ''}>
-                                <label class="btn btn-outline-primary" for="editFalse">False</label>
+            if (question.question_type === 'multiple_choice') {
+                let html = `
+                    <div class="mb-3">
+                        <label class="form-label">Options</label>
+                        <div id="editOptionsContainer">`;
+                
+                question.choices.forEach((choice, index) => {
+                    html += `
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="options[]" 
+                                value="${escapeHtml(choice.choice_text)}"
+                                required>
+                            <div class="input-group-text">
+                                <input type="radio" name="correct_answer" value="${index}" 
+                                    ${choice.is_correct == 1 ? 'checked' : ''}>
+                                <label class="ms-2 mb-0">Correct</label>
                             </div>
+                            <button type="button" class="btn btn-outline-danger remove-option">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>`;
-                    $('#editAnswerSection').html(tfHtml);
-                    break;
+                });
 
-                case 'essay':
-                    const essayHtml = `
-                        <div class="mb-3">
-                            <label class="form-label">Answer Guidelines</label>
-                            <textarea class="form-control" name="answer_guidelines" rows="3">${escapeHtml(question.answer_guidelines || '')}</textarea>
-                        </div>`;
-                    $('#editAnswerSection').html(essayHtml);
-                    break;
+                html += `</div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="editAddOptionBtn">
+                        <i class="fas fa-plus"></i> Add Option
+                    </button>
+                    </div>`;
+                $('#editAnswerSection').html(html);
             }
 
             // Initialize handlers for the edit form
@@ -468,20 +424,32 @@ $category = $_GET['category'];
         $('#editQuestionForm').on('submit', function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
+            // Gather form data manually
+            const formData = {
+                question_id: $('#editQuestionId').val(),
+                question_text: $('#editQuestionText').val(),
+                options: [],
+                correct_answer: $('input[name="correct_answer"]:checked').val()
+            };
             
-            $.ajax({
-                url: 'handlers/question_handler.php',
+            // Gather all options
+            $('input[name="options[]"]').each(function() {
+                formData.options.push($(this).val());
+            });
+            
+            fetch('update_question.php', {
                 method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => response.json())
+                .then(result => {
                     try {
-                        const result = JSON.parse(response);
-                        if (result.status === 'success') {
+                        if (result.success) {
                             $('#editQuestionModal').modal('hide');
-                            location.reload(); // Reload to show updated question
+                            location.reload();
                         } else {
                             alert('Error: ' + result.message);
                         }
@@ -489,11 +457,11 @@ $category = $_GET['category'];
                         console.error(e);
                         alert('Error processing the request');
                     }
-                },
-                error: function() {
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     alert('Error updating question');
-                }
-            });
+                });
         });
     });
     </script>

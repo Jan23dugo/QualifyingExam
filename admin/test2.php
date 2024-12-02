@@ -43,13 +43,22 @@ while ($row = $result->fetch_assoc()) {
 <html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Exam</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Create Exam - Brand</title>
   
-  <!-- Stylesheets -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+  
+  <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900&display=swap">
+  
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&display=swap">
   <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/styles.min.css">
   <style>
     /* Custom Styling */
@@ -227,6 +236,24 @@ while ($row = $result->fetch_assoc()) {
         border: none;
         background: transparent;
     }
+
+    /* Add these styles to your existing CSS */
+    .modal.loading .modal-content {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    
+    .modal.loading .modal-footer button {
+        cursor: not-allowed;
+    }
+    
+    #questionBankList tr {
+        transition: background-color 0.2s ease;
+    }
+    
+    #questionBankList tr:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
   </style>
 </head>
 <body>
@@ -265,31 +292,32 @@ while ($row = $result->fetch_assoc()) {
         <div class="container-fluid">
           <div id="successMessage" class="alert alert-success" style="display: none;"></div>
 
+          <!-- Navigation tabs -->
           <div class="tab-menu">
-            <a href="create-exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-secondary">Back to Exam Creation</a>
-            <button class="active">Questions</button>
-            <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Preview</a>
-            <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Settings</a>
-            <a href="assign_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Assign</a>
-            <a href="exam_results.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Results</a>
+              <a href="create-exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-secondary">Back to Exam Creation</a>
+              <button class="active">Questions</button>
+              <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Preview</a>
+              <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Settings</a>
+              <a href="exam_results.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Results</a>
           </div>
 
           <div class="form-container">
-            <div class="form-scrollable">
-                <form id="questionForm" method="POST" action="save_question.php">
-                    <input type="hidden" name="exam_id" value="<?php echo $exam_id; ?>">
-                    <div id="sectionBlocks">
-                        <!-- Sections will be added here dynamically -->
-                    </div>
-                </form>
-            </div>
-            
-            <button class="plus-button" id="showActionSidebar">+</button>
-            <div class="action-buttons" id="actionButtons">
-                <button type="button" id="add-section-btn">Add Section</button>
-                <button type="button" id="global-add-question-btn">Add Question</button>
-                <button type="button" id="save-form-btn">Save</button>
-            </div>
+              <div class="form-scrollable">
+                  <form id="questionForm" method="POST" action="save_question.php">
+                      <input type="hidden" name="exam_id" value="<?php echo $exam_id; ?>">
+                      <div id="sectionBlocks">
+                          <!-- Sections will be added here dynamically -->
+                      </div>
+                  </form>
+              </div>
+
+              <button class="plus-button" id="showActionSidebar">+</button>
+              <div class="action-buttons" id="actionButtons">
+                  <button type="button" id="add-section-btn">Add Section</button>
+                  <button type="button" id="global-add-question-btn">Add Question</button>
+                  <button type="button" id="import-questions-btn">Import from Bank</button>
+                  <button type="button" id="save-form-btn">Save</button>
+              </div>
           </div>
         </div>
       </div>
@@ -302,6 +330,12 @@ while ($row = $result->fetch_assoc()) {
 <!-- JavaScript to dynamically add questions, titles, and sections -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all modals
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modalElement => {
+        new bootstrap.Modal(modalElement);
+    });
+
     let sectionCounter = 1;
     const exam_id = new URLSearchParams(window.location.search).get('exam_id');
 
@@ -373,19 +407,22 @@ document.addEventListener('DOMContentLoaded', function() {
         newQuestion.style.border = '1px solid #ddd';
         newQuestion.style.borderRadius = '8px';
 
+        // Add a data attribute to track the original question_id if it exists
+        if (questionData && questionData.question_id) {
+            newQuestion.setAttribute('data-original-question-id', questionData.question_id);
+        }
+
         newQuestion.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                 <textarea class="form-control" name="question_text[${sectionId}][${questionIndex}]" 
                     placeholder="Enter your question here" style="flex: 1; margin-right: 10px;" rows="3"
-                    >${questionData ? questionData.question_text : ''}</textarea>
-                <input type="hidden" name="question_id[${sectionId}][${questionIndex}]" 
-                    value="${questionData ? questionData.question_id : ''}">
+                    ${questionData ? 'readonly' : ''}>${questionData ? questionData.question_text : ''}</textarea>
                 <div style="min-width: 200px;">
                     <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
                         <option value="">Select Question Type</option>
-                        <option value="multiple_choice" ${questionData && questionData.question_type === 'multiple_choice' ? 'selected' : ''}>Multiple Choice</option>
-                        <option value="true_false" ${questionData && questionData.question_type === 'true_false' ? 'selected' : ''}>True/False</option>
-                        <option value="programming" ${questionData && questionData.question_type === 'programming' ? 'selected' : ''}>Programming</option>
+                        <option value="multiple_choice">Multiple Choice</option>
+                        <option value="true_false">True/False</option>
+                        <option value="programming">Programming</option>
                     </select>
                 </div>
                 <button type="button" class="btn btn-link text-danger delete-question-btn" style="padding: 5px;">
@@ -396,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div style="margin-top: 10px;">
                 <input type="number" name="points[${sectionId}][${questionIndex}]" 
                     class="form-control" placeholder="Points" style="width: 100px;"
-                    value="${questionData ? questionData.points : ''}">
+                    value="${questionData ? questionData.points || '' : ''}">
             </div>
         `;
 
@@ -778,9 +815,542 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Add these event listeners after your existing ones
+    document.getElementById('import-questions-btn').addEventListener('click', function() {
+        try {
+            const questionBankModal = document.getElementById('questionBankModal');
+            if (!questionBankModal) {
+                console.error('Question bank modal not found');
+                return;
+            }
+            const modal = new bootstrap.Modal(questionBankModal, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            loadCategories(); // Load categories first
+            loadQuestionBank(); // Then load questions
+            modal.show();
+        } catch (error) {
+            console.error('Error showing modal:', error);
+        }
+    });
+
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#questionBankList input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    });
+
+    document.getElementById('questionSearch').addEventListener('input', debounce(function() {
+        loadQuestionBank(this.value);
+    }, 300));
+
+    document.getElementById('importSelectedQuestions').addEventListener('click', importSelectedQuestions);
+
+    // Add these functions
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function loadQuestionBank(search = '') {
+        const category = document.getElementById('categorySelect').value;
+        const url = `fetch_question_bank.php?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
+        
+        // Show loading state
+        const questionList = document.getElementById('questionBankList');
+        questionList.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Loading questions...
+                </td>
+            </tr>
+        `;
+
+        // Add loading class to modal
+        document.getElementById('questionBankModal').classList.add('loading');
+        
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.questions || data.questions.length === 0) {
+                    questionList.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center py-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No questions found in this category
+                            </td>
+                        </tr>`;
+                    return;
+                }
+                
+                questionList.innerHTML = data.questions.map(question => `
+                    <tr>
+                        <td><input type="checkbox" value="${question.question_id}" data-question='${JSON.stringify(question)}'></td>
+                        <td>${question.question_text}</td>
+                        <td>${question.question_type}</td>
+                        <td>${question.points || 0}</td>
+                    </tr>
+                `).join('');
+
+                // Reattach event listeners for checkboxes
+                attachCheckboxListeners();
+            })
+            .catch(error => {
+                console.error('Error loading questions:', error);
+                questionList.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-danger py-3">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading questions. Please try again.
+                        </td>
+                    </tr>`;
+            })
+            .finally(() => {
+                // Remove loading class
+                document.getElementById('questionBankModal').classList.remove('loading');
+            });
+    }
+
+    // Add this function to handle checkbox events
+    function attachCheckboxListeners() {
+        const checkboxes = document.querySelectorAll('#questionBankList input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectionCounter);
+        });
+    }
+
+    function importSelectedQuestions() {
+        const selectedQuestions = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked');
+        if (selectedQuestions.length === 0) {
+            alert('Please select at least one question');
+            return;
+        }
+
+        // Show importing progress
+        const importBtn = document.getElementById('importSelectedQuestions');
+        const originalText = importBtn.textContent;
+        importBtn.disabled = true;
+        importBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Importing...
+        `;
+
+        try {
+            // Your existing import code here
+            const sections = document.querySelectorAll('.section-block');
+            if (sections.length === 0) {
+                throw new Error('Please create a section first');
+            }
+            
+            // ... rest of your import code ...
+
+            bootstrap.Modal.getInstance(document.getElementById('questionBankModal')).hide();
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            importBtn.disabled = false;
+            importBtn.textContent = originalText;
+        }
+    }
+
+    // Add these event listeners in your existing DOMContentLoaded function
+    document.querySelectorAll('input[name="importType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('manualSelectSection').style.display = 
+                this.value === 'manual' ? 'block' : 'none';
+            document.getElementById('autoGenerateSection').style.display = 
+                this.value === 'auto' ? 'block' : 'none';
+        });
+    });
+
+    // Modify the importSelectedQuestions function
+    document.getElementById('importSelectedQuestions').addEventListener('click', function() {
+        const importType = document.querySelector('input[name="importType"]:checked').value;
+        
+        if (importType === 'manual') {
+            importManuallySelectedQuestions();
+        } else {
+            importAutoGeneratedQuestions();
+        }
+    });
+
+    function importManuallySelectedQuestions() {
+        const selectedQuestions = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked');
+        if (selectedQuestions.length === 0) {
+            alert('Please select at least one question');
+            return;
+        }
+        importQuestionsToSection(Array.from(selectedQuestions).map(cb => JSON.parse(cb.dataset.question)));
+    }
+
+    function importAutoGeneratedQuestions() {
+        const count = parseInt(document.getElementById('questionCount').value);
+        const category = document.getElementById('autoGenerateCategory').value;
+        const selectedTypes = Array.from(document.querySelectorAll('#autoGenerateSection input[type="checkbox"]:checked'))
+            .map(cb => cb.value);
+        
+        if (selectedTypes.length === 0) {
+            alert('Please select at least one question type');
+            return;
+        }
+
+        // Fetch random questions from the question bank
+        fetch(`fetch_random_questions.php?count=${count}&types=${selectedTypes.join(',')}&category=${encodeURIComponent(category)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.questions.length > 0) {
+                    importQuestionsToSection(data.questions);
+                } else {
+                    alert('No questions found matching the criteria');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error fetching random questions');
+            });
+    }
+
+    function importQuestionsToSection(questions) {
+        const sections = document.querySelectorAll('.section-block');
+        if (sections.length === 0) {
+            alert('Please create a section first');
+            return;
+        }
+        
+        const lastSection = sections[sections.length - 1];
+        const sectionId = lastSection.getAttribute('data-section-id');
+        const questionContainer = document.getElementById(`question-container-${sectionId}`);
+        
+        // Keep track of already imported questions
+        const existingQuestionIds = Array.from(questionContainer.querySelectorAll('.question-block'))
+            .map(block => block.getAttribute('data-original-question-id'))
+            .filter(id => id); // Remove null/undefined values
+
+        // Filter out already imported questions
+        const newQuestions = questions.filter(question => 
+            !existingQuestionIds.includes(question.question_id.toString())
+        );
+
+        if (newQuestions.length === 0) {
+            alert('All selected questions have already been imported to this section');
+            return;
+        }
+
+        newQuestions.forEach(questionData => {
+            const questionIndex = questionContainer.children.length;
+            const newQuestion = createQuestionElement(sectionId, questionIndex, questionData);
+            questionContainer.appendChild(newQuestion);
+            
+            const questionTypeSelect = newQuestion.querySelector('.question-type-select');
+            questionTypeSelect.value = questionData.question_type;
+            
+            switch(questionData.question_type) {
+                case 'multiple_choice':
+                    handleMultipleChoiceImport(questionData, sectionId, questionIndex, newQuestion);
+                    break;
+                case 'true_false':
+                    handleTrueFalseImport(questionData, sectionId, questionIndex, newQuestion);
+                    break;
+                case 'programming':
+                    handleProgrammingImport(questionData, sectionId, questionIndex, newQuestion);
+                    break;
+            }
+        });
+        
+        bootstrap.Modal.getInstance(document.getElementById('questionBankModal')).hide();
+    }
+
+    // Add these helper functions
+    function handleMultipleChoiceImport(questionData, sectionId, questionIndex, questionElement) {
+        const optionsContainer = questionElement.querySelector('.question-options');
+        optionsContainer.innerHTML = `
+            <div class="multiple-choice-options">
+                ${questionData.choices.map((choice, idx) => `
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" 
+                            name="options[${sectionId}][${questionIndex}][]" 
+                            value="${choice.choice_text}" readonly>
+                        <div class="input-group-text">
+                            <input type="radio" name="correct_answer[${sectionId}][${questionIndex}]" 
+                                value="${idx}" ${choice.is_correct == 1 ? 'checked' : ''}>
+                            <label class="ms-2 mb-0">Correct</label>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function handleTrueFalseImport(questionData, sectionId, questionIndex, questionElement) {
+        const optionsContainer = questionElement.querySelector('.question-options');
+        optionsContainer.innerHTML = `
+            <div class="true-false-option">
+                <select class="form-control" name="correct_answer[${sectionId}][${questionIndex}]">
+                    <option value="true" ${questionData.correct_answer === 'true' ? 'selected' : ''}>True</option>
+                    <option value="false" ${questionData.correct_answer === 'false' ? 'selected' : ''}>False</option>
+                </select>
+            </div>
+        `;
+    }
+
+    function handleProgrammingImport(questionData, sectionId, questionIndex, questionElement) {
+        const optionsContainer = questionElement.querySelector('.question-options');
+        optionsContainer.innerHTML = `
+            <div class="programming-options">
+                <select class="form-control" name="programming_language[${sectionId}][${questionIndex}]">
+                    <option value="python" ${questionData.programming_language === 'python' ? 'selected' : ''}>Python</option>
+                    <option value="java" ${questionData.programming_language === 'java' ? 'selected' : ''}>Java</option>
+                    <option value="c" ${questionData.programming_language === 'c' ? 'selected' : ''}>C</option>
+                </select>
+                <div class="test-cases mt-3">
+                    ${questionData.test_cases ? questionData.test_cases.map(test => `
+                        <div class="test-case mb-2">
+                            <div class="input-group">
+                                <span class="input-group-text">Input</span>
+                                <input type="text" class="form-control" 
+                                    name="test_case_input[${sectionId}][${questionIndex}][]" 
+                                    value="${test.test_input}" readonly>
+                                <span class="input-group-text">Output</span>
+                                <input type="text" class="form-control" 
+                                    name="test_case_output[${sectionId}][${questionIndex}][]" 
+                                    value="${test.expected_output}" readonly>
+                            </div>
+                        </div>
+                    `).join('') : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // Add this to your existing JavaScript
+    function loadCategories() {
+        fetch('fetch_categories.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.categories) {
+                    // Update both category selects
+                    const selects = [
+                        document.getElementById('categorySelect'),
+                        document.getElementById('autoGenerateCategory')
+                    ];
+                    
+                    selects.forEach(categorySelect => {
+                        // Clear existing options except the first "All Categories" option
+                        while (categorySelect.options.length > 1) {
+                            categorySelect.remove(1);
+                        }
+                        data.categories.forEach(category => {
+                            const option = document.createElement('option');
+                            option.value = category;
+                            option.textContent = category;
+                            categorySelect.appendChild(option);
+                        });
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading categories:', error));
+    }
+
+    // Add this to your existing event listeners
+    document.getElementById('categorySelect').addEventListener('change', function() {
+        loadQuestionBank(document.getElementById('questionSearch').value);
+    });
+
+    // Add this function to update available question counts
+    function updateQuestionCounts(category = '') {
+        fetch(`get_question_counts.php?category=${encodeURIComponent(category)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('mcCount').textContent = data.counts.multiple_choice || 0;
+                    document.getElementById('tfCount').textContent = data.counts.true_false || 0;
+                    document.getElementById('progCount').textContent = data.counts.programming || 0;
+                    
+                    const total = Object.values(data.counts).reduce((a, b) => a + b, 0);
+                    document.getElementById('availableQuestionCount').textContent = 
+                        `Total available questions: ${total}`;
+                    
+                    // Update max value of questionCount input
+                    document.getElementById('questionCount').max = total;
+                    if (parseInt(document.getElementById('questionCount').value) > total) {
+                        document.getElementById('questionCount').value = total;
+                    }
+                }
+            })
+            .catch(error => console.error('Error getting question counts:', error));
+    }
+
+    // Add event listener for category change
+    document.getElementById('autoGenerateCategory').addEventListener('change', function() {
+        updateQuestionCounts(this.value);
+    });
+
+    // Update counts when switching to auto-generate mode
+    document.getElementById('autoGenerate').addEventListener('change', function() {
+        if (this.checked) {
+            updateQuestionCounts(document.getElementById('autoGenerateCategory').value);
+        }
+    });
+
+    function getDifficultyColor(difficulty) {
+        switch(difficulty?.toLowerCase()) {
+            case 'easy': return 'success';
+            case 'medium': return 'warning';
+            case 'hard': return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    function previewQuestion(questionId) {
+        const question = document.querySelector(`input[value="${questionId}"]`).dataset.question;
+        const data = JSON.parse(question);
+        
+        const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+        document.getElementById('previewContent').innerHTML = generatePreviewHTML(data);
+        previewModal.show();
+    }
+
+    function updateSelectionCounter() {
+        const count = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked').length;
+        document.getElementById('selectionCounter').textContent = `${count} question${count !== 1 ? 's' : ''} selected`;
+    }
+
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'f' && document.getElementById('questionBankModal').classList.contains('show')) {
+            e.preventDefault();
+            document.getElementById('questionSearch').focus();
+        }
+        
+        if (e.key === 'Escape' && document.getElementById('questionBankModal').classList.contains('show')) {
+            bootstrap.Modal.getInstance(document.getElementById('questionBankModal')).hide();
+        }
+    });
+
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 });
 </script>
 
+<!-- Question Bank Modal -->
+<div class="modal fade" id="questionBankModal" tabindex="-1" aria-labelledby="questionBankModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionBankModalLabel">Import Questions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Category Selection -->
+                <div class="mb-3">
+                    <label class="form-label">Select Category:</label>
+                    <select class="form-control" id="categorySelect">
+                        <option value="">All Categories</option>
+                        <!-- Categories will be loaded dynamically -->
+                    </select>
+                </div>
 
+                <!-- Import Options -->
+                <div class="mb-4">
+                    <h6>Import Options:</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="importType" id="manualSelect" value="manual" checked>
+                        <label class="form-check-label" for="manualSelect">
+                            Manually select questions
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="importType" id="autoGenerate" value="auto">
+                        <label class="form-check-label" for="autoGenerate">
+                            Auto-generate questions
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Manual Selection Section -->
+                <div id="manualSelectSection">
+                    <div class="mb-3">
+                        <input type="text" id="questionSearch" class="form-control" placeholder="Search questions...">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll"></th>
+                                    <th class="sortable" data-sort="question_text">Question <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-sort="question_type">Type <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-sort="points">Points <i class="fas fa-sort"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody id="questionBankList">
+                                <!-- Questions will be loaded here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Auto Generate Section -->
+                <div id="autoGenerateSection" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">Select Category:</label>
+                        <select class="form-control" id="autoGenerateCategory">
+                            <option value="">All Categories</option>
+                            <!-- Categories will be loaded dynamically -->
+                        </select>
+                        <small class="text-muted" id="availableQuestionCount"></small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Number of Questions:</label>
+                        <input type="number" id="questionCount" class="form-control" min="1" value="5">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Question Types:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="multiple_choice" id="typeMultipleChoice" checked>
+                            <label class="form-check-label" for="typeMultipleChoice">
+                                Multiple Choice (<span id="mcCount">0</span> available)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="true_false" id="typeTrueFalse">
+                            <label class="form-check-label" for="typeTrueFalse">
+                                True/False (<span id="tfCount">0</span> available)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="programming" id="typeProgramming">
+                            <label class="form-check-label" for="typeProgramming">
+                                Programming (<span id="progCount">0</span> available)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="importSelectedQuestions">Import Questions</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

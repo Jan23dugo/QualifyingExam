@@ -27,6 +27,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="result.php">
+                    <i class="fas fa-clipboard-check" style="font-size: 23px;"></i>
+                    <span style="font-family: 'Open Sans', sans-serif;">Results</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="analytics.html">
                     <i class="fas fa-chart-bar" style="font-size: 21px;"></i>
                     <span style="font-family: 'Open Sans', sans-serif;">Analytics</span>
@@ -39,17 +45,18 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="question_bank.php" class="nav-link">
+                    <i class="fas fa-question-circle" style="font-size: 23px;"></i>
+                    <span style="font-family: 'Open Sans', sans-serif;">Question Bank</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="loginAdmin.php">
                     <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
                     <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="question_bank.php" class="nav-link">
-                    <i class="nav-icon fas fa-question-circle"></i>
-                    <p>Question Bank</p>
-                </a>
-            </li>
+
         </ul>
         <div class="text-center d-none d-md-inline">
             <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>

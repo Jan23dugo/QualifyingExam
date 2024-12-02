@@ -1,41 +1,61 @@
 <?php
-// Include the database configuration file
-include('../config/config.php');
+require_once '../config/config.php';
 
-// Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $exam_name = $_POST['exam_name'];
+header('Content-Type: application/json');
+
+try {
+    // Get form data
+    $examName = $_POST['exam_name'];
     $description = $_POST['description'];
     $duration = $_POST['duration'];
-    $schedule_date = $_POST['schedule_date'];
+    $scheduleDate = $_POST['schedule_date'];
+    $folderId = ($_POST['folder_id'] === '0') ? NULL : (int)$_POST['folder_id'];
+    $studentType = isset($_POST['student_type']) ? $_POST['student_type'] : null;
+    $studentYear = isset($_POST['student_year']) ? $_POST['student_year'] : null;
 
-    // Validate the inputs
-    if (empty($exam_name) || empty($duration) || empty($schedule_date)) {
-        echo "Please fill in all required fields.";
-        exit();
+    // Start transaction
+    $conn->begin_transaction();
+
+    // Insert exam details
+    $stmt = $conn->prepare("INSERT INTO exams (exam_name, description, duration, schedule_date, folder_id, student_type, student_year) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssissss", $examName, $description, $duration, $scheduleDate, $folderId, $studentType, $studentYear);
+    $stmt->execute();
+    $examId = $conn->insert_id;
+
+    // Get eligible students based on type and year
+    if ($studentType && $studentYear) {
+        $query = "SELECT student_id FROM students WHERE is_tech = ? AND YEAR(registration_date) = ?";
+        $stmt = $conn->prepare($query);
+        $isTech = ($studentType === 'tech') ? 1 : 0;
+        $stmt->bind_param("is", $isTech, $studentYear);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $assignStmt = $conn->prepare("INSERT INTO exam_assignments (exam_id, student_id) VALUES (?, ?)");
+            while ($student = $result->fetch_assoc()) {
+                $assignStmt->bind_param("ii", $examId, $student['student_id']);
+                $assignStmt->execute();
+            }
+        }
     }
 
-    // Prepare an SQL statement to insert data into the exams table
-    $sql = "INSERT INTO exams (exam_name, description, duration, schedule_date) 
-            VALUES (?, ?, ?, ?)";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssss", $exam_name, $description, $duration, $schedule_date);
+    // Commit transaction
+    $conn->commit();
 
-    // Execute the query
-    if ($stmt->execute()) {
-        // Get the newly inserted exam's ID
-        $exam_id = $stmt->insert_id;
-        $stmt->close();
+    echo json_encode([
+        'success' => true,
+        'message' => 'Exam created and assigned successfully',
+        'exam_id' => $examId
+    ]);
 
-        // Redirect to test2.php (or create-exam-test.php) with the exam_id to add questions
-        header("Location: ../admin/test2.php?exam_id=$exam_id");
-        exit();
-    } else {
-        echo "Error: " . $stmt->error;
-    }
-
-    $stmt->close();
+} catch (Exception $e) {
+    // Rollback on error
+    $conn->rollback();
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error: ' . $e->getMessage()
+    ]);
 }
 
 $conn->close();

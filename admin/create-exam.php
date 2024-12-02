@@ -248,49 +248,72 @@ $result = $stmt->get_result();
                 </div>
 
                 <!-- Create Exam Modal -->
-                <div class="modal fade" role="dialog" tabindex="-1" id="createExamModal">
-                    <div class="modal-dialog" role="document">
+                <div class="modal fade" id="createExamModal" tabindex="-1" aria-labelledby="createExamModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
                         <div class="modal-content">
-                            <form action="../admin/process_create_exam.php" method="POST">
-                                <div class="modal-header">
-                                    <h4 class="modal-title">Create Exam</h4>
-                                    <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body" style="height: auto; padding: 36px; margin: 9px;">
-                                    <div class="input-group">
-                                        <span class="input-group-text">Exam Name:</span>
-                                        <input class="form-control" type="text" name="exam_name" required>
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createExamModalLabel">Create Exam</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="createExamForm">
+                                    <div class="mb-3">
+                                        <label for="examName" class="form-label">Exam Name:</label>
+                                        <input type="text" class="form-control" id="examName" name="exam_name" required>
                                     </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Description:</span>
-                                        <input class="form-control" type="text" name="description">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description:</label>
+                                        <textarea class="form-control" id="description" name="description"></textarea>
                                     </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Duration (in minutes):</span>
-                                        <input class="form-control" type="text" name="duration" placeholder="e.g., 90 minutes" required>
+                                    <div class="mb-3">
+                                        <label for="duration" class="form-label">Duration (in minutes):</label>
+                                        <input type="number" class="form-control" id="duration" name="duration" value="90">
                                     </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Schedule Date:</span>
-                                        <input class="form-control" type="date" name="schedule_date" required>
+                                    <div class="mb-3">
+                                        <label for="scheduleDate" class="form-label">Schedule Date:</label>
+                                        <input type="date" class="form-control" id="scheduleDate" name="schedule_date" required>
                                     </div>
-                                </div>
-                                <div class="input-group">
-                                    <span class="input-group-text">Folder:</span>
-                                    <select name="folder_id" class="form-control">
-                                        <option value="">No Folder</option>
-                                        <?php
-                                        $folder_list = $conn->query("SELECT * FROM folders ORDER BY folder_name ASC");
-                                        while ($folder = $folder_list->fetch_assoc()):
-                                        ?>
-                                            <option value="<?= $folder['folder_id'] ?>"><?= htmlspecialchars($folder['folder_name']) ?></option>
-                                        <?php endwhile; ?>
-                                    </select>
-                                </div>
-                                <div class="modal-footer">
-                                    <button class="btn btn-primary" type="submit">Create</button>
-                                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Student Type:</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech">
+                                            <label class="form-check-label" for="techStudents">Tech Students</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech">
+                                            <label class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="studentYear" class="form-label">Student Year:</label>
+                                        <select class="form-control" id="studentYear" name="student_year">
+                                            <option value="">Select Year (Optional)</option>
+                                            <?php
+                                            $currentYear = date('Y');
+                                            for($i = 0; $i < 4; $i++) {
+                                                $year = $currentYear - $i;
+                                                echo "<option value='$year'>$year</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="folder" class="form-label">Folder:</label>
+                                        <select name="folder_id" class="form-control">
+                                            <option value="0">No Folder</option>
+                                            <?php
+                                            $folder_list = $conn->query("SELECT * FROM folders ORDER BY folder_name ASC");
+                                            while ($folder = $folder_list->fetch_assoc()): ?>
+                                                <option value="<?= $folder['folder_id'] ?>"><?= htmlspecialchars($folder['folder_name']) ?></option>
+                                            <?php endwhile; ?>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="createExamBtn">Create</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -546,6 +569,41 @@ $result = $stmt->get_result();
             document.getElementById('folderList').style.display = 'flex';
             document.getElementById('folderContent').style.display = 'none';
         }
+
+        document.getElementById('createExamBtn').addEventListener('click', function() {
+            const form = document.getElementById('createExamForm');
+            const formData = new FormData(form);
+
+            // Validate student type selection
+            if (!formData.get('student_type')) {
+                alert('Please select a student type');
+                return;
+            }
+
+            // Validate year selection
+            if (!formData.get('student_year')) {
+                alert('Please select a student year');
+                return;
+            }
+
+            fetch('process_create_exam.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Exam created and automatically assigned to students');
+                    window.location.href = `test2.php?exam_id=${data.exam_id}`;
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating exam');
+            });
+        });
     </script>
 
 </body>
