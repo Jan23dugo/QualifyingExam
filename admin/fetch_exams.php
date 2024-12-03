@@ -1,23 +1,21 @@
 <?php
-include_once '../config/config.php'; // Include database connection
+require_once '../config/config.php';
 
-$folder_id = isset($_GET['folder_id']) ? intval($_GET['folder_id']) : 0;
+$folder_id = isset($_GET['folder_id']) ? $_GET['folder_id'] : null;
 
-$response['exams'] = [];
-
-if ($folder_id > 0) {
-    // Fetch exams associated with the folder
-    $exam_query = $conn->prepare("SELECT * FROM exams WHERE folder_id = ?");
-    $exam_query->bind_param("i", $folder_id);
-    $exam_query->execute();
-    $result = $exam_query->get_result();
-
+if ($folder_id) {
+    $stmt = $conn->prepare("SELECT * FROM exams WHERE folder_id = ?");
+    $stmt->bind_param("i", $folder_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $exams = array();
     while ($row = $result->fetch_assoc()) {
-        $response['exams'][] = $row;
+        $exams[] = $row;
     }
+    
+    echo json_encode(['success' => true, 'exams' => $exams]);
+} else {
+    echo json_encode(['success' => false, 'message' => 'No folder ID provided']);
 }
-
-// Return JSON response=
-header('Content-Type: application/json');
-echo json_encode($response);
 ?>

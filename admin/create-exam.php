@@ -5,6 +5,18 @@ require_once '../config/config.php';
 // Determine the folder being viewed
 $folderId = isset($_GET['folder_id']) ? $_GET['folder_id'] : null;
 
+// Get current folder name if in a folder
+$folderName = '';
+if ($folderId) {
+    $folder_stmt = $conn->prepare("SELECT folder_name FROM folders WHERE folder_id = ?");
+    $folder_stmt->bind_param("i", $folderId);
+    $folder_stmt->execute();
+    $folder_result = $folder_stmt->get_result();
+    if ($folder_row = $folder_result->fetch_assoc()) {
+        $folderName = $folder_row['folder_name'];
+    }
+}
+
 // Prepare query based on folder
 if ($folderId) {
     $stmt = $conn->prepare("SELECT * FROM exams WHERE folder_id = ?");
@@ -37,30 +49,67 @@ $result = $stmt->get_result();
     
     <style>
         /* Custom styles for folder and table */
-        .folder-list {
-            margin-top: 20px;
+        .list-header {
             display: flex;
-            flex-wrap: wrap;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #495057;
         }
 
-        .folder-item {
-            width: 150px;
-            margin: 10px;
+        .list-header > div {
+            padding: 0 15px;
+        }
+
+        .name-col {
+            width: 40%;
+            display: flex;
+            align-items: center;
+        }
+
+        .type-col {
+            width: 20%;
+        }
+
+        .date-col {
+            width: 25%;
+        }
+
+        .actions-col {
+            width: 15%;
             text-align: center;
-            cursor: pointer;
+        }
+
+        .folder-item, .exam-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        .folder-icon, .exam-icon {
+            margin-right: 10px;
+            font-size: 20px;
         }
 
         .folder-icon {
-            font-size: 60px;
-            color: #f0ad4e;
+            color: #ffc107;
         }
 
-        .folder-content {
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 10px;
-            background-color: #ffffff;
+        .exam-icon {
+            color: #0d6efd;
+        }
+
+        .folder-item:hover, .exam-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .back-button {
@@ -113,6 +162,109 @@ $result = $stmt->get_result();
             background-color: #007bff;
             color: white;
         }
+
+        /* Style the exam table to match folder aesthetics */
+        .table {
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .table th {
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table td {
+            font-size: 16px;
+            vertical-align: middle;
+            padding: 12px 16px;
+        }
+
+        /* Add container styling */
+        .content-container {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin: 20px;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 15px;
+        }
+
+        .search-input {
+            padding: 6px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            width: 250px;
+        }
+
+        .sort-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .sort-button {
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sort-button:hover {
+            background: #f8f9fa;
+        }
+
+        .sort-button.active {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        /* Add styles for breadcrumb */
+        .folder-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 8px 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .folder-breadcrumb i {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .folder-breadcrumb span {
+            color: #495057;
+        }
+
+        .folder-breadcrumb .current-folder {
+            font-weight: 600;
+            color: #0d6efd;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -125,86 +277,69 @@ $result = $stmt->get_result();
                 <!-- Include Topbar -->
                 <?php include 'topbar.php'; ?>
 
-                <!-- Exam Creation Section -->
-                <div class="add-dropdown-wrapper" id="addDropdown">
-                    <!-- + Add Dropdown -->
-                    <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            + Add
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li><a class="dropdown-item" href="#" onclick="addAssessment()">Add Assessment</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="addFolder()">Add Folder</a></li>
-                        </ul>
+                <div class="content-container">
+                    <!-- Breadcrumb Navigation -->
+                    <div class="folder-breadcrumb">
+                        <a href="create-exam.php" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                        <?php if ($folderId): ?>
+                            <i class="fas fa-chevron-right"></i>
+                            <span class="current-folder"><?php echo htmlspecialchars($folderName); ?></span>
+                        <?php endif; ?>
                     </div>
-                </div>
 
-                <!-- Folder List Section -->
-                <div class="folder-list" id="folderList">
-                    <!-- Folders and Exams will be added here dynamically -->
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Exam Name</th>
-                                    <th>Description</th>
-                                    <th>Duration</th>
-                                    <th>Schedule Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                // Display exams
-                                if ($result->num_rows > 0) {
-                                    while($row = $result->fetch_assoc()) {
-                                        echo "<tr>";
-                                        echo "<td>" . $row['exam_name'] . "</td>";
-                                        echo "<td>" . $row['description'] . "</td>";
-                                        echo "<td>" . $row['duration'] . " minutes</td>";
-                                        echo "<td>" . $row['schedule_date'] . "</td>";
-                                        echo '
-                                            <td>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-light dropdown-toggle" type="button" id="actionMenu' . $row['exam_id'] . '" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-bars"></i> <!-- Hamburger icon -->
-                                                    </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="actionMenu' . $row['exam_id'] . '">
-                                                        <li>
-                                                            <a class="dropdown-item text-primary" href="delete_exam.php?exam_id=' . $row['exam_id'] . '">
-                                                                <i class="fas fa-trash-alt me-2 text-danger"></i>Delete
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item text-primary" href="test2.php?exam_id=' . $row['exam_id'] . '">
-                                                                <i class="fas fa-plus-circle me-2"></i>Add Questions
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item" href="#" onclick="openMoveModal(' . $row['exam_id'] . ')">
-                                                                <i class="fas fa-arrows-alt me-2 text-warning"></i>Move
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item" href="#" onclick="openCopyModal(' . $row['exam_id'] . ')">
-                                                                <i class="fas fa-copy me-2 text-info"></i>Copy
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                            ';
+                    <div class="controls-wrapper">
+                        <?php if ($folderId): ?>
+                            <button class="btn btn-light" onclick="window.location.href='create-exam.php'">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <span class="ms-3 fw-bold"><?php echo htmlspecialchars($folderName); ?></span>
+                        <?php endif; ?>
 
-                                        echo "</tr>";
-                                        
-                                    }
-                                } else {
-                                    echo "<tr><td colspan='6'>No exams created yet. Click '+ Add' to create a new exam.</td></tr>";
-                                }
-                                ?>
-                            </tbody>
-                        </table>
+                        <!-- Add Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                + Add
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" href="#" onclick="addAssessment()">Add Assessment</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="addFolder()">Add Folder</a></li>
+                            </ul>
+                        </div>
 
+                        <div class="search-wrapper">
+                            <input type="text" class="search-input" placeholder="Search..." id="searchInput">
+                            <button class="btn btn-light" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="sort-wrapper">
+                            <span>Sort by:</span>
+                            <button class="sort-button active" data-sort="name">
+                                <i class="fas fa-sort-alpha-down"></i> Name
+                            </button>
+                            <button class="sort-button" data-sort="type">
+                                <i class="fas fa-sort"></i> Type
+                            </button>
+                            <button class="sort-button" data-sort="date">
+                                <i class="fas fa-sort"></i> Date
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Folder List Section -->
                     <div class="folder-list" id="folderList">
+                        <!-- List Header -->
+                        <div class="list-header">
+                            <div class="name-col">Name</div>
+                            <div class="type-col">Type</div>
+                            <div class="date-col">Date Modified</div>
+                            <div class="actions-col">Actions</div>
+                        </div>
+
                         <?php
                         // Fetch folders and exams from the database
                         include_once('../config/config.php');
@@ -214,13 +349,71 @@ $result = $stmt->get_result();
 
                         if ($folder_result->num_rows > 0) {
                             while ($folder = $folder_result->fetch_assoc()) {
+                                if ($folderId) continue;
+                                
                                 echo "<div class='folder-item' onclick='viewFolder({$folder['folder_id']})'>";
+                                echo "<div class='name-col'>";
                                 echo "<i class='fas fa-folder folder-icon'></i>";
-                                echo "<p>{$folder['folder_name']}</p>";
+                                echo $folder['folder_name'];
+                                echo "</div>";
+                                echo "<div class='type-col'>Folder</div>";
+                                echo "<div class='date-col'>-</div>";
+                                echo "<div class='actions-col'>
+                                        <div class='dropdown'>
+                                            <button class='btn btn-light btn-sm dropdown-toggle' type='button' data-bs-toggle='dropdown'>
+                                                <i class='fas fa-bars'></i>
+                                            </button>
+                                            <ul class='dropdown-menu'>
+                                                <li><a class='dropdown-item' href='#'><i class='fas fa-trash-alt me-2 text-danger'></i>Delete</a></li>
+                                                <li><a class='dropdown-item' href='#'><i class='fas fa-edit me-2 text-primary'></i>Rename</a></li>
+                                            </ul>
+                                        </div>
+                                     </div>";
                                 echo "</div>";
                             }
-                        } else {
-                            echo "<p>No folders available. Click '+ Add Folder' to create one.</p>";
+                        }
+
+                        // Display exams
+                        if ($result->num_rows > 0) {
+                            while($row = $result->fetch_assoc()) {
+                                echo "<div class='exam-item' onclick='openExam({$row['exam_id']})'>";
+                                echo "<div class='name-col'>";
+                                echo "<i class='fas fa-file-alt exam-icon'></i>";
+                                echo $row['exam_name'];
+                                echo "</div>";
+                                echo "<div class='type-col'>Exam</div>";
+                                echo "<div class='date-col'>" . $row['schedule_date'] . "</div>";
+                                echo '<div class="actions-col">
+                                        <div class="dropdown">
+                                            <button class="btn btn-light dropdown-toggle" type="button" id="actionMenu' . $row['exam_id'] . '" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-bars"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item text-primary" href="delete_exam.php?exam_id=' . $row['exam_id'] . '">
+                                                        <i class="fas fa-trash-alt me-2 text-danger"></i>Delete
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-primary" href="test2.php?exam_id=' . $row['exam_id'] . '">
+                                                        <i class="fas fa-plus-circle me-2"></i>Add Questions
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="openMoveModal(' . $row['exam_id'] . ')">
+                                                        <i class="fas fa-arrows-alt me-2 text-warning"></i>Move
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="openCopyModal(' . $row['exam_id'] . ')">
+                                                        <i class="fas fa-copy me-2 text-info"></i>Copy
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>';
+                                echo "</div>";
+                            }
                         }
                         ?>
                     </div>
@@ -491,117 +684,156 @@ $result = $stmt->get_result();
     }
 
     function viewFolder(folderId) {
-        document.getElementById('folderList').style.display = 'none';
-        document.getElementById('folderContent').style.display = 'block';
-        document.getElementById('currentFolderName').innerText = `Folder ${folderId}`;
+        window.location.href = `create-exam.php?folder_id=${folderId}`;
+    }
 
-            // Fetch exams for the folder using AJAX
-            fetch(`fetch_exams.php?folder_id=${folderId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const examsTableBody = document.getElementById('folderExams');
-                    if (data.exams && data.exams.length > 0) {
-                        examsTableBody.innerHTML = data.exams.map(exam => `
-                            <tr>
-                                <td>${exam.exam_name || 'N/A'}</td>
-                                <td>${exam.description || 'N/A'}</td>
-                                <td>${exam.duration || 'N/A'}</td>
-                                <td>${exam.schedule_date || 'N/A'}</td>
-                                <td>
-                                    <button class="btn btn-danger" onclick="deleteExam(${exam.exam_id})">Delete</button>
-                                </td>
-                            </tr>
-                        `).join('');
-                    } else {
-                        examsTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No exams found in this folder.</td></tr>`;
-                    }
-                })
-            }
+    function openExam(examId) {
+        window.location.href = `test2.php?exam_id=${examId}`;
+    }
 
-        function openMoveModal(examId) {
-            document.getElementById('moveExamId').value = examId;
-            const modal = new bootstrap.Modal(document.getElementById('moveExamModal'));
-            modal.show();
-        }
-
-        function openCopyModal(examId) {
-            document.getElementById('copyExamId').value = examId;
-            const modal = new bootstrap.Modal(document.getElementById('copyExamModal'));
-            modal.show();
-        }
-
-        function openAddQuestionsModal(examId) {
-            // Example: Show a modal for adding questions
-            document.getElementById('addQuestionsExamId').value = examId; // Set the exam ID in a hidden input field
-            const modal = new bootstrap.Modal(document.getElementById('addQuestionsModal'));
-            modal.show();
-        }
-
-        // Handle form submissions for move and copy
-        document.getElementById('moveExamForm').onsubmit = function (e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            fetch('move_exam.php', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json()).then(data => {
-                alert(data.message);
-                location.reload();
-            }).catch(error => console.error('Error:', error));
-        };
-
-        document.getElementById('copyExamForm').onsubmit = function (e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            fetch('copy_exam.php', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json()).then(data => {
-                alert(data.message);
-                location.reload();
-            }).catch(error => console.error('Error:', error));
-        };
-
-
-        function goBack() {
-            document.getElementById('folderList').style.display = 'flex';
-            document.getElementById('folderContent').style.display = 'none';
-        }
-
-        document.getElementById('createExamBtn').addEventListener('click', function() {
-            const form = document.getElementById('createExamForm');
-            const formData = new FormData(form);
-
-            // Validate student type selection
-            if (!formData.get('student_type')) {
-                alert('Please select a student type');
-                return;
-            }
-
-            // Validate year selection
-            if (!formData.get('student_year')) {
-                alert('Please select a student year');
-                return;
-            }
-
-            fetch('process_create_exam.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Exam created and automatically assigned to students');
-                    window.location.href = `test2.php?exam_id=${data.exam_id}`;
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error creating exam');
-            });
+    // Prevent clicks on action buttons from triggering the folder/exam click
+    document.querySelectorAll('.actions-col').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
+    });
+
+    function openMoveModal(examId) {
+        document.getElementById('moveExamId').value = examId;
+        const modal = new bootstrap.Modal(document.getElementById('moveExamModal'));
+        modal.show();
+    }
+
+    function openCopyModal(examId) {
+        document.getElementById('copyExamId').value = examId;
+        const modal = new bootstrap.Modal(document.getElementById('copyExamModal'));
+        modal.show();
+    }
+
+    function openAddQuestionsModal(examId) {
+        // Example: Show a modal for adding questions
+        document.getElementById('addQuestionsExamId').value = examId; // Set the exam ID in a hidden input field
+        const modal = new bootstrap.Modal(document.getElementById('addQuestionsModal'));
+        modal.show();
+    }
+
+    // Handle form submissions for move and copy
+    document.getElementById('moveExamForm').onsubmit = function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('move_exam.php', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json()).then(data => {
+            alert(data.message);
+            location.reload();
+        }).catch(error => console.error('Error:', error));
+    };
+
+    document.getElementById('copyExamForm').onsubmit = function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('copy_exam.php', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json()).then(data => {
+            alert(data.message);
+            location.reload();
+        }).catch(error => console.error('Error:', error));
+    };
+
+
+    function goBack() {
+        document.getElementById('folderList').style.display = 'flex';
+        document.getElementById('folderContent').style.display = 'none';
+    }
+
+    document.getElementById('createExamBtn').addEventListener('click', function() {
+        const form = document.getElementById('createExamForm');
+        const formData = new FormData(form);
+
+        // Validate student type selection
+        if (!formData.get('student_type')) {
+            alert('Please select a student type');
+            return;
+        }
+
+        // Validate year selection
+        if (!formData.get('student_year')) {
+            alert('Please select a student year');
+            return;
+        }
+
+        fetch('process_create_exam.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Exam created and automatically assigned to students');
+                window.location.href = `test2.php?exam_id=${data.exam_id}`;
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error creating exam');
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const items = document.querySelectorAll('.folder-item, .exam-item');
+        
+        items.forEach(item => {
+            const name = item.querySelector('.name-col').textContent.toLowerCase();
+            const type = item.querySelector('.type-col').textContent.toLowerCase();
+            if (name.includes(searchTerm) || type.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    function clearSearch() {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+    }
+
+    // Sorting functionality
+    const sortButtons = document.querySelectorAll('.sort-button');
+    sortButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active state
+            sortButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const sortBy = this.dataset.sort;
+            const items = Array.from(document.querySelectorAll('.folder-item, .exam-item'));
+            const container = document.getElementById('folderList');
+
+            items.sort((a, b) => {
+                const aValue = a.querySelector(`.${sortBy}-col`).textContent.toLowerCase();
+                const bValue = b.querySelector(`.${sortBy}-col`).textContent.toLowerCase();
+
+                if (sortBy === 'date') {
+                    return new Date(bValue) - new Date(aValue);
+                }
+                return aValue.localeCompare(bValue);
+            });
+
+            // Preserve header
+            const header = container.querySelector('.list-header');
+            container.innerHTML = '';
+            container.appendChild(header);
+            items.forEach(item => container.appendChild(item));
+        });
+    });
     </script>
 
 </body>
