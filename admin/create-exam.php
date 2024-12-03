@@ -448,6 +448,9 @@ $result = $stmt->get_result();
                             </div>
                             <div class="modal-body">
                                 <form id="createExamForm">
+                                    <?php if ($folderId): ?>
+                                        <input type="hidden" name="folder_id" value="<?php echo $folderId; ?>">
+                                    <?php endif; ?>
                                     <div class="mb-3">
                                         <label for="examName" class="form-label">Exam Name:</label>
                                         <input type="text" class="form-control" id="examName" name="exam_name" required>
@@ -486,17 +489,6 @@ $result = $stmt->get_result();
                                                 echo "<option value='$year'>$year</option>";
                                             }
                                             ?>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="folder" class="form-label">Folder:</label>
-                                        <select name="folder_id" class="form-control">
-                                            <option value="0">No Folder</option>
-                                            <?php
-                                            $folder_list = $conn->query("SELECT * FROM folders ORDER BY folder_name ASC");
-                                            while ($folder = $folder_list->fetch_assoc()): ?>
-                                                <option value="<?= $folder['folder_id'] ?>"><?= htmlspecialchars($folder['folder_name']) ?></option>
-                                            <?php endwhile; ?>
                                         </select>
                                     </div>
                                 </form>
