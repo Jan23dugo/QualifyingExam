@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Dashboard - Brand</title>
+
+    <!-- External CSS and Fonts -->
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.min.css">
+    <style>
+        body {
+            background-color: #f8f9fc;
+        }
+
+        .card {
+            margin-bottom: 15px; /* Reduced margin for compactness */
+        }
+
+        .card-header {
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .row {
+            margin-bottom: 20px; /* Reduced margin for compactness */
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .list-inline-item {
+            margin-right: 10px; /* Reduced margin for compactness */
+        }
+
+        .quick-links .card-body {
+            padding: 10px; /* Reduced padding for compactness */
+        }
+
+        .quick-links .card-body a {
+            font-size: 0.9rem; /* Smaller font size */
+        }
+
+        .quick-links .card-body i {
+            font-size: 2rem; /* Smaller icon size */
+        }
+
+        .quick-links .col-md-4 {
+            padding: 0 5px; /* Reduced padding for compact columns */
+        }
+
+        /* Fixed height for analytics chart */
+        #analyticsChart {
+            height: 300px; /* Set a fixed height */
+        }
+    </style>
+</head>
+
+<body id="page-top">
+
+    <div id="wrapper">
+        <?php include 'sidebar.php'; ?>
+
+        <div class="container py-5">
+            <!-- Quick Links Section -->
+            <div class="row quick-links">
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="text-primary fw-bold"><i class="fas fa-link"></i> Quick Links</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="card text-center shadow-sm border-0 h-100">
+                                        <div class="card-body">
+                                            <a href="#" class="text-decoration-none text-primary">
+                                                <i class="fas fa-file-alt fa-2x mb-1"></i>
+                                                <p>Create Exam</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="card text-center shadow-sm border-0 h-100">
+                                        <div class="card-body">
+                                            <a href="#" class="text-decoration-none text-primary">
+                                                <i class="fas fa-chart-bar fa-2x mb-1"></i>
+                                                <p>View Exam Results</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="card text-center shadow-sm border-0 h-100">
+                                        <div class="card-body">
+                                            <a href="#" class="text-decoration-none text-primary">
+                                                <i class="fas fa-users fa-2x mb-1"></i>
+                                                <p>Student List</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Widgets Section -->
+            <div class="row">
+                <!-- Analytics Card -->
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="text-primary fw-bold">Analytics</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="analyticsChart"></canvas>
+                            <ul class="mt-3">
+                                <li><a href="link_to_item_analysis" class="text-decoration-none text-primary">Item Analysis</a></li>
+                                <li><a href="link_to_top_students" class="text-decoration-none text-primary">Top Students</a></li>
+                                <li><a href="link_to_exam_results" class="text-decoration-none text-primary">Exam Results</a></li>
+                                <li><a href="link_to_score_analysis" class="text-decoration-none text-primary">Score Analysis</a></li>
+                                <li><a href="link_to_student_demographics" class="text-decoration-none text-primary">Student Demographic Analysis</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Registered Students Card -->
+                <div class="col-md-3">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="text-primary fw-bold">Total Registered Students</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><a href="link_to_shiftees" class="text-decoration-none text-primary">Shiftees</a></p>
+                            <p><a href="link_to_ladderized" class="text-decoration-none text-primary">Ladderized</a></p>
+                            <p><a href="link_to_transferees" class="text-decoration-none text-primary">Transferees</a></p>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Upcoming Exam Dates Card -->
+                <div class="col-md-3">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="text-primary fw-bold">Upcoming Exam Dates</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>
+                                    <a href="https://calendar.google.com/calendar/r/eventedit?text=Math+Exam&dates=20241205T010000Z/20241205T020000Z&details=50+students+scheduled" 
+                                       class="text-decoration-none text-primary" 
+                                       target="" 
+                                       title="">
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications and Recent Activities Section (New Row) -->
+                <div class="col-md-3">
+                    <!-- Notifications Card -->
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="text-primary fw-bold">Notifications</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <!-- Recent Activities Card -->
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h6 class="text-primary fw-bold">Recent Activities</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <?php include 'footer.php'; ?>
+
+    </div>
+
+    <!-- External Scripts -->
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Analytics Chart
+        const analyticsCtx = document.getElementById('analyticsChart').getContext('2d');
+        new Chart(analyticsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Item Analysis', 'Top Students', 'Exam Results', 'Score Analysis', 'Demographics'],
+                datasets: [{
+                    label: 'Performance Metrics',
+                    data: [85, 90, 75, 80, 70],
+                    backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+    
