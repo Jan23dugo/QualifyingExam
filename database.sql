@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 03, 2024 at 10:39 AM
+-- Generation Time: Dec 03, 2024 at 10:49 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.13
 
@@ -220,15 +220,20 @@ INSERT INTO `exam_settings` (`exam_id`, `randomize_questions`, `randomize_option
 CREATE TABLE `folders` (
   `folder_id` int NOT NULL,
   `folder_name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `parent_folder_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `folders`
 --
 
-INSERT INTO `folders` (`folder_id`, `folder_name`, `created_at`) VALUES
-(1, 'new folder', '2024-12-03 09:07:03');
+INSERT INTO `folders` (`folder_id`, `folder_name`, `created_at`, `parent_folder_id`) VALUES
+(1, 'new folder', '2024-12-03 09:07:03', NULL),
+(2, 'inside a folder ', '2024-12-03 10:41:07', NULL),
+(3, 'this is inside', '2024-12-03 10:43:25', 1),
+(4, 'this is inside the f', '2024-12-03 10:43:48', 1),
+(5, 'another folder', '2024-12-03 10:45:48', 3);
 
 -- --------------------------------------------------------
 
@@ -759,7 +764,8 @@ ALTER TABLE `exam_settings`
 -- Indexes for table `folders`
 --
 ALTER TABLE `folders`
-  ADD PRIMARY KEY (`folder_id`);
+  ADD PRIMARY KEY (`folder_id`),
+  ADD KEY `parent_folder_id` (`parent_folder_id`);
 
 --
 -- Indexes for table `matched_courses`
@@ -891,7 +897,7 @@ ALTER TABLE `exam_sections`
 -- AUTO_INCREMENT for table `folders`
 --
 ALTER TABLE `folders`
-  MODIFY `folder_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `folder_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `matched_courses`
@@ -1006,6 +1012,12 @@ ALTER TABLE `exam_sections`
 --
 ALTER TABLE `exam_settings`
   ADD CONSTRAINT `exam_settings_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `folders`
+--
+ALTER TABLE `folders`
+  ADD CONSTRAINT `folders_ibfk_1` FOREIGN KEY (`parent_folder_id`) REFERENCES `folders` (`folder_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `matched_courses`

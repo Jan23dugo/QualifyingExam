@@ -7,13 +7,15 @@ $folderId = isset($_GET['folder_id']) ? $_GET['folder_id'] : null;
 
 // Get current folder name if in a folder
 $folderName = '';
+$parentFolderId = null;
 if ($folderId) {
-    $folder_stmt = $conn->prepare("SELECT folder_name FROM folders WHERE folder_id = ?");
+    $folder_stmt = $conn->prepare("SELECT folder_name, parent_folder_id FROM folders WHERE folder_id = ?");
     $folder_stmt->bind_param("i", $folderId);
     $folder_stmt->execute();
     $folder_result = $folder_stmt->get_result();
     if ($folder_row = $folder_result->fetch_assoc()) {
         $folderName = $folder_row['folder_name'];
+        $parentFolderId = $folder_row['parent_folder_id'];
     }
 }
 
@@ -292,7 +294,7 @@ $result = $stmt->get_result();
 
                     <div class="controls-wrapper">
                         <?php if ($folderId): ?>
-                            <button class="btn btn-light" onclick="window.location.href='create-exam.php'">
+                            <button class="btn btn-light" onclick="goBack(<?php echo $parentFolderId ? $parentFolderId : 'null'; ?>)">
                                 <i class="fas fa-arrow-left"></i> Back
                             </button>
                             <span class="ms-3 fw-bold"><?php echo htmlspecialchars($folderName); ?></span>
@@ -344,13 +346,13 @@ $result = $stmt->get_result();
                         // Fetch folders and exams from the database
                         include_once('../config/config.php');
 
-                        $folder_sql = "SELECT * FROM folders ORDER BY folder_id DESC";
+                        $folder_sql = "SELECT * FROM folders WHERE " . 
+                            ($folderId ? "parent_folder_id = " . intval($folderId) : "parent_folder_id IS NULL") . 
+                            " ORDER BY folder_id DESC";
                         $folder_result = $conn->query($folder_sql);
 
                         if ($folder_result->num_rows > 0) {
                             while ($folder = $folder_result->fetch_assoc()) {
-                                if ($folderId) continue;
-                                
                                 echo "<div class='folder-item' onclick='viewFolder({$folder['folder_id']})'>";
                                 echo "<div class='name-col'>";
                                 echo "<i class='fas fa-folder folder-icon'></i>";
@@ -509,8 +511,13 @@ $result = $stmt->get_result();
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form action="add_folder.php" method="POST">
+                                <?php if ($folderId): ?>
+                                    <input type="hidden" name="parent_folder_id" value="<?php echo $folderId; ?>">
+                                <?php endif; ?>
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Add Folder</h5>
+                                    <h5 class="modal-title">
+                                        <?php echo $folderId ? "Add Subfolder to " . htmlspecialchars($folderName) : "Add Folder"; ?>
+                                    </h5>
                                     <button class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
@@ -735,9 +742,12 @@ $result = $stmt->get_result();
     };
 
 
-    function goBack() {
-        document.getElementById('folderList').style.display = 'flex';
-        document.getElementById('folderContent').style.display = 'none';
+    function goBack(parentFolderId) {
+        if (parentFolderId) {
+            window.location.href = `create-exam.php?folder_id=${parentFolderId}`;
+        } else {
+            window.location.href = 'create-exam.php';
+        }
     }
 
     document.getElementById('createExamBtn').addEventListener('click', function() {
