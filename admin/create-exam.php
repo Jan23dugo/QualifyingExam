@@ -142,7 +142,6 @@ $result = $stmt->get_result();
                 <!-- Folder List Section -->
                 <div class="folder-list" id="folderList">
                     <!-- Folders and Exams will be added here dynamically -->
-                    <h3>Your Exams</h3>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -206,7 +205,6 @@ $result = $stmt->get_result();
                         </table>
 
                     <div class="folder-list" id="folderList">
-                        <h3>Your Folders</h3>
                         <?php
                         // Fetch folders and exams from the database
                         include_once('../config/config.php');
