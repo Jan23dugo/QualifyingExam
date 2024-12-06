@@ -39,7 +39,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="calendar.html">
+                <a class="nav-link" href="calendar.php">
                     <i class="far fa-calendar-alt" style="font-size: 23px;"></i>
                     <span style="font-family: 'Open Sans', sans-serif;">Calendar</span>
                 </a>
@@ -51,7 +51,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="loginAdmin.php">
+                <a class="nav-link" href="logout.php">
                     <i class="fas fa-sign-out-alt" style="font-size: 20px;"></i>
                     <span style="font-family: 'Open Sans', sans-serif;">Sign Out</span>
                 </a>

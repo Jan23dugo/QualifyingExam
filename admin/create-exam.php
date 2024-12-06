@@ -46,6 +46,13 @@ $result = $stmt->get_result();
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&display=swap">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.min.css">
     
@@ -83,6 +90,8 @@ $result = $stmt->get_result();
         .actions-col {
             width: 15%;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .folder-item, .exam-item {
@@ -93,6 +102,8 @@ $result = $stmt->get_result();
             background-color: #fff;
             border: 1px solid #dee2e6;
             border-radius: 8px;
+            position: relative;
+            z-index: 1;
         }
 
         .folder-icon, .exam-icon {
@@ -110,8 +121,8 @@ $result = $stmt->get_result();
 
         .folder-item:hover, .exam-item:hover {
             background-color: #e9ecef;
-            transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: none;
         }
 
         .back-button {
@@ -267,6 +278,69 @@ $result = $stmt->get_result();
             font-weight: 600;
             color: #0d6efd;
         }
+
+        /* Update these styles to fix the dropdown behavior */
+        .folder-item, .exam-item {
+            position: relative;
+            background: #fff;
+            z-index: 1;
+        }
+
+        .actions-col {
+            position: relative;
+            z-index: 1;
+        }
+
+        .actions-col .dropdown {
+            position: relative;
+        }
+
+        .actions-col .dropdown-menu {
+            position: absolute !important;
+            right: 0;
+            top: 100% !important;
+            transform: none !important;
+            z-index: 9999;
+            margin-top: 2px;
+            min-width: 160px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 1px solid rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .actions-col .dropdown.show .dropdown-menu {
+            display: block;
+        }
+
+        .folder-item, .exam-item {
+            position: relative;
+            z-index: 1;
+        }
+
+        .folder-item:hover, .exam-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .actions-col .dropdown.show {
+            z-index: 9999;
+        }
+
+        /* Ensure the dropdown toggle button has proper z-index */
+        .actions-col .dropdown-toggle {
+            position: relative;
+            z-index: 4;
+        }
+
+        /* Ensure containers don't clip the dropdown */
+        .content-container,
+        #content-wrapper,
+        #content {
+            overflow: visible !important;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -362,7 +436,7 @@ $result = $stmt->get_result();
                                 echo "<div class='date-col'>-</div>";
                                 echo "<div class='actions-col'>
                                         <div class='dropdown'>
-                                            <button class='btn btn-light btn-sm dropdown-toggle' type='button' data-bs-toggle='dropdown'>
+                                            <button class='btn btn-light btn-sm dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
                                                 <i class='fas fa-bars'></i>
                                             </button>
                                             <ul class='dropdown-menu'>
@@ -387,7 +461,7 @@ $result = $stmt->get_result();
                                 echo "<div class='date-col'>" . $row['schedule_date'] . "</div>";
                                 echo '<div class="actions-col">
                                         <div class="dropdown">
-                                            <button class="btn btn-light dropdown-toggle" type="button" id="actionMenu' . $row['exam_id'] . '" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <button class="btn btn-light dropdown-toggle" type="button">
                                                 <i class="fas fa-bars"></i>
                                             </button>
                                             <ul class="dropdown-menu">
@@ -454,34 +528,34 @@ $result = $stmt->get_result();
                                         <input type="hidden" name="folder_id" value="<?php echo $folderId; ?>">
                                     <?php endif; ?>
                                     <div class="mb-3">
-                                        <label for="examName" class="form-label">Exam Name:</label>
+                                        <label id="examNameLabel" for="examName" class="form-label">Exam Name:</label>
                                         <input type="text" class="form-control" id="examName" name="exam_name" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="description" class="form-label">Description:</label>
+                                        <label id="descriptionLabel" for="description" class="form-label">Description:</label>
                                         <textarea class="form-control" id="description" name="description"></textarea>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="duration" class="form-label">Duration (in minutes):</label>
+                                        <label id="durationLabel" for="duration" class="form-label">Duration (in minutes):</label>
                                         <input type="number" class="form-control" id="duration" name="duration" value="90">
                                     </div>
                                     <div class="mb-3">
-                                        <label for="scheduleDate" class="form-label">Schedule Date:</label>
+                                        <label id="scheduleDateLabel" for="scheduleDate" class="form-label">Schedule Date:</label>
                                         <input type="date" class="form-control" id="scheduleDate" name="schedule_date" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Student Type:</label>
+                                        <label id="studentTypeLabel" class="form-label">Student Type:</label>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech">
-                                            <label class="form-check-label" for="techStudents">Tech Students</label>
+                                            <label id="techStudentsLabel" class="form-check-label" for="techStudents">Tech Students</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech">
-                                            <label class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
+                                            <label id="nonTechStudentsLabel" class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="studentYear" class="form-label">Student Year:</label>
+                                        <label id="studentYearLabel" for="studentYear" class="form-label">Student Year:</label>
                                         <select class="form-control" id="studentYear" name="student_year">
                                             <option value="">Select Year (Optional)</option>
                                             <?php
@@ -605,12 +679,6 @@ $result = $stmt->get_result();
             <i class="fas fa-angle-up"></i>
         </a>
     </div>
-
-    <!-- Load jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Load Bootstrap JS -->
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
 
     <script>
     let currentFolder = null;
@@ -834,6 +902,48 @@ $result = $stmt->get_result();
             container.innerHTML = '';
             container.appendChild(header);
             items.forEach(item => container.appendChild(item));
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle dropdown toggles
+        document.querySelectorAll('.actions-col .dropdown-toggle').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                
+                const dropdown = this.closest('.dropdown');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.actions-col .dropdown.show').forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown) {
+                        otherDropdown.classList.remove('show');
+                        otherDropdown.querySelector('.dropdown-menu').style.display = 'none';
+                    }
+                });
+                
+                // Toggle current dropdown
+                dropdown.classList.toggle('show');
+                menu.style.display = dropdown.classList.contains('show') ? 'block' : 'none';
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.actions-col .dropdown')) {
+                document.querySelectorAll('.actions-col .dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                    dropdown.querySelector('.dropdown-menu').style.display = 'none';
+                });
+            }
+        });
+        
+        // Prevent folder/exam click when clicking dropdown items
+        document.querySelectorAll('.actions-col .dropdown-menu').forEach(menu => {
+            menu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
         });
     });
     </script>

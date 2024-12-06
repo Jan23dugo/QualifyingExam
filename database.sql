@@ -138,25 +138,56 @@ INSERT INTO `exam_assignments` (`assignment_id`, `exam_id`, `student_id`, `assig
 -- Table structure for table `exam_results`
 --
 
-CREATE TABLE `exam_results` (
-  `result_id` int NOT NULL,
-  `exam_id` int NOT NULL,
-  `student_id` int NOT NULL,
-  `score` int DEFAULT '0',
-  `total_points` int NOT NULL,
-  `start_time` timestamp NULL DEFAULT NULL,
-  `end_time` timestamp NULL DEFAULT NULL,
-  `completion_time` time DEFAULT NULL,
-  `status` enum('Pending','In Progress','Completed','Failed') DEFAULT 'Pending',
-  `submission_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- First drop the foreign keys if they exist
+ALTER TABLE exam_results
+DROP FOREIGN KEY IF EXISTS exam_results_ibfk_1;
 
---
--- Dumping data for table `exam_results`
---
+ALTER TABLE exam_results
+DROP FOREIGN KEY IF EXISTS exam_results_ibfk_2;
 
-INSERT INTO `exam_results` (`result_id`, `exam_id`, `student_id`, `score`, `total_points`, `start_time`, `end_time`, `completion_time`, `status`, `submission_date`) VALUES
-(6, 7, 44, 0, 1, '2024-11-09 07:35:41', '2024-11-09 07:35:49', '00:00:08', 'Completed', '2024-11-09 07:34:55');
+-- Now modify the table structure one change at a time
+ALTER TABLE exam_results
+    MODIFY result_id INT AUTO_INCREMENT,
+    MODIFY exam_id INT NOT NULL,
+    MODIFY student_id INT NOT NULL,
+    MODIFY score INT DEFAULT 0;
+
+-- Add total_questions column if it doesn't exist
+ALTER TABLE exam_results
+    ADD COLUMN IF NOT EXISTS total_questions INT NOT NULL AFTER score;
+
+-- Add created_at column if it doesn't exist
+ALTER TABLE exam_results
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- Drop the columns we don't need anymore
+ALTER TABLE exam_results
+    DROP COLUMN IF EXISTS total_points,
+    DROP COLUMN IF EXISTS start_time,
+    DROP COLUMN IF EXISTS end_time,
+    DROP COLUMN IF EXISTS completion_time,
+    DROP COLUMN IF EXISTS status,
+    DROP COLUMN IF EXISTS submission_date;
+
+-- Add primary key constraint
+ALTER TABLE exam_results
+    ADD PRIMARY KEY (result_id);
+
+-- Add back the foreign key constraints
+ALTER TABLE exam_results
+    ADD CONSTRAINT exam_results_ibfk_1 
+    FOREIGN KEY (exam_id) REFERENCES exams(exam_id) 
+    ON DELETE CASCADE;
+
+ALTER TABLE exam_results
+    ADD CONSTRAINT exam_results_ibfk_2 
+    FOREIGN KEY (student_id) REFERENCES students(student_id) 
+    ON DELETE CASCADE;
+
+-- Add indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_exam_results_exam_id ON exam_results(exam_id);
+CREATE INDEX IF NOT EXISTS idx_exam_results_student_id ON exam_results(student_id);
+CREATE INDEX IF NOT EXISTS idx_exam_results_created_at ON exam_results(created_at);
 
 -- --------------------------------------------------------
 
@@ -704,15 +735,16 @@ CREATE TABLE `users` (
   `user_id` int NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `role` VARCHAR(20) DEFAULT 'admin'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `password`, `created_at`) VALUES
-(1, 'ccisfaculty@gmail.com', '$2y$10$sLZ.yEME5ua6u3q53AgxXulQtpNtcpFyzFhjajVDTTCAaLeftu.Ni', '2024-11-01 15:15:30');
+INSERT INTO `users` (`user_id`, `email`, `password`, `created_at`, `role`) VALUES
+(1, 'ccisfaculty@gmail.com', '$2y$10$sLZ.yEME5ua6u3q53AgxXulQtpNtcpFyzFhjajVDTTCAaLeftu.Ni', '2024-11-01 15:15:30', 'admin');
 
 --
 -- Indexes for dumped tables
@@ -1080,6 +1112,28 @@ ALTER TABLE `student_answers`
 --
 ALTER TABLE `test_cases`
   ADD CONSTRAINT `test_cases_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`) ON DELETE CASCADE;
+
+--
+-- Table structure for table `exam_results`
+--
+
+CREATE TABLE IF NOT EXISTS exam_results (
+    result_id INT PRIMARY KEY AUTO_INCREMENT,
+    exam_id INT,
+    student_id INT,
+    score INT,
+    total_questions INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (exam_id) REFERENCES exams(exam_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+--
+-- Indexes for table `exam_results`
+--
+
+CREATE INDEX idx_exam_date ON exams(exam_date);
+CREATE INDEX idx_exam_type ON exams(exam_type);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

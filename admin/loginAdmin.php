@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Set session and redirect to success page
         $_SESSION['loggedin'] = true;
         $_SESSION['email'] = $user['email'];
+        $_SESSION['user_id'] = $user['user_id'];
         header("Location: admin-dashboard.php");
         exit();
     } else {
