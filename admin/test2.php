@@ -63,7 +63,7 @@ while ($row = $result->fetch_assoc()) {
   <style>
     /* Custom Styling */
     .form-container {
-      max-width: 800px;
+      max-width: 1200px;
       margin: 20px auto;  
       padding: 20px;
       background-color: #fff;
@@ -114,7 +114,8 @@ while ($row = $result->fetch_assoc()) {
     .form-scrollable {
       height: calc(100% - 60px);
       overflow-y: auto;
-      padding-bottom: 60px;
+      padding: 20px;
+      padding-bottom: 80px;
     }
 
     .tab-menu {
@@ -254,6 +255,14 @@ while ($row = $result->fetch_assoc()) {
     #questionBankList tr:hover {
         background-color: rgba(0,0,0,0.02);
     }
+
+    /* Adjust the container width on smaller screens */
+    @media (max-width: 1400px) {
+        .form-container {
+            max-width: 95%;
+            margin: 20px auto;
+        }
+    }
   </style>
 </head>
 <body>
@@ -298,7 +307,6 @@ while ($row = $result->fetch_assoc()) {
               <button class="active">Questions</button>
               <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Preview</a>
               <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Settings</a>
-              <a href="exam_results.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Results</a>
           </div>
 
           <div class="form-container">

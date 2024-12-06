@@ -341,6 +341,39 @@ $result = $stmt->get_result();
         #content {
             overflow: visible !important;
         }
+
+        /* Update the styles for the action button and dropdown */
+        .actions-col .dropdown-toggle {
+            padding: 4px 8px;  /* Reduce padding */
+            font-size: 14px;   /* Reduce font size */
+            line-height: 1;    /* Adjust line height */
+        }
+
+        .actions-col .dropdown-toggle .fas {
+            font-size: 12px;   /* Reduce icon size */
+        }
+
+        .actions-col .dropdown-menu {
+            min-width: 120px;  /* Reduce minimum width */
+            font-size: 14px;   /* Match font size */
+            padding: 4px 0;    /* Reduce padding */
+        }
+
+        .actions-col .dropdown-menu .dropdown-item {
+            padding: 6px 12px; /* Adjust item padding */
+            font-size: 13px;   /* Slightly smaller font for items */
+        }
+
+        /* Make the button more compact */
+        .actions-col .btn-light.btn-sm {
+            padding: 4px 8px;
+            font-size: 14px;
+        }
+
+        /* Adjust the icon size in the button */
+        .actions-col .btn-light .fas {
+            font-size: 12px;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -380,7 +413,7 @@ $result = $stmt->get_result();
                                 + Add
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="#" onclick="addAssessment()">Add Assessment</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="addAssessment()">Add Exam</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="addFolder()">Add Folder</a></li>
                             </ul>
                         </div>
@@ -465,6 +498,11 @@ $result = $stmt->get_result();
                                                 <i class="fas fa-bars"></i>
                                             </button>
                                             <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="editExam(' . $row['exam_id'] . ', \'' . htmlspecialchars($row['exam_name']) . '\', \'' . $row['schedule_date'] . '\')">
+                                                        <i class="fas fa-edit me-2 text-primary"></i>Edit
+                                                    </a>
+                                                </li>
                                                 <li>
                                                     <a class="dropdown-item text-primary" href="delete_exam.php?exam_id=' . $row['exam_id'] . '">
                                                         <i class="fas fa-trash-alt me-2 text-danger"></i>Delete
@@ -946,7 +984,75 @@ $result = $stmt->get_result();
             });
         });
     });
+
+    // Add these functions to handle exam editing
+    function editExam(examId, examName, scheduleDate) {
+        // Populate the edit modal with exam details
+        document.getElementById('editExamId').value = examId;
+        document.getElementById('editExamName').value = examName;
+        document.getElementById('editScheduleDate').value = scheduleDate;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('editExamModal'));
+        modal.show();
+    }
+
+    function updateExam() {
+        const form = document.getElementById('editExamForm');
+        const formData = new FormData(form);
+
+        fetch('update_exam.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close the modal
+                bootstrap.Modal.getInstance(document.getElementById('editExamModal')).hide();
+                // Show success message
+                alert('Exam updated successfully!');
+                // Reload the page to show updated data
+                location.reload();
+            } else {
+                alert('Error updating exam: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the exam');
+        });
+    }
     </script>
+
+    <!-- Add this modal HTML before the closing body tag -->
+    <div class="modal fade" id="editExamModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Exam</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editExamForm">
+                        <input type="hidden" id="editExamId" name="exam_id">
+                        <div class="mb-3">
+                            <label for="editExamName" class="form-label">Exam Name:</label>
+                            <input type="text" class="form-control" id="editExamName" name="exam_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editScheduleDate" class="form-label">Schedule Date:</label>
+                            <input type="date" class="form-control" id="editScheduleDate" name="schedule_date" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateExam()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

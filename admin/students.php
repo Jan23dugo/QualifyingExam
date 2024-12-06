@@ -2,6 +2,11 @@
 // Include database connection
 require_once('../config/config.php');
 
+// Get pagination parameters
+$entries_per_page = isset($_GET['entries']) ? (int)$_GET['entries'] : 20; // Default to 20
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($current_page - 1) * $entries_per_page;
+
 // Function to safely escape column names
 function escapeSortColumn($column) {
     return '`' . str_replace('`', '``', $column) . '`';
@@ -13,31 +18,44 @@ $sort = isset($_GET['sort']) ? $_GET['sort'] : 'reference_id';
 // Define allowed sort columns and their corresponding SQL
 $allowed_sorts = [
     'reference_id' => 'reference_id',
-    'full_name' => 'full_name', // Changed this to use the alias
-    'student_type' => 'student_type'
+    'full_name' => 'full_name',
+    'student_type' => 'student_type',
+    'is_tech' => 'is_tech',
+    'registration_year' => 'YEAR(registration_date)' // Using correct column name
 ];
 
-// Validate and set the sort column, default to reference_id if invalid
+// Validate and set the sort column
 $sort_column = isset($allowed_sorts[$sort]) ? $allowed_sorts[$sort] : $allowed_sorts['reference_id'];
 
 // Get the direction parameter from URL
 $sort_direction = isset($_GET['direction']) && strtoupper($_GET['direction']) === 'DESC' ? 'DESC' : 'ASC';
 
-// Modified query to use proper alias for sorting
+// Count total records for pagination
+$count_query = "SELECT COUNT(*) as total FROM students";
+$count_result = $conn->query($count_query);
+$total_records = $count_result->fetch_assoc()['total'];
+$total_pages = ceil($total_records / $entries_per_page);
+
+// Modified query to include tech/non-tech and registration year
 $query = "SELECT 
     reference_id, 
     CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name) as full_name,
     email, 
-    student_type 
+    student_type,
+    is_tech,
+    YEAR(registration_date) as registration_year
 FROM students 
-ORDER BY " . $sort_column . " " . $sort_direction;
+ORDER BY " . $sort_column . " " . $sort_direction . "
+LIMIT ? OFFSET ?";
 
-$result = $conn->query($query);
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $entries_per_page, $offset);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if (!$result) {
     die("Query failed: " . $conn->error);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +72,68 @@ if (!$result) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/css/styles.min.css">
+
+    <!-- Add these styles in the head section -->
+    <style>
+        /* Table container with fixed height and scroll */
+        .table-container {
+            max-height: calc(100vh - 450px); /* Reduced height */
+            overflow-y: auto;
+            border-radius: 4px;
+        }
+
+        /* Keep the header fixed while scrolling */
+        .table-fixed {
+            position: relative;
+        }
+
+        .table-fixed thead {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 1;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Add shadow to header when scrolling */
+        .table-fixed thead::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 1px;
+            background-color: #dee2e6;
+        }
+
+        /* Ensure consistent column widths */
+        .table-fixed th,
+        .table-fixed td {
+            white-space: nowrap;
+            padding: 12px 15px;
+        }
+
+        .table-fixed th:nth-child(1),
+        .table-fixed td:nth-child(1) { width: 15%; } /* Reference Number */
+        
+        .table-fixed th:nth-child(2),
+        .table-fixed td:nth-child(2) { width: 20%; } /* Full Name */
+        
+        .table-fixed th:nth-child(3),
+        .table-fixed td:nth-child(3) { width: 20%; } /* Email */
+        
+        .table-fixed th:nth-child(4),
+        .table-fixed td:nth-child(4) { width: 10%; } /* Student Type */
+        
+        .table-fixed th:nth-child(5),
+        .table-fixed td:nth-child(5) { width: 10%; } /* Tech/Non-Tech */
+        
+        .table-fixed th:nth-child(6),
+        .table-fixed td:nth-child(6) { width: 10%; } /* Registration Year */
+        
+        .table-fixed th:nth-child(7),
+        .table-fixed td:nth-child(7) { width: 15%; } /* Action */
+    </style>
 </head>
 
 <body id="page-top">
@@ -82,69 +162,107 @@ if (!$result) {
                                         <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" type="button" style="color: var(--bs-body-color); background: var(--bs-btn-hover-color);"></button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item <?php echo $sort === 'reference_id' ? 'active' : ''; ?>" 
-                                               href="?sort=reference_id&direction=<?php echo ($sort === 'reference_id' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>">
+                                               href="?sort=reference_id&direction=<?php echo ($sort === 'reference_id' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>&entries=<?php echo $entries_per_page; ?>">
                                                Reference Number <?php echo $sort === 'reference_id' ? ($sort_direction === 'ASC' ? '↑' : '↓') : ''; ?>
                                             </a>
                                             <a class="dropdown-item <?php echo $sort === 'full_name' ? 'active' : ''; ?>" 
-                                               href="?sort=full_name&direction=<?php echo ($sort === 'full_name' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>">
+                                               href="?sort=full_name&direction=<?php echo ($sort === 'full_name' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>&entries=<?php echo $entries_per_page; ?>">
                                                Name <?php echo $sort === 'full_name' ? ($sort_direction === 'ASC' ? '↑' : '↓') : ''; ?>
                                             </a>
                                             <a class="dropdown-item <?php echo $sort === 'student_type' ? 'active' : ''; ?>" 
-                                               href="?sort=student_type&direction=<?php echo ($sort === 'student_type' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>">
+                                               href="?sort=student_type&direction=<?php echo ($sort === 'student_type' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>&entries=<?php echo $entries_per_page; ?>">
                                                Student Type <?php echo $sort === 'student_type' ? ($sort_direction === 'ASC' ? '↑' : '↓') : ''; ?>
+                                            </a>
+                                            <a class="dropdown-item <?php echo $sort === 'is_tech' ? 'active' : ''; ?>" 
+                                               href="?sort=is_tech&direction=<?php echo ($sort === 'is_tech' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>&entries=<?php echo $entries_per_page; ?>">
+                                               Tech/Non-Tech <?php echo $sort === 'is_tech' ? ($sort_direction === 'ASC' ? '↑' : '↓') : ''; ?>
+                                            </a>
+                                            <a class="dropdown-item <?php echo $sort === 'registration_year' ? 'active' : ''; ?>" 
+                                               href="?sort=registration_year&direction=<?php echo ($sort === 'registration_year' && $sort_direction === 'ASC') ? 'DESC' : 'ASC'; ?>&entries=<?php echo $entries_per_page; ?>">
+                                               Registration Year <?php echo $sort === 'registration_year' ? ($sort_direction === 'ASC' ? '↑' : '↓') : ''; ?>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col">
-                                    <input type="search" class="form-control form-control-sm" id="searchInput" 
-                                           aria-controls="dataTable" placeholder="Search" style="margin-top: -15px;">
+                                <div class="col-md-2">
+                                    <select class="form-select form-select-sm" id="entriesPerPage" onchange="changeEntries(this.value)">
+                                        <option value="20" <?php echo $entries_per_page == 20 ? 'selected' : ''; ?>>20 entries</option>
+                                        <option value="40" <?php echo $entries_per_page == 40 ? 'selected' : ''; ?>>40 entries</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <div class="table-responsive table mt-2" id="dataTable">
-                                <table class="table my-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Reference Number</th>
-                                            <th>Full Name</th>
-                                            <th>Email</th>
-                                            <th>Student Type</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        if ($result->num_rows > 0) {
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<tr>";
-                                                echo "<td>" . htmlspecialchars($row['reference_id']) . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['student_type']) . "</td>";
-                                                echo "<td>
-                                                        <button class='btn btn-primary btn-sm' onclick='viewStudent(\"" . $row['reference_id'] . "\")'>View</button>
-                                                        <button class='btn btn-danger btn-sm' onclick='deleteStudent(\"" . $row['reference_id'] . "\")'>Delete</button>
-                                                      </td>";
-                                                echo "</tr>";
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table table-fixed my-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Reference Number</th>
+                                                <th>Full Name</th>
+                                                <th>Email</th>
+                                                <th>Student Type</th>
+                                                <th>Tech/Non-Tech</th>
+                                                <th>Registration Year</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            if ($result->num_rows > 0) {
+                                                while ($row = $result->fetch_assoc()) {
+                                                    echo "<tr>";
+                                                    echo "<td>" . htmlspecialchars($row['reference_id']) . "</td>";
+                                                    echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
+                                                    echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+                                                    echo "<td>" . htmlspecialchars($row['student_type']) . "</td>";
+                                                    echo "<td>" . ($row['is_tech'] ? 'Tech' : 'Non-Tech') . "</td>";
+                                                    echo "<td>" . htmlspecialchars($row['registration_year']) . "</td>";
+                                                    echo "<td>
+                                                            <button class='btn btn-primary btn-sm' onclick='viewStudent(\"" . $row['reference_id'] . "\")'>View</button>
+                                                            <button class='btn btn-danger btn-sm' onclick='deleteStudent(\"" . $row['reference_id'] . "\")'>Delete</button>
+                                                          </td>";
+                                                    echo "</tr>";
+                                                }
+                                            } else {
+                                                echo "<tr><td colspan='7' class='text-center'>No students found</td></tr>";
                                             }
-                                        } else {
-                                            echo "<tr><td colspan='5' class='text-center'>No students found</td></tr>";
-                                        }
-                                        ?>
-                                    </tbody>
-                                </table>
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
 
                             <!-- Pagination -->
                             <div class="row">
                                 <div class="col-md-6 align-self-center">
                                     <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">
-                                        Showing <?php echo $result->num_rows; ?> entries
+                                        Showing <?php echo ($offset + 1); ?> to <?php echo min($offset + $entries_per_page, $total_records); ?> of <?php echo $total_records; ?> entries
                                     </p>
                                 </div>
-                                <!-- Add pagination controls if needed -->
+                                <div class="col-md-6">
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-end">
+                                            <?php if ($current_page > 1): ?>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page=<?php echo ($current_page - 1); ?>&sort=<?php echo $sort; ?>&direction=<?php echo $sort_direction; ?>&entries=<?php echo $entries_per_page; ?>">Previous</a>
+                                                </li>
+                                            <?php endif; ?>
+                                            
+                                            <?php for ($i = max(1, $current_page - 2); $i <= min($total_pages, $current_page + 2); $i++): ?>
+                                                <li class="page-item <?php echo $i === $current_page ? 'active' : ''; ?>">
+                                                    <a class="page-link" href="?page=<?php echo $i; ?>&sort=<?php echo $sort; ?>&direction=<?php echo $sort_direction; ?>&entries=<?php echo $entries_per_page; ?>"><?php echo $i; ?></a>
+                                                </li>
+                                            <?php endfor; ?>
+                                            
+                                            <?php if ($current_page < $total_pages): ?>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page=<?php echo ($current_page + 1); ?>&sort=<?php echo $sort; ?>&direction=<?php echo $sort_direction; ?>&entries=<?php echo $entries_per_page; ?>">Next</a>
+                                                </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,9 +283,56 @@ if (!$result) {
     <script src="assets/js/script.min.js"></script>
     
     <!-- Add this modal HTML before the closing body tag -->
-    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <style>
+                    /* Custom styles for student modal */
+                    .modal-xl {
+                        max-width: 70%; /* Makes modal width 90% of screen width */
+                        margin: 1.75rem auto;
+                    }
+                    
+                    /* Adjust content layout */
+                    .student-info-section {
+                        padding: 20px;
+                    }
+                    
+                    /* Make document previews larger */
+                    .document-preview img {
+                        max-height: 100px; /* Further reduced height */
+                        max-width: 100px;  /* Further reduced width */
+                        object-fit: contain;
+                        margin: 10px;
+                    }
+                    
+                    /* Add container styles for documents */
+                    .document-preview {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 10px;
+                        background: #f8f9fa;
+                        border-radius: 4px;
+                        margin-bottom: 10px;
+                        width: fit-content;
+                        margin: 10px auto;
+                    }
+                    
+                    /* Style for the View Full Size button */
+                    .document-preview .btn {
+                        margin-top: 10px;
+                        font-size: 12px;
+                        padding: 4px 8px;
+                    }
+                    
+                    /* Style for the document section */
+                    .document-section {
+                        max-width: 300px;  /* Limit the width of document section */
+                        margin: 0 auto;    /* Center the section */
+                    }
+                </style>
                 <div class="modal-header">
                     <h5 class="modal-title" id="studentModalLabel">Student Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -217,10 +382,12 @@ if (!$result) {
                                     <div class="card-header">
                                         Transcript of Records
                                     </div>
-                                    <div class="card-body">
-                                        <img id="tor_preview" src="" alt="TOR" class="img-fluid mb-2" style="max-height: 300px;">
-                                        <button class="btn btn-primary btn-sm" onclick="viewDocument('tor')">View Full Size</button>
+                                    <div class="card-body p-0" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                                        <img id="tor_preview" src="" alt="TOR" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                     </div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-primary btn-sm" onclick="viewDocument('tor')">View Full Size</button>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -228,10 +395,12 @@ if (!$result) {
                                     <div class="card-header">
                                         School ID
                                     </div>
-                                    <div class="card-body">
-                                        <img id="school_id_preview" src="" alt="School ID" class="img-fluid mb-2" style="max-height: 300px;">
-                                        <button class="btn btn-primary btn-sm" onclick="viewDocument('school_id')">View Full Size</button>
+                                    <div class="card-body p-0" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                                        <img id="school_id_preview" src="" alt="School ID" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                     </div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-primary btn-sm" onclick="viewDocument('school_id')">View Full Size</button>
                                 </div>
                             </div>
                         </div>
@@ -245,11 +414,11 @@ if (!$result) {
     </div>
 
     <!-- Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1">
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="documentModalLabel">Document View</h5>
+                    <h5 class="modal-title">Document View</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
@@ -363,6 +532,25 @@ if (!$result) {
         const documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
         documentModal.show();
     }
+
+    function changeEntries(value) {
+        window.location.href = `?entries=${value}&sort=<?php echo $sort; ?>&direction=<?php echo $sort_direction; ?>&page=1`;
+    }
+
+    // Add this to your existing JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle modal focus management
+        const studentModal = document.getElementById('studentModal');
+        const documentModal = document.getElementById('documentModal');
+
+        studentModal.addEventListener('shown.bs.modal', function() {
+            studentModal.querySelector('.btn-close').focus();
+        });
+
+        documentModal.addEventListener('shown.bs.modal', function() {
+            documentModal.querySelector('.btn-close').focus();
+        });
+    });
     </script>
 </body>
 </html>
