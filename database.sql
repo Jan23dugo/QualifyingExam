@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 03, 2024 at 10:49 AM
+-- Generation Time: Dec 08, 2024 at 03:40 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.13
 
@@ -88,8 +88,7 @@ CREATE TABLE `exams` (
 
 INSERT INTO `exams` (`exam_id`, `exam_name`, `description`, `duration`, `schedule_date`, `created_at`, `folder_id`, `student_type`, `student_year`) VALUES
 (6, 'CCIS Qualifying Exam', 'Qualifying Exam for Transferees, Ladderized, and Shiftees', '80', '2024-11-11', '2024-11-08 22:03:53', NULL, NULL, NULL),
-(7, 'CCIS Qualifying Exam 2', 'Qualifying Exam for Transferees, Ladderized, and Shiftees', '80', '2024-11-14', '2024-11-09 07:32:37', NULL, NULL, NULL),
-(8, 'fasf', 'fsa', '80', '2024-12-13', '2024-12-02 03:44:36', NULL, NULL, NULL),
+(8, 'fasf', 'fsa', '80', '2024-12-13', '2024-12-02 03:44:36', 2, NULL, NULL),
 (10, 'test', 'testtt', '90', '2024-12-07', '2024-12-02 10:17:33', NULL, 'non-tech', 2024),
 (11, 'inside a folder', 'this is a file inside a folder ', '90', '2024-12-21', '2024-12-03 10:38:00', 1, 'tech', 2024);
 
@@ -111,7 +110,6 @@ CREATE TABLE `exam_assignments` (
 --
 
 INSERT INTO `exam_assignments` (`assignment_id`, `exam_id`, `student_id`, `assigned_date`) VALUES
-(6, 7, 44, '2024-11-09 07:34:55'),
 (7, 10, 42, '2024-12-02 10:17:33'),
 (8, 10, 51, '2024-12-02 10:17:33'),
 (9, 10, 52, '2024-12-02 10:17:33'),
@@ -138,56 +136,14 @@ INSERT INTO `exam_assignments` (`assignment_id`, `exam_id`, `student_id`, `assig
 -- Table structure for table `exam_results`
 --
 
--- First drop the foreign keys if they exist
-ALTER TABLE exam_results
-DROP FOREIGN KEY IF EXISTS exam_results_ibfk_1;
-
-ALTER TABLE exam_results
-DROP FOREIGN KEY IF EXISTS exam_results_ibfk_2;
-
--- Now modify the table structure one change at a time
-ALTER TABLE exam_results
-    MODIFY result_id INT AUTO_INCREMENT,
-    MODIFY exam_id INT NOT NULL,
-    MODIFY student_id INT NOT NULL,
-    MODIFY score INT DEFAULT 0;
-
--- Add total_questions column if it doesn't exist
-ALTER TABLE exam_results
-    ADD COLUMN IF NOT EXISTS total_questions INT NOT NULL AFTER score;
-
--- Add created_at column if it doesn't exist
-ALTER TABLE exam_results
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-
--- Drop the columns we don't need anymore
-ALTER TABLE exam_results
-    DROP COLUMN IF EXISTS total_points,
-    DROP COLUMN IF EXISTS start_time,
-    DROP COLUMN IF EXISTS end_time,
-    DROP COLUMN IF EXISTS completion_time,
-    DROP COLUMN IF EXISTS status,
-    DROP COLUMN IF EXISTS submission_date;
-
--- Add primary key constraint
-ALTER TABLE exam_results
-    ADD PRIMARY KEY (result_id);
-
--- Add back the foreign key constraints
-ALTER TABLE exam_results
-    ADD CONSTRAINT exam_results_ibfk_1 
-    FOREIGN KEY (exam_id) REFERENCES exams(exam_id) 
-    ON DELETE CASCADE;
-
-ALTER TABLE exam_results
-    ADD CONSTRAINT exam_results_ibfk_2 
-    FOREIGN KEY (student_id) REFERENCES students(student_id) 
-    ON DELETE CASCADE;
-
--- Add indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_exam_results_exam_id ON exam_results(exam_id);
-CREATE INDEX IF NOT EXISTS idx_exam_results_student_id ON exam_results(student_id);
-CREATE INDEX IF NOT EXISTS idx_exam_results_created_at ON exam_results(created_at);
+CREATE TABLE `exam_results` (
+  `result_id` int NOT NULL,
+  `exam_id` int NOT NULL,
+  `student_id` int NOT NULL,
+  `score` int DEFAULT '0',
+  `total_questions` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -210,8 +166,7 @@ CREATE TABLE `exam_sections` (
 --
 
 INSERT INTO `exam_sections` (`section_id`, `exam_id`, `section_title`, `section_description`, `section_order`, `created_at`, `updated_at`) VALUES
-(5, 6, 'Multiple Choice', 'Select the Correct ANSWER', 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(6, 7, 'sample', 'sample', 1, '2024-11-09 07:34:05', '2024-11-09 07:34:05');
+(5, 6, 'Multiple Choice', 'Select the Correct ANSWER', 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20');
 
 -- --------------------------------------------------------
 
@@ -238,8 +193,7 @@ CREATE TABLE `exam_settings` (
 --
 
 INSERT INTO `exam_settings` (`exam_id`, `randomize_questions`, `randomize_options`, `allow_view_after`, `time_limit`, `passing_score`, `show_results_immediately`, `allow_retake`, `max_attempts`, `created_at`, `updated_at`) VALUES
-(6, 0, 0, 0, NULL, NULL, 0, 0, 1, '2024-11-09 07:15:08', '2024-11-09 07:15:08'),
-(7, 0, 0, 0, NULL, NULL, 0, 0, 1, '2024-11-09 07:34:20', '2024-11-09 07:34:20'),
+(6, 1, 1, 0, NULL, NULL, 0, 0, 1, '2024-11-09 07:15:08', '2024-12-06 13:40:37'),
 (10, 0, 0, 0, NULL, NULL, 0, 0, 1, '2024-12-02 10:23:04', '2024-12-02 10:23:04');
 
 -- --------------------------------------------------------
@@ -392,11 +346,7 @@ INSERT INTO `multiple_choice_options` (`option_id`, `question_id`, `option_text`
 (52, 19, 'Network optimization', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
 (53, 19, 'Data encryption', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
 (54, 19, 'Blocking unauthorized access', 1, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(55, 19, 'Virus scanning', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(60, 22, 'Three', 0, 0, '2024-12-02 07:24:17', '2024-12-02 07:24:17'),
-(61, 22, 'Four', 1, 1, '2024-12-02 07:24:17', '2024-12-02 07:24:17'),
-(62, 22, 'Five', 0, 2, '2024-12-02 07:24:17', '2024-12-02 07:24:17'),
-(63, 22, 'Six', 0, 3, '2024-12-02 07:24:17', '2024-12-02 07:24:17');
+(55, 19, 'Virus scanning', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20');
 
 -- --------------------------------------------------------
 
@@ -444,9 +394,7 @@ INSERT INTO `questions` (`question_id`, `section_id`, `exam_id`, `question_text`
 (16, 5, 6, 'Which database management system is widely used?', 'multiple_choice', 1, 6, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
 (17, 5, 6, 'What is artificial intelligence (AI)?', 'multiple_choice', 1, 7, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
 (18, 5, 6, 'Which network protocol is used for secure communication?', 'multiple_choice', 1, 8, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(19, 5, 6, 'What is the purpose of a firewall?', 'multiple_choice', 1, 9, '2024-11-08 22:16:20', '2024-11-09 07:14:24'),
-(21, 6, 7, 'sample', 'multiple_choice', 1, 0, '2024-12-02 07:24:17', '2024-12-02 07:24:17'),
-(22, 6, 7, 'What is 2 + 2?', 'multiple_choice', 1, 1, '2024-12-02 07:24:17', '2024-12-02 07:24:17');
+(19, 5, 6, 'What is the purpose of a firewall?', 'multiple_choice', 1, 9, '2024-11-08 22:16:20', '2024-11-09 07:14:24');
 
 -- --------------------------------------------------------
 
@@ -735,16 +683,15 @@ CREATE TABLE `users` (
   `user_id` int NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `role` VARCHAR(20) DEFAULT 'admin'
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `password`, `created_at`, `role`) VALUES
-(1, 'ccisfaculty@gmail.com', '$2y$10$sLZ.yEME5ua6u3q53AgxXulQtpNtcpFyzFhjajVDTTCAaLeftu.Ni', '2024-11-01 15:15:30', 'admin');
+INSERT INTO `users` (`user_id`, `email`, `password`, `created_at`) VALUES
+(1, 'ccisfaculty@gmail.com', '$2y$10$sLZ.yEME5ua6u3q53AgxXulQtpNtcpFyzFhjajVDTTCAaLeftu.Ni', '2024-11-01 15:15:30');
 
 --
 -- Indexes for dumped tables
@@ -776,8 +723,9 @@ ALTER TABLE `exam_assignments`
 --
 ALTER TABLE `exam_results`
   ADD PRIMARY KEY (`result_id`),
-  ADD KEY `exam_id` (`exam_id`),
-  ADD KEY `student_id` (`student_id`);
+  ADD KEY `idx_exam_results_exam_id` (`exam_id`),
+  ADD KEY `idx_exam_results_student_id` (`student_id`),
+  ADD KEY `idx_exam_results_created_at` (`created_at`);
 
 --
 -- Indexes for table `exam_sections`
@@ -905,7 +853,7 @@ ALTER TABLE `coded_courses`
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `exam_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `exam_assignments`
@@ -1112,28 +1060,6 @@ ALTER TABLE `student_answers`
 --
 ALTER TABLE `test_cases`
   ADD CONSTRAINT `test_cases_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`) ON DELETE CASCADE;
-
---
--- Table structure for table `exam_results`
---
-
-CREATE TABLE IF NOT EXISTS exam_results (
-    result_id INT PRIMARY KEY AUTO_INCREMENT,
-    exam_id INT,
-    student_id INT,
-    score INT,
-    total_questions INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (exam_id) REFERENCES exams(exam_id),
-    FOREIGN KEY (student_id) REFERENCES students(student_id)
-);
-
---
--- Indexes for table `exam_results`
---
-
-CREATE INDEX idx_exam_date ON exams(exam_date);
-CREATE INDEX idx_exam_type ON exams(exam_type);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
