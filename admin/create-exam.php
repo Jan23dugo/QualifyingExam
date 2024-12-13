@@ -648,6 +648,92 @@ function getExamStatus($exam) {
             font-size: 14px;
             font-weight: 500;
         }
+
+        /* Modal size and layout adjustments */
+        #createExamModal .modal-dialog {
+            max-width: 800px;
+            margin: 1.75rem auto;
+        }
+
+        #createExamModal .modal-content {
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        #createExamModal .modal-header {
+            padding: 1.25rem 1.5rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #createExamModal .modal-body {
+            padding: 1.5rem;
+        }
+
+        #createExamModal .modal-footer {
+            padding: 1.25rem 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Form field improvements */
+        #createExamModal .form-control {
+            padding: 0.625rem 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 6px;
+        }
+
+        #createExamModal textarea.form-control {
+            min-height: 120px;
+        }
+
+        #createExamModal .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        /* Section styling */
+        #createExamModal .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        #createExamModal .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        #createExamModal .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        /* Radio buttons and checkboxes */
+        #createExamModal .form-check {
+            margin-bottom: 0.5rem;
+            padding-left: 1.75rem;
+        }
+
+        #createExamModal .form-check-input {
+            margin-top: 0.3rem;
+        }
+
+        #createExamModal .form-check-label {
+            font-size: 0.95rem;
+        }
+
+        /* Help text */
+        #createExamModal .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -837,7 +923,7 @@ function getExamStatus($exam) {
 
                 <!-- Create Exam Modal -->
                 <div class="modal fade" id="createExamModal" tabindex="-1" aria-labelledby="createExamModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="createExamModalLabel">Create Exam</h5>
@@ -848,57 +934,68 @@ function getExamStatus($exam) {
                                     <?php if ($folderId): ?>
                                         <input type="hidden" name="folder_id" value="<?php echo $folderId; ?>">
                                     <?php endif; ?>
-                                    <div class="mb-3">
-                                        <label id="examNameLabel" for="examName" class="form-label">Exam Name:</label>
-                                        <input type="text" class="form-control" id="examName" name="exam_name" required>
+                                    
+                                    <!-- Exam Details Section -->
+                                    <div class="section">
+                                        <h6 class="section-title">Exam Details</h6>
+                                        <div class="mb-3">
+                                            <label for="examName" class="form-label">Exam Name</label>
+                                            <input type="text" class="form-control" id="examName" name="exam_name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="description" class="form-label">Description</label>
+                                            <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="duration" class="form-label">Duration (in minutes)</label>
+                                            <input type="number" class="form-control" id="duration" name="duration" value="90" min="1">
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label id="descriptionLabel" for="description" class="form-label">Description:</label>
-                                        <textarea class="form-control" id="description" name="description"></textarea>
+
+                                    <!-- Schedule Section -->
+                                    <div class="section">
+                                        <h6 class="section-title">Schedule</h6>
+                                        <div class="mb-3">
+                                            <label for="scheduleDate" class="form-label">Schedule Date (Optional)</label>
+                                            <input type="date" class="form-control" id="scheduleDate" name="schedule_date">
+                                            <div class="form-text">Leave empty to create an unscheduled exam</div>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label id="durationLabel" for="duration" class="form-label">Duration (in minutes):</label>
-                                        <input type="number" class="form-control" id="duration" name="duration" value="90">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label id="scheduleDateLabel" for="scheduleDate" class="form-label">
-                                            Schedule Date (Optional):
-                                        </label>
-                                        <input type="date" class="form-control" id="scheduleDate" name="schedule_date" 
-                                            >
-                                        <small class="form-text text-muted">
-                                            Leave empty to create an unscheduled exam. You can set the schedule later.
-                                        </small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label id="studentTypeLabel" class="form-label">Student Type:</label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech">
-                                            <label id="techStudentsLabel" class="form-check-label" for="techStudents">Tech Students</label>
+
+                                    <!-- Student Type Section -->
+                                    <div class="section">
+                                        <h6 class="section-title">Student Type</h6>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech" required>
+                                            <label class="form-check-label" for="techStudents">Tech Students</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech">
-                                            <label id="nonTechStudentsLabel" class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
+                                            <label class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label id="studentYearLabel" for="studentYear" class="form-label">Student Year:</label>
-                                        <select class="form-control" id="studentYear" name="student_year">
-                                            <option value="">Select Year (Optional)</option>
-                                            <?php
-                                            $currentYear = date('Y');
-                                            for($i = 0; $i < 4; $i++) {
-                                                $year = $currentYear - $i;
-                                                echo "<option value='$year'>$year</option>";
-                                            }
-                                            ?>
-                                        </select>
+
+                                    <!-- Student Year Section -->
+                                    <div class="section">
+                                        <h6 class="section-title">Student Year</h6>
+                                        <div class="mb-3">
+                                            <select class="form-select" id="studentYear" name="student_year">
+                                                <option value="">Select Year (Optional)</option>
+                                                <?php
+                                                $currentYear = date('Y');
+                                                for($i = 0; $i < 4; $i++) {
+                                                    $year = $currentYear - $i;
+                                                    echo "<option value='$year'>$year</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" id="createExamBtn">Create</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="createExamBtn">Create Exam</button>
                             </div>
                         </div>
                     </div>

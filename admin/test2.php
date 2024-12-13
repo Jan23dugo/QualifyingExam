@@ -55,6 +55,8 @@ $has_content = false; // Set to false by default to show empty state
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
+
   
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
@@ -646,6 +648,393 @@ $has_content = false; // Set to false by default to show empty state
     .modal .info-icon {
         color: #6200ea;
     }
+
+    /* Update the TinyMCE styles in your existing <style> section */
+    .tox-tinymce {
+        visibility: visible !important;
+        z-index: 1 !important;
+    }
+
+    .tox .tox-toolbar__primary {
+        background: #f8f9fa !important;
+        padding: 5px !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+
+    .tox .tox-toolbar__group {
+        border: none !important;
+        padding: 3px 5px !important;
+    }
+
+    .tox .tox-tbtn {
+        height: 34px !important;
+        margin: 2px !important;
+    }
+
+    .question-editor, .section-editor, .section-description-editor {
+        min-height: 150px;
+        width: 100%;
+    }
+
+    /* Add or update these styles in your <style> section */
+    .tox.tox-tinymce {
+        visibility: visible !important;
+        display: block !important;
+        z-index: 100000 !important;
+        margin-bottom: 10px;
+    }
+
+    .tox .tox-editor-container {
+        background: white;
+    }
+
+    .tox .tox-toolbar__primary {
+        background: #f8f9fa !important;
+        padding: 5px !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        justify-content: flex-start !important;
+    }
+
+    .tox .tox-toolbar__group {
+        padding: 0 5px !important;
+        border: none !important;
+    }
+
+    .tox .tox-tbtn {
+        height: 34px !important;
+        width: 34px !important;
+        margin: 0 1px !important;
+    }
+
+    .tox .tox-tbtn:hover {
+        background: #e9ecef !important;
+    }
+
+    .question-editor, .section-editor, .section-description-editor {
+        min-height: 200px !important;
+        width: 100% !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    /* Update these styles in your <style> section */
+    .tox.tox-tinymce {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 6px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .tox .tox-toolbar__primary {
+        background: #f8f9fa !important;
+        border-top: 1px solid #dee2e6 !important;
+        padding: 8px !important;
+    }
+
+    .tox .tox-toolbar__group:not(:last-of-type) {
+        border-right: 1px solid #dee2e6 !important;
+        padding-right: 8px !important;
+        margin-right: 8px !important;
+    }
+
+    .tox .tox-tbtn {
+        height: 30px !important;
+        width: 30px !important;
+        margin: 0 2px !important;
+        border-radius: 4px !important;
+    }
+
+    .tox .tox-tbtn:hover {
+        background: #e9ecef !important;
+    }
+
+    .tox .tox-tbtn--enabled {
+        background: #e9ecef !important;
+    }
+
+    .question-editor, .section-editor, .section-description-editor {
+        min-height: 150px !important;
+        width: 100% !important;
+        margin-bottom: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+
+    /* Style for the toolbar container */
+    .tox .tox-toolbar-overlord {
+        border-top: 1px solid #dee2e6;
+    }
+
+    /* Replace the TinyMCE styles with these CKEditor styles */
+    .ck-editor__editable {
+        min-height: 60px !important;
+        max-height: none !important;
+        transition: all 0.3s ease;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .ck.ck-editor {
+        width: 100% !important;
+        margin-bottom: 0 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 4px !important;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable {
+        background-color: #fff !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 8px !important;
+        line-height: 1.5 !important;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable:focus {
+        border-color: #80bdff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25) !important;
+    }
+
+    .ck.ck-toolbar {
+        border: none !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        background: #f8f9fa !important;
+        padding: 4px !important;
+        position: static !important;
+    }
+
+    .ck.ck-toolbar.ck-toolbar_floating {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 4px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    .ck.ck-button {
+        color: #495057 !important;
+        cursor: pointer !important;
+        font-size: 0.9rem !important;
+        padding: 4px !important;
+        min-height: unset !important;
+        line-height: 1 !important;
+    }
+
+    .ck.ck-button:hover {
+        background: #e9ecef !important;
+    }
+
+    .ck.ck-button.ck-on {
+        background: #e9ecef !important;
+        color: #212529 !important;
+    }
+
+    /* Add these new styles */
+    .section-container {
+        background: #fff;
+        padding: 24px 24px 0 24px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+    }
+
+    .section-container:hover {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-label.fw-bold {
+        color: #495057;
+        font-size: 0.95rem;
+        margin-bottom: 4px !important;
+    }
+
+    .question-block-container {
+        padding: 0;
+        margin-top: 0 !important;
+        min-height: 50px;
+    }
+
+    /* Add spacing between editors */
+    .description-block {
+        margin-top: 8px !important;
+        opacity: 0.87;
+        margin-bottom: 8px !important;
+    }
+
+    /* Update CKEditor styles for better placeholder visibility */
+    .ck.ck-editor__main > .ck-editor__editable.ck-placeholder::before {
+        color: #70757a !important;
+        font-size: 16px !important;
+        opacity: 0.8;
+        padding: 8px 0 !important;
+    }
+
+    .ck.ck-toolbar__items {
+        line-height: 1 !important;
+    }
+
+    /* Update the CKEditor styles */
+    .ck-editor__editable {
+        min-height: 60px !important;
+        max-height: none !important;
+        transition: all 0.3s ease;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable {
+        background-color: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid #dadce0 !important;
+        border-radius: 0 !important;
+        padding: 8px 0 !important;
+        line-height: 1.2 !important;
+        color: #333 !important;
+        transition: border-bottom-color 0.2s ease;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable:focus {
+        border-bottom-color: #1a73e8 !important;
+        box-shadow: none !important;
+    }
+
+    /* Remove scrollbar styles */
+    .ck.ck-editor__main > .ck-editor__editable::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+
+    /* Adjust content area */
+    .ck.ck-editor__main {
+        height: auto !important;
+        min-height: unset !important;
+    }
+
+    .ck-editor__editable.ck-editor__editable_inline {
+        height: auto !important;
+        min-height: unset !important;
+        overflow: visible !important;
+    }
+
+    /* Section title styling */
+    .section-editor {
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        color: #202124 !important;
+    }
+
+    /* Description styling */
+    .section-description-editor {
+        font-size: 14px !important;
+        color: #70757a !important;
+    }
+
+    /* Update the toolbar styling */
+    .ck.ck-toolbar {
+        border: none !important;
+        background: transparent !important;
+        padding: 4px 0 !important;
+    }
+
+    .ck-focused + .ck.ck-toolbar,
+    .ck.ck-toolbar:hover {
+        opacity: 1;
+    }
+
+    /* Delete button styling */
+    .delete-button {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .section-container:hover .delete-button {
+        opacity: 1;
+    }
+
+    /* Update placeholder style to also be vertically centered */
+    .ck.ck-editor__main > .ck-editor__editable.ck-placeholder::before {
+        color: #70757a !important;
+        font-size: 16px !important;
+        opacity: 0.8;
+        padding: 8px 0 !important;
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }
+
+    /* Ensure the editor content is also vertically centered */
+    .ck-editor__editable p {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Adjust the container height */
+    .section-editor, .section-description-editor {
+        min-height: 40px !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Style for option remove button */
+    .remove-option {
+        text-decoration: none;
+        line-height: 1;
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+    }
+
+    .remove-option:hover {
+        opacity: 1;
+        text-decoration: none;
+    }
+
+    /* Style for option items */
+    .option-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Add or update these styles */
+    .question-editor-wrapper {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .question-editor {
+        min-height: 40px !important;
+        padding: 8px !important;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 8px !important;
+    }
+
+    .ck.ck-editor__main > .ck-editor__editable:focus {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .ck.ck-toolbar {
+        border: none !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        background: #f8f9fa !important;
+    }
+
+    .question-block {
+        background: #fff;
+        padding: 16px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+
+    .question-type-select {
+        height: 40px !important;
+    }
   </style>
 </head>
 <body>
@@ -788,21 +1177,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 newSection.setAttribute('data-section-id', section.section_id);
                 
                 newSection.innerHTML = `
-                    <div class="title-block">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <input type="text" class="form-control" name="section_title[${section.section_id}]" 
-                                value="${section.section_title}" style="flex: 1; margin-right: 10px;">
-                            <input type="hidden" name="section_id[${section.section_id}]" value="${section.section_id}">
-                            <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                    <div class="section-container">
+                        <div class="title-block">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1; margin-right: 8px;">
+                                    <div class="section-editor" 
+                                        name="section_title[${section.section_id}]" 
+                                        data-placeholder="Input section title"
+                                        style="min-height: 20px !important;"></div>
+                                </div>
+                                <button type="button" class="delete-button btn btn-link text-danger" style="padding: 4px;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
+                        <div class="description-block">
+                            <div class="section-description-editor" 
+                                name="section_description[${section.section_id}]" 
+                                data-placeholder="Input description (optional)"
+                                style="min-height: 20px !important;"></div>
+                        </div>
+                        <div id="question-container-${section.section_id}" class="question-block-container"></div>
                     </div>
-                    <div class="description-block">
-                        <input type="text" class="form-control" name="section_description[${section.section_id}]" 
-                            value="${section.section_description || ''}" placeholder="Description (optional)">
-                    </div>
-                    <div id="question-container-${section.section_id}" class="question-block-container"></div>
                 `;
 
                 sectionBlocks.appendChild(newSection);
@@ -836,21 +1232,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function createQuestionElement(sectionId, questionIndex, questionData = null) {
         const newQuestion = document.createElement('div');
         newQuestion.classList.add('question-block');
-        newQuestion.style.marginBottom = '20px';
-        newQuestion.style.padding = '15px';
-        newQuestion.style.border = '1px solid #ddd';
-        newQuestion.style.borderRadius = '8px';
-
-        // Add a data attribute to track the original question_id if it exists
-        if (questionData && questionData.question_id) {
-            newQuestion.setAttribute('data-original-question-id', questionData.question_id);
-        }
+        newQuestion.style.marginBottom = '16px';
 
         newQuestion.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <textarea class="form-control" name="question_text[${sectionId}][${questionIndex}]" 
-                    placeholder="Enter your question here" style="flex: 1; margin-right: 10px;" rows="3"
-                    ${questionData ? 'readonly' : ''}>${questionData ? questionData.question_text : ''}</textarea>
+                <div style="flex: 1; margin-right: 10px;">
+                    <div class="question-editor-wrapper">
+                        <div class="question-editor" 
+                            name="question_text[${sectionId}][${questionIndex}]" 
+                            data-placeholder="Enter your question here"></div>
+                    </div>
+                </div>
                 <div style="min-width: 200px;">
                     <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
                         <option value="">Select Question Type</option>
@@ -866,10 +1258,46 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="question-options" style="margin-top: 10px;"></div>
             <div style="margin-top: 10px;">
                 <input type="number" name="points[${sectionId}][${questionIndex}]" 
-                    class="form-control" placeholder="Points" style="width: 100px;"
-                    value="${questionData ? questionData.points || '' : ''}">
+                    class="form-control" placeholder="Points" style="width: 100px;">
             </div>
         `;
+
+        // Initialize CKEditor for the question
+        setTimeout(() => {
+            const editor = newQuestion.querySelector('.question-editor');
+            if (editor) {
+                ClassicEditor
+                    .create(editor, {
+                        toolbar: {
+                            items: [
+                                'bold', 'italic', 'underline',
+                                '|', 'bulletedList', 'numberedList',
+                                '|', 'alignment'
+                            ],
+                            shouldNotGroupWhenFull: true
+                        },
+                        toolbar: {
+                            shouldNotGroupWhenFull: true,
+                            viewportTopOffset: 0
+                        },
+                        language: 'en',
+                        removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading'],
+                        placeholder: 'Enter your question here',
+                    })
+                    .then(editor => {
+                        // Keep toolbar visible inside the box
+                        const toolbarElement = editor.ui.view.toolbar.element;
+                        toolbarElement.style.position = 'static';
+                        toolbarElement.style.top = 'auto';
+                        toolbarElement.style.background = '#fff';
+                        toolbarElement.style.borderBottom = '1px solid #dee2e6';
+                        return editor;
+                    })
+                    .catch(error => {
+                        console.error('Editor initialization error:', error);
+                    });
+            }
+        }, 100);
 
         return newQuestion;
     }
@@ -901,21 +1329,45 @@ document.addEventListener('DOMContentLoaded', function() {
         newSection.setAttribute('data-section-id', sectionCounter);
 
         newSection.innerHTML = `
-            <div class="title-block">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <input type="text" class="form-control" name="section_title[${sectionCounter}]" placeholder="Untitled Section" style="flex: 1; margin-right: 10px;">
-                    <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+            <div class="section-container">
+                <div class="title-block">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1; margin-right: 8px;">
+                            <div class="section-editor" 
+                                name="section_title[${sectionCounter}]" 
+                                data-placeholder="Input section title"
+                                style="min-height: 20px !important;"></div>
+                        </div>
+                        <button type="button" class="delete-button btn btn-link text-danger" style="padding: 4px;">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
                 </div>
+                <div class="description-block">
+                    <div class="section-description-editor" 
+                        name="section_description[${sectionCounter}]" 
+                        data-placeholder="Input description (optional)"
+                        style="min-height: 20px !important;"></div>
+                </div>
+                <div id="question-container-${sectionCounter}" class="question-block-container"></div>
             </div>
-            <div class="description-block">
-                <input type="text" class="form-control" name="section_description[${sectionCounter}]" placeholder="Description (optional)">
-            </div>
-            <div id="question-container-${sectionCounter}" class="question-block-container"></div>
         `;
 
         document.getElementById('sectionBlocks').appendChild(newSection);
+
+        // Initialize editor for section title and description
+        setTimeout(() => {
+            const titleEditor = newSection.querySelector('.section-editor');
+            const descEditor = newSection.querySelector('.section-description-editor');
+            
+            if (titleEditor) {
+                initializeEditor(titleEditor);
+            }
+            if (descEditor) {
+                initializeEditor(descEditor);
+            }
+        }, 100);
+
         attachEventListeners();
         toggleEmptyState();
         closeActionSidebar();
@@ -935,8 +1387,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         newQuestion.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <textarea class="form-control" name="question_text[${sectionId}][${questionIndex}]" 
-                    placeholder="Enter your question here" style="flex: 1; margin-right: 10px;" rows="3"></textarea>
+                <div style="flex: 1; margin-right: 10px;">
+                    <div class="question-editor" 
+                        name="question_text[${sectionId}][${questionIndex}]" 
+                        data-placeholder="Enter your question here"
+                        style="border: 1px solid #dee2e6; border-radius: 4px; min-height: 100px;"></div>
+                </div>
                 <div style="min-width: 200px;">
                     <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
                         <option value="">Select Question Type</option>
@@ -958,13 +1414,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
         questionContainer.appendChild(newQuestion);
 
+        // Initialize CKEditor for the question
+        const editor = newQuestion.querySelector('.question-editor');
+        if (editor) {
+            ClassicEditor
+                .create(editor, {
+                    toolbar: {
+                        items: [
+                            'bold', 'italic', 'underline',
+                            '|', 'bulletedList', 'numberedList',
+                            '|', 'alignment'
+                        ],
+                        shouldNotGroupWhenFull: true
+                    },
+                    toolbar: {
+                        shouldNotGroupWhenFull: true,
+                        viewportTopOffset: 0
+                    },
+                    language: 'en',
+                    removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading'],
+                    placeholder: 'Enter your question here',
+                })
+                .then(editor => {
+                    // Keep toolbar visible inside the box
+                    const toolbarElement = editor.ui.view.toolbar.element;
+                    toolbarElement.style.position = 'static';
+                    toolbarElement.style.top = 'auto';
+                    toolbarElement.style.background = '#fff';
+                    toolbarElement.style.borderBottom = '1px solid #dee2e6';
+                    return editor;
+                })
+                .catch(error => {
+                    console.error('Editor initialization error:', error);
+                });
+        }
+
         // Add event listener for question type selection
         const questionTypeSelect = newQuestion.querySelector('.question-type-select');
         questionTypeSelect.addEventListener('change', function() {
             handleQuestionTypeChange(this, sectionId, questionIndex);
         });
 
-        // Add event listener for delete question button
+        // Add event listener for delete button
         const deleteQuestionBtn = newQuestion.querySelector('.delete-question-btn');
         deleteQuestionBtn.addEventListener('click', function() {
             if (confirm('Are you sure you want to delete this question?')) {
@@ -974,198 +1465,164 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle question type change
-    function handleQuestionTypeChange(select, sectionId, questionIndex, existingData = null) {
+    function handleQuestionTypeChange(select, sectionId, questionIndex) {
         const optionsContainer = select.closest('.question-block').querySelector('.question-options');
         optionsContainer.innerHTML = '';
 
-        switch (select.value) {
+        switch(select.value) {
             case 'multiple_choice':
                 optionsContainer.innerHTML = `
-                    <div class="multiple-choice-options">
-                        <button type="button" class="btn btn-secondary add-option-btn" style="margin-bottom: 10px;">
-                            Add Option
-                        </button>
+                    <div class="mb-3">
+                        <div class="option-list">
+                            <div class="option-item mb-2 d-flex align-items-center">
+                                <input type="radio" name="correct[${sectionId}][${questionIndex}]" value="0" class="me-2">
+                                <input type="text" class="form-control me-2" name="options[${sectionId}][${questionIndex}][]" placeholder="Option 1">
+                                <button type="button" class="btn btn-link text-danger remove-option p-0 ms-1" style="font-size: 18px;">×</button>
+                            </div>
+                            <div class="option-item mb-2 d-flex align-items-center">
+                                <input type="radio" name="correct[${sectionId}][${questionIndex}]" value="1" class="me-2">
+                                <input type="text" class="form-control me-2" name="options[${sectionId}][${questionIndex}][]" placeholder="Option 2">
+                                <button type="button" class="btn btn-link text-danger remove-option p-0 ms-1" style="font-size: 18px;">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm mt-2 add-option">Add Option</button>
                     </div>
                 `;
-                const addOptionBtn = optionsContainer.querySelector('.add-option-btn');
-                addOptionBtn.addEventListener('click', () => addMultipleChoiceOption(optionsContainer, sectionId, questionIndex));
-
-                // Load existing options if available
-                if (existingData && existingData.options) {
-                    existingData.options.forEach((option, index) => {
-                        const optionsDiv = optionsContainer.querySelector('.multiple-choice-options');
-                        const optionDiv = document.createElement('div');
-                        optionDiv.classList.add('option-container');
-                        optionDiv.style.marginBottom = '10px';
-                        optionDiv.innerHTML = `
-                            <div class="input-group">
-                                <input type="text" class="form-control" 
-                                    name="options[${sectionId}][${questionIndex}][]" 
-                                    value="${option.option_text}"
-                                    placeholder="Option ${index + 1}">
-                                <input type="hidden" name="option_id[${sectionId}][${questionIndex}][]" 
-                                    value="${option.option_id}">
-                                <div class="input-group-append">
-                                    <div class="input-group-text">
-                                        <input type="radio" name="correct_answer[${sectionId}][${questionIndex}]" 
-                                            value="${index}" ${option.is_correct == 1 ? 'checked' : ''}>
-                                        <label style="margin-left: 5px;">Correct</label>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-link text-danger remove-option-btn" style="padding: 5px;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        `;
-                        
-                        // Insert before the Add Option button
-                        const addButton = optionsContainer.querySelector('.add-option-btn');
-                        optionsDiv.insertBefore(optionDiv, addButton);
-
-                        // Add event listener for remove button
-                        optionDiv.querySelector('.remove-option-btn').addEventListener('click', function() {
-                            optionDiv.remove();
-                        });
-                    });
-                } else {
-                    // Add initial options for new questions
-                    addMultipleChoiceOption(optionsContainer, sectionId, questionIndex);
-                    addMultipleChoiceOption(optionsContainer, sectionId, questionIndex);
-                }
                 break;
-
             case 'true_false':
                 optionsContainer.innerHTML = `
-                    <div class="true-false-option">
-                        <select class="form-control" name="correct_answer[${sectionId}][${questionIndex}]" style="width: 200px;">
-                            <option value="">Select Correct Answer</option>
-                            <option value="true" ${existingData && existingData.correct_answer === 'true' ? 'selected' : ''}>True</option>
-                            <option value="false" ${existingData && existingData.correct_answer === 'false' ? 'selected' : ''}>False</option>
-                        </select>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="correct[${sectionId}][${questionIndex}]" value="true">
+                            <label class="form-check-label">True</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="correct[${sectionId}][${questionIndex}]" value="false">
+                            <label class="form-check-label">False</label>
+                        </div>
                     </div>
                 `;
                 break;
-
             case 'programming':
                 optionsContainer.innerHTML = `
-                    <div class="programming-options">
-                        <select class="form-control" name="programming_language[${sectionId}][${questionIndex}]" style="width: 200px; margin-bottom: 10px;">
-                            <option value="python" ${existingData && existingData.programming_language && existingData.programming_language.language_name === 'python' ? 'selected' : ''}>Python</option>
-                            <option value="java" ${existingData && existingData.programming_language && existingData.programming_language.language_name === 'java' ? 'selected' : ''}>Java</option>
-                            <option value="c" ${existingData && existingData.programming_language && existingData.programming_language.language_name === 'c' ? 'selected' : ''}>C</option>
-                        </select>
-                        <div class="test-cases"></div>
-                        <button type="button" class="btn btn-secondary add-test-case-btn" style="margin-top: 10px;">
-                            Add Test Case
-                        </button>
-                    </div>
-                `;
-                const addTestCaseBtn = optionsContainer.querySelector('.add-test-case-btn');
-                addTestCaseBtn.addEventListener('click', () => addTestCase(optionsContainer, sectionId, questionIndex));
-
-                // Load existing test cases if available
-                if (existingData && existingData.test_cases) {
-                    existingData.test_cases.forEach(testCase => {
-                        const testCasesDiv = optionsContainer.querySelector('.test-cases');
-                        const testCaseDiv = document.createElement('div');
-                        testCaseDiv.classList.add('test-case');
-                        testCaseDiv.style.marginBottom = '10px';
-                        testCaseDiv.innerHTML = `
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" 
-                                    name="test_case_input[${sectionId}][${questionIndex}][]" 
-                                    value="${testCase.input_data}"
-                                    placeholder="Input">
-                                <input type="hidden" name="test_case_id[${sectionId}][${questionIndex}][]" 
-                                    value="${testCase.test_case_id}">
-                                <input type="text" class="form-control" 
-                                    name="test_case_output[${sectionId}][${questionIndex}][]" 
-                                    value="${testCase.expected_output}"
-                                    placeholder="Expected Output">
-                                <button type="button" class="btn btn-link text-danger remove-test-case-btn" style="padding: 5px;">
-                                    <i class="fas fa-trash-alt"></i>
+                    <div class="mb-3">
+                        <div class="form-group mb-3">
+                            <label>Programming Language</label>
+                            <select class="form-control" name="programming_language[${sectionId}][${questionIndex}]">
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                            </select>
+                        </div>
+                        
+                        <div class="test-cases-container">
+                            <h5>Test Cases</h5>
+                            <div class="visible-test-cases">
+                                <h6>Visible Test Cases</h6>
+                                <div class="test-case mb-2">
+                                    <input type="text" class="form-control mb-2" 
+                                        name="test_input[${sectionId}][${questionIndex}][]" 
+                                        placeholder="Input">
+                                    <input type="text" class="form-control" 
+                                        name="expected_output[${sectionId}][${questionIndex}][]" 
+                                        placeholder="Expected Output">
+                                </div>
+                            </div>
+                            
+                            <div class="hidden-test-cases mt-3">
+                                <h6>Hidden Test Cases (Optional)</h6>
+                                <div class="test-case mb-2">
+                                    <input type="text" class="form-control mb-2" 
+                                        name="hidden_test_input[${sectionId}][${questionIndex}][]" 
+                                        placeholder="Hidden Input">
+                                    <input type="text" class="form-control" 
+                                        name="hidden_expected_output[${sectionId}][${questionIndex}][]" 
+                                        placeholder="Hidden Expected Output">
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-secondary btn-sm add-visible-test-case">
+                                    Add Visible Test Case
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-sm add-hidden-test-case">
+                                    Add Hidden Test Case
                                 </button>
                             </div>
-                        `;
-                        testCasesDiv.appendChild(testCaseDiv);
+                        </div>
+                    </div>
+                `;
 
-                        // Add event listener for remove button
-                        testCaseDiv.querySelector('.remove-test-case-btn').addEventListener('click', function() {
-                            testCaseDiv.remove();
-                        });
-                    });
-                } else {
-                    // Add initial test case for new questions
-                    addTestCase(optionsContainer, sectionId, questionIndex);
-                }
+                // Add event listeners for adding test cases
+                const addVisibleTestCase = optionsContainer.querySelector('.add-visible-test-case');
+                const addHiddenTestCase = optionsContainer.querySelector('.add-hidden-test-case');
+                const visibleTestCases = optionsContainer.querySelector('.visible-test-cases');
+                const hiddenTestCases = optionsContainer.querySelector('.hidden-test-cases');
+
+                addVisibleTestCase.addEventListener('click', () => {
+                    const testCase = document.createElement('div');
+                    testCase.className = 'test-case mb-2';
+                    testCase.innerHTML = `
+                        <input type="text" class="form-control mb-2" 
+                            name="test_input[${sectionId}][${questionIndex}][]" 
+                            placeholder="Input">
+                        <input type="text" class="form-control" 
+                            name="expected_output[${sectionId}][${questionIndex}][]" 
+                            placeholder="Expected Output">
+                        <button type="button" class="btn btn-link text-danger remove-test-case">×</button>
+                    `;
+                    visibleTestCases.appendChild(testCase);
+                });
+
+                addHiddenTestCase.addEventListener('click', () => {
+                    const testCase = document.createElement('div');
+                    testCase.className = 'test-case mb-2';
+                    testCase.innerHTML = `
+                        <input type="text" class="form-control mb-2" 
+                            name="hidden_test_input[${sectionId}][${questionIndex}][]" 
+                            placeholder="Hidden Input">
+                        <input type="text" class="form-control" 
+                            name="hidden_expected_output[${sectionId}][${questionIndex}][]" 
+                            placeholder="Hidden Expected Output">
+                        <button type="button" class="btn btn-link text-danger remove-test-case">×</button>
+                    `;
+                    hiddenTestCases.appendChild(testCase);
+                });
+
+                // Event delegation for removing test cases
+                optionsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-test-case')) {
+                        e.target.closest('.test-case').remove();
+                    }
+                });
                 break;
         }
-    }
 
-    // Add multiple choice option
-    function addMultipleChoiceOption(container, sectionId, questionIndex) {
-        const optionsDiv = container.querySelector('.multiple-choice-options');
-        const optionCount = optionsDiv.querySelectorAll('.option-container').length;
-        
-        const optionDiv = document.createElement('div');
-        optionDiv.classList.add('option-container');
-        optionDiv.style.marginBottom = '10px';
-        optionDiv.innerHTML = `
-            <div class="input-group">
-                <input type="text" class="form-control" 
-                    name="options[${sectionId}][${questionIndex}][]" 
-                    placeholder="Option ${optionCount + 1}">
-                <div class="input-group-append">
-                    <div class="input-group-text">
-                        <input type="radio" name="correct_answer[${sectionId}][${questionIndex}]" 
-                            value="${optionCount}">
-                        <label style="margin-left: 5px;">Correct</label>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-link text-danger remove-option-btn" style="padding: 5px;">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `;
+        // Add event listener for "Add Option" button in multiple choice
+        if (select.value === 'multiple_choice') {
+            const addOptionBtn = optionsContainer.querySelector('.add-option');
+            const optionList = optionsContainer.querySelector('.option-list');
+            let optionCount = 2;
 
-        // Insert before the Add Option button
-        const addButton = container.querySelector('.add-option-btn');
-        optionsDiv.insertBefore(optionDiv, addButton);
+            addOptionBtn.addEventListener('click', () => {
+                optionCount++;
+                const newOption = document.createElement('div');
+                newOption.className = 'option-item mb-2 d-flex align-items-center';
+                newOption.innerHTML = `
+                    <input type="radio" name="correct[${sectionId}][${questionIndex}]" value="${optionCount}" class="me-2">
+                    <input type="text" class="form-control me-2" name="options[${sectionId}][${questionIndex}][]" placeholder="Option ${optionCount + 1}">
+                    <button type="button" class="btn btn-link text-danger remove-option p-0 ms-1" style="font-size: 18px;">×</button>
+                `;
+                optionList.appendChild(newOption);
+            });
 
-        // Add event listener for remove button
-        optionDiv.querySelector('.remove-option-btn').addEventListener('click', function() {
-            optionDiv.remove();
-        });
-    }
-
-    // Add test case
-    function addTestCase(container, sectionId, questionIndex) {
-        const testCasesDiv = container.querySelector('.test-cases');
-        const testCaseCount = testCasesDiv.children.length;
-        
-        const testCaseDiv = document.createElement('div');
-        testCaseDiv.classList.add('test-case');
-        testCaseDiv.style.marginBottom = '10px';
-        testCaseDiv.innerHTML = `
-            <div class="input-group mb-2">
-                <input type="text" class="form-control" 
-                    name="test_case_input[${sectionId}][${questionIndex}][]" 
-                    placeholder="Input">
-                <input type="text" class="form-control" 
-                    name="test_case_output[${sectionId}][${questionIndex}][]" 
-                    placeholder="Expected Output">
-                <button type="button" class="btn btn-link text-danger remove-test-case-btn" style="padding: 5px;">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `;
-
-        testCasesDiv.appendChild(testCaseDiv);
-
-        // Add event listener for remove button
-        testCaseDiv.querySelector('.remove-test-case-btn').addEventListener('click', function() {
-            testCaseDiv.remove();
-        });
+            // Event delegation for remove option buttons
+            optionList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-option')) {
+                    e.target.closest('.option-item').remove();
+                }
+            });
+        }
     }
 
     // Event Listeners
@@ -1227,6 +1684,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveForm() {
+        // Get all editor instances and update their textarea values
+        document.querySelectorAll('.ck-editor__editable').forEach(editable => {
+            const editor = editable.ckeditorInstance;
+            if (editor) {
+                const textarea = editable.closest('.editor-wrapper').querySelector('textarea');
+                textarea.value = editor.getData();
+            }
+        });
+
         const formData = new FormData(document.getElementById('questionForm'));
         
         fetch('save_question.php', {
@@ -1236,14 +1702,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Questions saved successfully!');
+                showSuccessToast('Questions saved successfully!');
             } else {
-                alert('Error saving questions: ' + data.error);
+                showErrorToast('Error saving questions: ' + data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while saving.');
+            showErrorToast('An error occurred while saving.');
         });
     }
 
@@ -1702,6 +2168,82 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    // Initialize TinyMCE for dynamic elements
+    function initializeTinyMCE(selector) {
+        return tinymce.init({
+            selector: selector,
+            height: 300,
+            menubar: false,  // Hide the top menubar
+            statusbar: false, // Hide the bottom status bar
+            inline: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                'preview', 'searchreplace', 'visualblocks', 'code',
+                'insertdatetime', 'table', 'wordcount'
+            ],
+            toolbar: [
+                'undo redo | styles | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify',
+                'bullist numlist | outdent indent | forecolor backcolor | removeformat'
+            ],
+            toolbar_mode: 'wrap',
+            toolbar_sticky: false,
+            toolbar_location: 'bottom',  // Place toolbar at the bottom
+            fixed_toolbar_container: '#toolbar',
+            content_style: `
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+                    font-size: 14px;
+                    line-height: 1.5;
+                    padding: 10px;
+                    min-height: 150px;
+                }
+            `,
+            setup: function(editor) {
+                editor.on('init', function() {
+                    editor.getContainer().style.display = 'block';
+                });
+            }
+        });
+    }
+
+    // Replace the initializeTinyMCE function with this:
+    function initializeEditor(element) {
+        return ClassicEditor
+            .create(element, {
+                toolbar: {
+                    items: [
+                        'bold', 'italic', 'underline',
+                        '|', 'bulletedList', 'numberedList',
+                        '|', 'alignment',
+                        '|', 'link'
+                    ],
+                    shouldNotGroupWhenFull: true
+                },
+                balloonToolbar: false,
+                language: 'en',
+                removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading'],
+                placeholder: element.getAttribute('data-placeholder') || 'Enter text here...',
+                ui: {
+                    viewportOffset: { top: 10 }
+                }
+            })
+            .then(editor => {
+                // Hide toolbar by default
+                const toolbarElement = editor.ui.view.toolbar.element;
+                toolbarElement.style.display = 'none';
+
+                // Show toolbar only when editor is focused
+                editor.ui.focusTracker.on('change:isFocused', (evt, name, isFocused) => {
+                    toolbarElement.style.display = isFocused ? 'flex' : 'none';
+                });
+
+                return editor;
+            })
+            .catch(error => {
+                console.error('Editor initialization error:', error);
+            });
+    }
 });
 </script>
 
