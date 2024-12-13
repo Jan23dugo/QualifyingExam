@@ -1035,6 +1035,19 @@ $has_content = false; // Set to false by default to show empty state
     .question-type-select {
         height: 40px !important;
     }
+
+    /* Add these styles to your existing <style> section */
+    .disable-grammarly {
+        /* Disable Grammarly */
+        data-gramm: false;
+        data-gramm_editor: false;
+        data-enable-grammarly: false;
+    }
+
+    /* Prevent Grammarly from injecting styles */
+    grammarly-desktop-integration {
+        display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -1238,7 +1251,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                 <div style="flex: 1; margin-right: 10px;">
                     <div class="question-editor-wrapper">
-                        <div class="question-editor" 
+                        <div class="question-editor disable-grammarly" 
+                            data-gramm="false"
+                            data-gramm_editor="false"
+                            data-enable-grammarly="false"
                             name="question_text[${sectionId}][${questionIndex}]" 
                             data-placeholder="Enter your question here"></div>
                     </div>
@@ -1268,21 +1284,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (editor) {
                 ClassicEditor
                     .create(editor, {
-                        toolbar: {
-                            items: [
-                                'bold', 'italic', 'underline',
-                                '|', 'bulletedList', 'numberedList',
-                                '|', 'alignment'
-                            ],
-                            shouldNotGroupWhenFull: true
-                        },
-                        toolbar: {
-                            shouldNotGroupWhenFull: true,
-                            viewportTopOffset: 0
-                        },
-                        language: 'en',
-                        removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading'],
+                        toolbar: ['bold', 'italic', '|', 'bulletedList', 'numberedList'],
+                        removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading', 'Alignment', 'Underline'],
                         placeholder: 'Enter your question here',
+                        extraPlugins: [ DisableGrammarly ],  // Add this line
                     })
                     .then(editor => {
                         // Keep toolbar visible inside the box
@@ -1388,10 +1393,12 @@ document.addEventListener('DOMContentLoaded', function() {
         newQuestion.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                 <div style="flex: 1; margin-right: 10px;">
-                    <div class="question-editor" 
+                    <div class="question-editor disable-grammarly" 
+                        data-gramm="false"
+                        data-gramm_editor="false"
+                        data-enable-grammarly="false"
                         name="question_text[${sectionId}][${questionIndex}]" 
-                        data-placeholder="Enter your question here"
-                        style="border: 1px solid #dee2e6; border-radius: 4px; min-height: 100px;"></div>
+                        data-placeholder="Enter your question here"></div>
                 </div>
                 <div style="min-width: 200px;">
                     <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
@@ -1419,21 +1426,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (editor) {
             ClassicEditor
                 .create(editor, {
-                    toolbar: {
-                        items: [
-                            'bold', 'italic', 'underline',
-                            '|', 'bulletedList', 'numberedList',
-                            '|', 'alignment'
-                        ],
-                        shouldNotGroupWhenFull: true
-                    },
-                    toolbar: {
-                        shouldNotGroupWhenFull: true,
-                        viewportTopOffset: 0
-                    },
-                    language: 'en',
-                    removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading'],
+                    toolbar: ['bold', 'italic', '|', 'bulletedList', 'numberedList'],
+                    removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading', 'Alignment', 'Underline'],
                     placeholder: 'Enter your question here',
+                    extraPlugins: [ DisableGrammarly ],  // Add this line
                 })
                 .then(editor => {
                     // Keep toolbar visible inside the box
@@ -2211,29 +2207,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeEditor(element) {
         return ClassicEditor
             .create(element, {
-                toolbar: {
-                    items: [
-                        'bold', 'italic', 'underline',
-                        '|', 'bulletedList', 'numberedList',
-                        '|', 'alignment',
-                        '|', 'link'
-                    ],
-                    shouldNotGroupWhenFull: true
-                },
-                balloonToolbar: false,
-                language: 'en',
-                removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading'],
+                toolbar: ['bold', 'italic', '|', 'bulletedList', 'numberedList'],
+                removePlugins: ['MediaEmbed', 'Table', 'BlockQuote', 'Heading', 'Alignment', 'Underline'],
                 placeholder: element.getAttribute('data-placeholder') || 'Enter text here...',
-                ui: {
-                    viewportOffset: { top: 10 }
-                }
+                extraPlugins: [ DisableGrammarly ],  // Add this line
             })
             .then(editor => {
-                // Hide toolbar by default
                 const toolbarElement = editor.ui.view.toolbar.element;
                 toolbarElement.style.display = 'none';
 
-                // Show toolbar only when editor is focused
                 editor.ui.focusTracker.on('change:isFocused', (evt, name, isFocused) => {
                     toolbarElement.style.display = isFocused ? 'flex' : 'none';
                 });
@@ -2244,11 +2226,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Editor initialization error:', error);
             });
     }
+
+    // Add this to your existing DOMContentLoaded event handler
+    document.addEventListener('DOMContentLoaded', function() {
+        // Proper focus management for modals
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.addEventListener('shown.bs.modal', function() {
+                // Focus the first focusable element in the modal
+                const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (firstFocusable) {
+                    firstFocusable.focus();
+                }
+            });
+
+            modal.addEventListener('hide.bs.modal', function() {
+                // Return focus to the element that opened the modal
+                const opener = document.activeElement;
+                if (opener) {
+                    opener.focus();
+                }
+            });
+        });
+    });
 });
+
+// Add this before your CKEditor initialization code
+const DisableGrammarly = function( editor ) {
+    editor.editing.view.change( writer => {
+        // Add data-gramm="false" to the editing root
+        writer.setAttribute( 'data-gramm', 'false', editor.editing.view.document.getRoot() );
+        // Add grammarly disable class
+        writer.addClass( 'disable-grammarly', editor.editing.view.document.getRoot() );
+    } );
+};
 </script>
 
 <!-- Question Bank Modal -->
-<div class="modal fade" id="questionBankModal" tabindex="-1" aria-labelledby="questionBankModalLabel" aria-hidden="true">
+<div class="modal fade" id="questionBankModal" tabindex="-1" aria-labelledby="questionBankModalLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -2353,7 +2368,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -2375,7 +2390,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Warning Modal -->
-<div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+<div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
