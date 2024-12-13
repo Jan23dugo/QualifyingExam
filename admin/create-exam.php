@@ -1045,6 +1045,34 @@ function getExamStatus($exam) {
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Student Type Section -->
+                                    <div class="mb-3">
+                                        <label id="studentTypeLabel" class="form-label">Student Type:</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech">
+                                            <label id="techStudentsLabel" class="form-check-label" for="techStudents">Tech Students</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech">
+                                            <label id="nonTechStudentsLabel" class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Student Year Section -->
+                                    <div class="mb-3">
+                                        <label id="studentYearLabel" for="studentYear" class="form-label">Student Year:</label>
+                                        <select class="form-control" id="studentYear" name="student_year">
+                                            <option value="">Select Year (Optional)</option>
+                                            <?php
+                                            $currentYear = date('Y');
+                                            for($i = 0; $i < 4; $i++) {
+                                                $year = $currentYear - $i;
+                                                echo "<option value='$year'>$year</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
@@ -1186,8 +1214,121 @@ function getExamStatus($exam) {
     function addFolder() {
         const modalElement = document.getElementById('addFolderModal');
         const modal = new bootstrap.Modal(modalElement);
+        
+        // Reset modal title
+        modalElement.querySelector('.modal-title').textContent = 'Add Folder';
+        
+        // Clear the folder name input
+        const folderNameInput = document.getElementById('folderNameInput');
+        folderNameInput.value = '';
+        
+        // Update the form action
+        const form = modalElement.querySelector('form');
+        form.action = 'handlers/add_folder.php';
+        
+        // Remove any existing folder ID input
+        const existingFolderIdInput = form.querySelector('input[name="folder_id"]');
+        if (existingFolderIdInput) {
+            existingFolderIdInput.remove();
+        }
+        
+        // Update submit button text
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.textContent = 'Add Folder';
+        
+        // Reset form submission handler
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch('handlers/add_folder.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modal.hide();
+                    showSuccessToast('Folder created successfully');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Failed to create folder');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorToast(error.message || 'Error creating folder');
+            });
+        };
+        
         modal.show();
     }
+
+    function editFolder(folderId, folderName) {
+        // Get the modal element
+        const modalElement = document.getElementById('addFolderModal');
+        const modal = new bootstrap.Modal(modalElement);
+        
+        // Update modal title
+        modalElement.querySelector('.modal-title').textContent = 'Edit Folder';
+        
+        // Set the folder name in the input
+        const folderNameInput = document.getElementById('folderNameInput');
+        folderNameInput.value = folderName;
+        
+        // Update the form action and add folder ID
+        const form = modalElement.querySelector('form');
+        form.action = 'handlers/update_folder.php';
+        
+        // Add or update hidden folder ID input
+        let folderIdInput = form.querySelector('input[name="folder_id"]');
+        if (!folderIdInput) {
+            folderIdInput = document.createElement('input');
+            folderIdInput.type = 'hidden';
+            folderIdInput.name = 'folder_id';
+            form.appendChild(folderIdInput);
+        }
+        folderIdInput.value = folderId;
+        
+        // Update submit button text
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.textContent = 'Save Changes';
+        
+        // Show the modal
+        modal.show();
+        
+        // Update form submission handler
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch('handlers/update_folder.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modal.hide();
+                    showSuccessToast('Folder updated successfully');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Failed to update folder');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorToast(error.message || 'Error updating folder');
+            });
+        };
+    }
+
     function closeModal() {
         const modalElement = document.getElementById('addFolderModal');
         const modal = bootstrap.Modal.getInstance(modalElement);
