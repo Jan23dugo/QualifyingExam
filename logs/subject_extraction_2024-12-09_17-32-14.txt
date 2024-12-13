@@ -1,0 +1,26 @@
+Raw OCR Text:
+Course Title	Grade Credit Unit/s
+FCL 1101	The Perpetualite: Identity and Dignity	1.00	2.0
+FIL 1000	Komunikasyon sa Akademikong Filipino	1.00	3.0
+GEC 1000	Understanding the Self	1.25	3.0
+GEC 4000	Purposive Communication	1.00	3.0
+GEC 5000	Mathematics in the Modern World	1.00	3.0
+NSTP 1101	National Service Training Program 1	1.25	3.0
+PE 1101	Foundations of Physical Education	1.00	2.0
+PSY 1101	Introduction to Psychology	1.25	3.0
+FCL 1202	The Perpetualite: A Man of God	1.00	2.0
+GEC 6000	The Contemporary World	1.75	3.0
+GEC 8000	Science, Technology, and Society	1.50	3.0
+GEE 1000	Living in the IT Era - Lec	1.75	2.0
+GEE 1000L	Living in the IT Era - Lab	1.25	1.0
+NSTP 1202-	National Service Training Progrm 2	1.00	3.0
+PE 1202	Rhythmic Activities	1.00	2.0
+PSY 1202	Psychological Statistics - Lec	1.25	3.0
+PSY 1202L	Psychological Statistics - Lab	1.25	2.0
+
+
+
+Processed Subjects:
+Array
+(
+)

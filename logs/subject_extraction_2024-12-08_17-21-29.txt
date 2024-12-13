@@ -1,0 +1,184 @@
+Raw OCR Text:
+ATORS
+Republic of the Philicpines
+MANILA
+OFFICIAL TRANSCRIPT OF RECORDS
+Name	JANNAH LESLY YAMOYAM DUGO
+Sex	Female
+Address	0619 Sorrento Oasis, G. Rosario, Pasig City	Date of Birth 08/16/2004	Nationality FILIPINO
+JANNAH LESLYY. DUGE
+Entrance Credits From LEPANTO NATIONAL HIGH SCHOOL	ID No TUPM-22-0914
+Address	Paco, Mankayan, Benguet
+Date Graduated Last Attended July 2022
+Degree/Tille Course	BACHELOR OF SCIENCE IN HOTEL AND RESTAURANT MANAGEMENT
+Maior
+Date of Graduation	Not Applicable	Date Admitted September 2022
+NSTP Serial No	Honors/Distinction-
+TERM	SUBJECT CODE AND DESCRIPTIVE TITLE
+GRADES	CREDITS
+CHEMGENT-M	General Chemistry	Final	Completion
+2022-2023	CHEMGENTE-M	General Chemistry, Laboratory	1.75	3
+GEC2-M	Readings in Philippine History	1.50	1
+GEC4-M	Mathematics in the Modern World	1.25
+GEC7-M	Science Technology and Society	1.00	3
+HRM111-M	Risk Management as Applied to Safety. Security	1.25	3
+and Sanitation	175	3
+HRM112-M	Macro Perspective of Tourism and Hospitality
+HRM113LAB-M	Kitchen Essentials & Basic Food Preparation	1.50	3
+HRM113LEC-M	Kitchen Essentials & Basic Food Preparation	1.50	1
+NSTPI-M	National Service Training Program 1	1.50	2
+Food Chemistry. Laboratory	1 25	3
+2022-2023	CLT125LEC-M	Food Chemistry	1.00	1
+GEC1-M	Understanding the Seif	1.25	3
+GEC3-M	The Contemporary World	1.50	3
+GEE12A-M	Religions. Religious Experiences and Sprituality	1.25	3
+HRM121LEC-M	Micro Perspective of Tourism and Hospitality	1.25	3
+HRM122LAB-M	Asian Cuisine, Laboratory	1.50	3
+HRM122LEC-M	Asian Cuisine	1.50
+HRM123LEC.M	Professional Development and Applied Ethics	1.50	2
+MGT110-M	Operation Management	1.50	3
+NSTP2-M	National Service Training Program 2	1.50	3
+**********-****-*-*- NOTHING FOLLOWS -******-*- XXX-X-X-X	1.50	3
+REMARKS GRANTED TRANSFER CREDENTIAL
+GRADING SYSTEM
+1.00	Excellent	2.75	Far
+Not valid without seal and	1.25	Superior	0517291
+original signature in ink	3.00	Passed	OR No
+1.50	Very Good	DRP	Dropped
+1.75	Very Good	OD	08/02/2023
+2.00	Officially Ditipped	OR Issued
+Good	UD	Unofficialy Dropped
+26683182	2.25	Good	P100.00
+No attendance	Amount Paid!
+2:50	Satisfactory
+ROSEMARIE THERESA M. CRUZ, Ed.D. RPsy
+Prepared by JOSEF EMMANUELE F MAGISA
+SN 230906-3-0	Checked by HELENE IL VILLANUEVA
+Any erasite or afteratien made bh this document randers. I invald.
+
+
+
+Processed Subjects:
+Array
+(
+    [0] => Array
+        (
+            [subject_code] => CHEMGENTE-M
+            [description] => General Chemistry, Laboratory
+            [grade] => 1.75
+            [units] => 3.0
+        )
+
+    [1] => Array
+        (
+            [subject_code] => GEC2-M
+            [description] => Readings in Philippine History
+            [grade] => 1.50
+            [units] => 1.0
+        )
+
+    [2] => Array
+        (
+            [subject_code] => GEC7-M
+            [description] => Science Technology and Society
+            [grade] => 1.00
+            [units] => 3.0
+        )
+
+    [3] => Array
+        (
+            [subject_code] => HRM111-M
+            [description] => Risk Management as Applied to Safety. Security
+            [grade] => 1.25
+            [units] => 3.0
+        )
+
+    [4] => Array
+        (
+            [subject_code] => HRM113LAB-M
+            [description] => Kitchen Essentials & Basic Food Preparation
+            [grade] => 1.50
+            [units] => 3.0
+        )
+
+    [5] => Array
+        (
+            [subject_code] => HRM113LEC-M
+            [description] => Kitchen Essentials & Basic Food Preparation
+            [grade] => 1.50
+            [units] => 1.0
+        )
+
+    [6] => Array
+        (
+            [subject_code] => NSTPI-M
+            [description] => National Service Training Program 1
+            [grade] => 1.50
+            [units] => 2.0
+        )
+
+    [7] => Array
+        (
+            [subject_code] => CLT125LEC-M
+            [description] => Food Chemistry
+            [grade] => 1.00
+            [units] => 1.0
+        )
+
+    [8] => Array
+        (
+            [subject_code] => GEC1-M
+            [description] => Understanding the Seif
+            [grade] => 1.25
+            [units] => 3.0
+        )
+
+    [9] => Array
+        (
+            [subject_code] => GEC3-M
+            [description] => The Contemporary World
+            [grade] => 1.50
+            [units] => 3.0
+        )
+
+    [10] => Array
+        (
+            [subject_code] => GEE12A-M
+            [description] => Religions. Religious Experiences and Sprituality
+            [grade] => 1.25
+            [units] => 3.0
+        )
+
+    [11] => Array
+        (
+            [subject_code] => HRM121LEC-M
+            [description] => Micro Perspective of Tourism and Hospitality
+            [grade] => 1.25
+            [units] => 3.0
+        )
+
+    [12] => Array
+        (
+            [subject_code] => HRM122LAB-M
+            [description] => Asian Cuisine, Laboratory
+            [grade] => 1.50
+            [units] => 3.0
+        )
+
+    [13] => Array
+        (
+            [subject_code] => MGT110-M
+            [description] => Operation Management
+            [grade] => 1.50
+            [units] => 3.0
+        )
+
+    [14] => Array
+        (
+            [subject_code] => NSTP2-M
+            [description] => National Service Training Program 2
+            [grade] => 1.50
+            [units] => 3.0
+        )
+
+)

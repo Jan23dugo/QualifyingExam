@@ -2,65 +2,47 @@
 require_once '../config/config.php';
 session_start();
 
-// Check if user is logged in
 if (!isset($_SESSION['loggedin']) || !isset($_SESSION['user_id'])) {
     header('Location: loginAdmin.php');
     exit();
 }
 
-// Get filter parameters
-$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
-$exam_type = isset($_GET['exam_type']) ? $_GET['exam_type'] : 'all';
-$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'exam_date';
-$sort_order = isset($_GET['sort_order']) ? $_GET['sort_order'] : 'DESC';
-
-// Base query with joins to get all necessary information
+// Query to get exam results with the new date/time columns
 $query = "SELECT 
-    er.result_id,
-    er.score,
-    er.total_questions,
-    er.created_at as submission_date,
     e.exam_id,
     e.exam_name,
-    e.student_type as exam_type,
-    e.schedule_date as exam_date,
-    s.student_id,
-    s.first_name,
-    s.last_name,
-    s.student_type,
-    s.is_tech,
-    COUNT(q.question_id) as total_exam_questions,
-    YEAR(e.schedule_date) as exam_year
-    FROM exam_results er
-    JOIN exams e ON er.exam_id = e.exam_id
-    JOIN students s ON er.student_id = s.student_id
-    LEFT JOIN exam_sections es ON e.exam_id = es.exam_id
-    LEFT JOIN questions q ON es.section_id = q.section_id
-    WHERE 1=1";
+    e.exam_date,
+    e.exam_time,
+    e.duration,
+    e.status,
+    COUNT(DISTINCT ea.student_id) as total_students,
+    COUNT(DISTINCT er.student_id) as completed_exams,
+    ROUND(AVG(er.score), 2) as average_score,
+    MIN(er.score) as lowest_score,
+    MAX(er.score) as highest_score
+FROM 
+    exams e
+    LEFT JOIN exam_assignments ea ON e.exam_id = ea.exam_id
+    LEFT JOIN exam_results er ON e.exam_id = er.exam_id
+GROUP BY 
+    e.exam_id, e.exam_name, e.exam_date, e.exam_time, e.duration, e.status
+ORDER BY 
+    e.exam_date DESC, e.exam_time DESC";
 
-// Apply filters
-if ($year !== 'all') {
-    $query .= " AND YEAR(e.schedule_date) = '$year'";
+$result = $conn->query($query);
+
+// Function to format the schedule display
+function formatSchedule($date, $time) {
+    if (empty($date) || empty($time)) {
+        return "Not Scheduled";
+    }
+    return date('M d, Y', strtotime($date)) . ' at ' . date('h:i A', strtotime($time));
 }
-if ($exam_type !== 'all') {
-    $query .= " AND e.student_type = '$exam_type'";
-}
 
-// Group by to avoid duplicate counts
-$query .= " GROUP BY er.result_id";
-
-// Add sorting
-$query .= " ORDER BY $sort_by $sort_order";
-
-$results = $conn->query($query);
-
-if (!$results) {
-    die("Query failed: " . $conn->error);
-}
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -272,50 +254,6 @@ if (!$results) {
                 <div class="container-fluid">
                     <h1 class="h3 mb-4 text-gray-800">Exam Results</h1>
                     
-                    <div class="filter-section">
-                        <form method="GET" class="filter-form">
-                            <div class="form-group">
-                                <label class="form-label">Year:</label>
-                                <select name="year" class="form-select">
-                                    <option value="all">All Years</option>
-                                    <?php
-                                    $current_year = date('Y');
-                                    for ($i = $current_year; $i >= $current_year - 5; $i--) {
-                                        $selected = ($year == $i) ? 'selected' : '';
-                                        echo "<option value='$i' $selected>$i</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Student Type:</label>
-                                <select name="exam_type" class="form-select">
-                                    <option value="all">All Types</option>
-                                    <option value="tech" <?php echo ($exam_type == 'tech') ? 'selected' : ''; ?>>Technical</option>
-                                    <option value="non-tech" <?php echo ($exam_type == 'non-tech') ? 'selected' : ''; ?>>Non-Technical</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Sort By:</label>
-                                <select name="sort_by" class="form-select">
-                                    <option value="exam_date" <?php echo ($sort_by == 'exam_date') ? 'selected' : ''; ?>>Exam Date</option>
-                                    <option value="score" <?php echo ($sort_by == 'score') ? 'selected' : ''; ?>>Score</option>
-                                    <option value="last_name" <?php echo ($sort_by == 'last_name') ? 'selected' : ''; ?>>Student Name</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Order:</label>
-                                <select name="sort_order" class="form-select">
-                                    <option value="DESC" <?php echo ($sort_order == 'DESC') ? 'selected' : ''; ?>>Descending</option>
-                                    <option value="ASC" <?php echo ($sort_order == 'ASC') ? 'selected' : ''; ?>>Ascending</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                            </div>
-                        </form>
-                    </div>
-
                     <div class="download-buttons">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#downloadModal">
                             <i class="fas fa-download"></i> Download Results
@@ -327,41 +265,42 @@ if (!$results) {
                             <table id="resultsTable" class="table table-bordered" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>Student Name</th>
-                                        <th>Student Type</th>
                                         <th>Exam Name</th>
-                                        <th>Date Taken</th>
-                                        <th>Score</th>
-                                        <th>Percentage</th>
+                                        <th>Schedule</th>
+                                        <th>Duration</th>
                                         <th>Status</th>
+                                        <th>Total Students</th>
+                                        <th>Completed</th>
+                                        <th>Average Score</th>
+                                        <th>Score Range</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($row = $results->fetch_assoc()): 
-                                        $percentage = ($row['score'] / $row['total_exam_questions']) * 100;
-                                        $studentType = $row['is_tech'] ? 'tech' : 'non-tech';
-                                    ?>
+                                    <?php while ($row = $result->fetch_assoc()): ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                            <td>
-                                                <span class="badge badge-<?php echo $studentType; ?>">
-                                                    <?php echo ucfirst($studentType); ?>
-                                                </span>
-                                            </td>
                                             <td><?php echo htmlspecialchars($row['exam_name']); ?></td>
-                                            <td><?php echo date('Y-m-d', strtotime($row['exam_date'])); ?></td>
-                                            <td><?php echo $row['score'] . '/' . $row['total_exam_questions']; ?></td>
-                                            <td><?php echo round($percentage, 2) . '%'; ?></td>
+                                            <td><?php echo formatSchedule($row['exam_date'], $row['exam_time']); ?></td>
+                                            <td><?php echo $row['duration']; ?> mins</td>
                                             <td>
-                                                <span class="status-badge <?php echo $percentage >= 75 ? 'status-passed' : 'status-failed'; ?>">
-                                                    <?php echo $percentage >= 75 ? 'Passed' : 'Failed'; ?>
+                                                <span class="badge bg-<?php echo $row['status'] === 'scheduled' ? 'success' : 'warning'; ?>">
+                                                    <?php echo ucfirst($row['status']); ?>
                                                 </span>
                                             </td>
+                                            <td><?php echo $row['total_students']; ?></td>
+                                            <td><?php echo $row['completed_exams']; ?></td>
+                                            <td><?php echo $row['average_score'] ? $row['average_score'] . '%' : 'N/A'; ?></td>
                                             <td>
-                                                <a href="view_result_details.php?result_id=<?php echo $row['result_id']; ?>" 
-                                                   class="btn btn-info btn-view-details">
-                                                    <i class="fas fa-eye"></i> View
+                                                <?php if ($row['lowest_score'] !== null && $row['highest_score'] !== null): ?>
+                                                    <?php echo $row['lowest_score'] . '% - ' . $row['highest_score'] . '%'; ?>
+                                                <?php else: ?>
+                                                    N/A
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <a href="view_exam_results.php?exam_id=<?php echo $row['exam_id']; ?>" 
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> View Details
                                                 </a>
                                             </td>
                                         </tr>

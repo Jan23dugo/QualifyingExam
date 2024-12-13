@@ -8,14 +8,16 @@ if (!$exam_id) {
 }
 
 // Fetch existing questions for this exam_id
-$questions = [];
+$questions = array();
 include_once __DIR__ . '/../config/config.php'; // Includes the MySQLi connection ($conn)
+
+// Then check for questions
 $stmt = $conn->prepare("SELECT * FROM questions WHERE exam_id = ?");
 $stmt->bind_param("i", $exam_id);
 $stmt->execute();
-$result = $stmt->get_result();
+$questions_result = $stmt->get_result();
 
-while ($row = $result->fetch_assoc()) {
+while ($row = $questions_result->fetch_assoc()) {
     // Fetch options if the question is multiple choice
     $question_id = $row['question_id'];
     if ($row['question_type'] == 'multiple_choice') {
@@ -37,6 +39,9 @@ while ($row = $result->fetch_assoc()) {
     }
     $questions[] = $row;
 }
+
+// Check if both sections and questions are empty
+$has_content = false; // Set to false by default to show empty state
 ?>
 
 <!DOCTYPE html>
@@ -263,6 +268,384 @@ while ($row = $result->fetch_assoc()) {
             margin: 20px auto;
         }
     }
+
+    .empty-state {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        margin: 20px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 600px;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 1rem;
+        font-size: 3rem;
+    }
+    
+    .empty-state h4 {
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+    }
+    
+    .empty-state .btn {
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .empty-state .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-scrollable {
+        position: relative;
+        min-height: 400px; /* Add minimum height */
+    }
+
+    /* Add or update these styles in your <style> section */
+    .section-block {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .section-block:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .title-block {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .title-block input[type="text"] {
+        border: none;
+        background: transparent;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background 0.2s ease;
+    }
+
+    .title-block input[type="text"]:hover,
+    .title-block input[type="text"]:focus {
+        background: #fff;
+        outline: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .description-block {
+        padding: 12px 20px;
+        background: #fff;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .description-block input[type="text"] {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        color: #6b7280;
+        width: 100%;
+        transition: all 0.2s ease;
+    }
+
+    .description-block input[type="text"]:focus {
+        border-color: #6200ea;
+        box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.1);
+        outline: none;
+    }
+
+    .question-block-container {
+        padding: 20px;
+    }
+
+    .question-block {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        padding: 16px;
+        transition: all 0.2s ease;
+    }
+
+    .question-block:hover {
+        border-color: #6200ea;
+        box-shadow: 0 2px 4px rgba(98, 0, 234, 0.1);
+    }
+
+    .question-block textarea {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 0.95rem;
+        resize: vertical;
+        min-height: 80px;
+        transition: all 0.2s ease;
+    }
+
+    .question-block textarea:focus {
+        border-color: #6200ea;
+        box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.1);
+        outline: none;
+    }
+
+    .question-type-select {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        color: #4b5563;
+        background-color: #f9fafb;
+        transition: all 0.2s ease;
+    }
+
+    .question-type-select:focus {
+        border-color: #6200ea;
+        box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.1);
+        outline: none;
+    }
+
+    .delete-button, .delete-question-btn {
+        color: #ef4444 !important;
+        transition: all 0.2s ease;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    .delete-button:hover, .delete-question-btn:hover {
+        background-color: #fee2e2;
+        color: #dc2626 !important;
+    }
+
+    /* Style for points input */
+    .question-block input[type="number"] {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        width: 100px;
+        transition: all 0.2s ease;
+    }
+
+    .question-block input[type="number"]:focus {
+        border-color: #6200ea;
+        box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.1);
+        outline: none;
+    }
+
+    /* Multiple choice options styling */
+    .option-container {
+        margin-bottom: 8px;
+    }
+
+    .option-container .input-group {
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .option-container input[type="text"] {
+        border: 1px solid #e5e7eb;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .option-container .input-group-text {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        padding: 8px 12px;
+    }
+
+    .option-container input[type="radio"] {
+        margin-right: 8px;
+    }
+
+    /* Programming question styling */
+    .programming-options select {
+        margin-bottom: 16px;
+        width: 200px;
+    }
+
+    .test-case {
+        margin-bottom: 12px;
+    }
+
+    .test-case .input-group input {
+        border: 1px solid #e5e7eb;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+    }
+
+    /* Add these button styles */
+    .add-option-btn, .add-test-case-btn {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px dashed #e5e7eb;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .add-option-btn:hover, .add-test-case-btn:hover {
+        background-color: #6200ea;
+        color: #fff;
+        border-style: solid;
+    }
+
+    /* Add this CSS to your existing <style> section */
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        max-width: 300px;
+        z-index: 999;
+    }
+
+    .toast.success {
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+    }
+
+    .toast.error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .toast .toast-header {
+        background-color: #6200ea;
+        color: white;
+        border-bottom: none;
+    }
+
+    .toast .toast-body {
+        color: #333;
+    }
+
+    /* Common Modal Styles */
+    .modal-dialog {
+        max-width: 500px;
+    }
+    
+    .modal .modal-content {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .modal .modal-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        border-radius: 12px 12px 0 0;
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal .modal-title {
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .modal .modal-body {
+        padding: 1.5rem;
+        color: #4b5563;
+        font-size: 0.95rem;
+    }
+    
+    .modal .modal-footer {
+        border-top: 1px solid #e5e7eb;
+        padding: 1rem 1.5rem;
+        background-color: #f8fafc;
+        border-radius: 0 0 12px 12px;
+    }
+    
+    .modal .btn {
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    
+    .modal .btn-secondary {
+        background-color: #f3f4f6;
+        border-color: #e5e7eb;
+        color: #4b5563;
+    }
+    
+    .modal .btn-secondary:hover {
+        background-color: #e5e7eb;
+        border-color: #d1d5db;
+        color: #374151;
+    }
+    
+    .modal .btn-danger {
+        background-color: #ef4444;
+        border-color: #ef4444;
+    }
+    
+    .modal .btn-danger:hover {
+        background-color: #dc2626;
+        border-color: #dc2626;
+    }
+    
+    .modal .btn-primary {
+        background-color: #6200ea;
+        border-color: #6200ea;
+    }
+    
+    .modal .btn-primary:hover {
+        background-color: #5000c9;
+        border-color: #5000c9;
+    }
+    
+    /* Modal Icons */
+    .modal .modal-body i {
+        font-size: 24px;
+        margin-right: 1rem;
+    }
+    
+    .modal .warning-icon {
+        color: #f59e0b;
+    }
+    
+    .modal .delete-icon {
+        color: #ef4444;
+    }
+    
+    .modal .info-icon {
+        color: #6200ea;
+    }
   </style>
 </head>
 <body>
@@ -314,6 +697,21 @@ while ($row = $result->fetch_assoc()) {
                   <form id="questionForm" method="POST" action="save_question.php">
                       <input type="hidden" name="exam_id" value="<?php echo $exam_id; ?>">
                       <div id="sectionBlocks">
+                          <?php if (!$has_content): ?>
+                              <div class="empty-state text-center py-5">
+                                  <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                  <h4 class="text-muted">No Questions Added Yet</h4>
+                                  <p class="text-muted mb-4">Get started by adding your first question or section.</p>
+                                  <div class="d-flex justify-content-center gap-2">
+                                      <button type="button" class="btn btn-primary" onclick="addSection()">
+                                          <i class="fas fa-plus-circle me-2"></i>Add Section
+                                      </button>
+                                      <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('import-questions-btn').click()">
+                                          <i class="fas fa-file-import me-2"></i>Import Questions
+                                      </button>
+                                  </div>
+                              </div>
+                          <?php endif; ?>
                           <!-- Sections will be added here dynamically -->
                       </div>
                   </form>
@@ -338,6 +736,30 @@ while ($row = $result->fetch_assoc()) {
 <!-- JavaScript to dynamically add questions, titles, and sections -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide empty state based on content
+    function toggleEmptyState() {
+        const sectionBlocks = document.getElementById('sectionBlocks');
+        const sections = sectionBlocks.querySelectorAll('.section-block');
+        const hasContent = sections.length > 0; // Check if there are any sections
+        
+        // Remove existing empty state if it exists
+        const existingEmptyState = sectionBlocks.querySelector('.empty-state');
+        if (existingEmptyState) {
+            existingEmptyState.remove();
+        }
+        
+        if (!hasContent) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state text-center py-5';
+            emptyState.innerHTML = `
+                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No Questions Added Yet</h4>
+                <p class="text-muted">Get started by adding your first question or section using the buttons below.</p>
+            `;
+            sectionBlocks.appendChild(emptyState);
+        }
+    }
+
     // Initialize all modals
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modalElement => {
@@ -359,45 +781,49 @@ document.addEventListener('DOMContentLoaded', function() {
         const sectionBlocks = document.getElementById('sectionBlocks');
         sectionBlocks.innerHTML = ''; // Clear existing content
         
-        sections.forEach(section => {
-            const newSection = document.createElement('div');
-            newSection.classList.add('section-block');
-            newSection.setAttribute('data-section-id', section.section_id);
-            
-            newSection.innerHTML = `
-                <div class="title-block">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <input type="text" class="form-control" name="section_title[${section.section_id}]" 
-                            value="${section.section_title}" style="flex: 1; margin-right: 10px;">
-                        <input type="hidden" name="section_id[${section.section_id}]" value="${section.section_id}">
-                        <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+        if (sections && sections.length > 0) {
+            sections.forEach(section => {
+                const newSection = document.createElement('div');
+                newSection.classList.add('section-block');
+                newSection.setAttribute('data-section-id', section.section_id);
+                
+                newSection.innerHTML = `
+                    <div class="title-block">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <input type="text" class="form-control" name="section_title[${section.section_id}]" 
+                                value="${section.section_title}" style="flex: 1; margin-right: 10px;">
+                            <input type="hidden" name="section_id[${section.section_id}]" value="${section.section_id}">
+                            <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="description-block">
-                    <input type="text" class="form-control" name="section_description[${section.section_id}]" 
-                        value="${section.section_description || ''}" placeholder="Description (optional)">
-                </div>
-                <div id="question-container-${section.section_id}" class="question-block-container"></div>
-            `;
+                    <div class="description-block">
+                        <input type="text" class="form-control" name="section_description[${section.section_id}]" 
+                            value="${section.section_description || ''}" placeholder="Description (optional)">
+                    </div>
+                    <div id="question-container-${section.section_id}" class="question-block-container"></div>
+                `;
 
-            sectionBlocks.appendChild(newSection);
+                sectionBlocks.appendChild(newSection);
 
-            // Load questions for this section
-            if (section.questions) {
-                section.questions.forEach((question, qIndex) => {
-                    const questionContainer = document.getElementById(`question-container-${section.section_id}`);
-                    const newQuestion = createQuestionElement(section.section_id, qIndex, question);
-                    questionContainer.appendChild(newQuestion);
+                // Load questions for this section
+                if (section.questions) {
+                    section.questions.forEach((question, qIndex) => {
+                        const questionContainer = document.getElementById(`question-container-${section.section_id}`);
+                        const newQuestion = createQuestionElement(section.section_id, qIndex, question);
+                        questionContainer.appendChild(newQuestion);
 
-                    // Load question options based on type
-                    const questionTypeSelect = newQuestion.querySelector('.question-type-select');
-                    questionTypeSelect.value = question.question_type;
-                    handleQuestionTypeChange(questionTypeSelect, section.section_id, qIndex, question);
-                });
-            }
-        });
+                        // Load question options based on type
+                        const questionTypeSelect = newQuestion.querySelector('.question-type-select');
+                        questionTypeSelect.value = question.question_type;
+                        handleQuestionTypeChange(questionTypeSelect, section.section_id, qIndex, question);
+                    });
+                }
+            });
+        }
+        
+        toggleEmptyState();
 
         // Update sectionCounter to be higher than any existing section ID
         const maxSectionId = Math.max(...sections.map(s => parseInt(s.section_id)), 0);
@@ -491,6 +917,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('sectionBlocks').appendChild(newSection);
         attachEventListeners();
+        toggleEmptyState();
+        closeActionSidebar();
     }
 
     // Add Question functionality
@@ -746,10 +1174,16 @@ document.addEventListener('DOMContentLoaded', function() {
         closeActionSidebar();
     });
 
+    function showWarningModal(message) {
+        const warningModal = new bootstrap.Modal(document.getElementById('warningModal'));
+        document.getElementById('warningMessage').textContent = message;
+        warningModal.show();
+    }
+
     globalAddQuestionBtn.addEventListener('click', () => {
         const sections = document.querySelectorAll('.section-block');
         if (sections.length === 0) {
-            alert('Please add a section first before adding questions.');
+            showWarningModal('Please add a section first before adding questions.');
             return;
         }
         
@@ -814,12 +1248,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
-        // Add event listeners for dynamic elements
         document.querySelectorAll('.delete-button').forEach(btn => {
             btn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to delete this section?')) {
-                    this.closest('.section-block').remove();
-                }
+                const section = this.closest('.section-block');
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                
+                // Remove any existing event listener from the confirm button
+                const confirmBtn = document.getElementById('confirmDelete');
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                
+                // Add new event listener
+                newConfirmBtn.addEventListener('click', () => {
+                    section.remove();
+                    deleteModal.hide();
+                    toggleEmptyState();
+                });
+                
+                deleteModal.show();
             });
         });
     }
@@ -1264,7 +1710,10 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="questionBankModalLabel">Import Questions</h5>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-book info-icon me-2"></i>
+                    <h5 class="modal-title" id="questionBankModalLabel">Import Questions</h5>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1356,6 +1805,49 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="importSelectedQuestions">Import Questions</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-trash-alt delete-icon"></i>
+                    <p class="mb-0">Are you sure you want to delete this section? This action cannot be undone.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Warning Modal -->
+<div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warningModalLabel">Action Required</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle warning-icon"></i>
+                    <p class="mb-0" id="warningMessage"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>

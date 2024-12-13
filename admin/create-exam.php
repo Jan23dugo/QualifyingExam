@@ -29,7 +29,42 @@ if ($folderId) {
 
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Helper function to check if the exam is scheduled
+function isExamScheduled($exam) {
+    return $exam['status'] === 'scheduled' && !empty($exam['exam_date']) && !empty($exam['exam_time']);
+}
+
+// Format schedule date and time
+function formatScheduleDateTime($schedule_date) {
+    if (empty($schedule_date)) return ['date' => '', 'time' => ''];
+    $date = date('Y-m-d', strtotime($schedule_date));
+    $time = date('h:i A', strtotime($schedule_date));
+    return ['date' => $date, 'time' => $time];
+}
+
+// Get exam status
+function getExamStatus($exam) {
+    if ($exam['status'] === 'unscheduled') {
+        return ['class' => 'warning', 'text' => 'Not Scheduled'];
+    }
+
+    $examDateTime = $exam['exam_date'] . ' ' . $exam['exam_time'];
+    $now = new DateTime();
+    $startTime = new DateTime($examDateTime);
+    $endTime = clone $startTime;
+    $endTime->add(new DateInterval('PT' . $exam['duration'] . 'M'));
+
+    if ($now < $startTime) {
+        return ['class' => 'info', 'text' => 'Upcoming'];
+    } elseif ($now > $endTime) {
+        return ['class' => 'success', 'text' => 'Completed'];
+    } else {
+        return ['class' => 'warning', 'text' => 'In Progress'];
+    }
+}
 ?>
+
 
 
 <!DOCTYPE html>
@@ -74,24 +109,32 @@ $result = $stmt->get_result();
         }
 
         .name-col {
-            width: 40%;
+            width: 45%;
             display: flex;
             align-items: center;
         }
 
         .type-col {
-            width: 20%;
+            width: 15%;
         }
 
         .date-col {
             width: 25%;
+            line-height: 1.4;
+        }
+
+        .time-col {
+            width: 15%;
+            line-height: 1.4;
+        }
+
+        .date-col br {
+            margin: 2px 0;
         }
 
         .actions-col {
             width: 15%;
             text-align: center;
-            position: relative;
-            z-index: 1;
         }
 
         .folder-item, .exam-item {
@@ -102,8 +145,7 @@ $result = $stmt->get_result();
             background-color: #fff;
             border: 1px solid #dee2e6;
             border-radius: 8px;
-            position: relative;
-            z-index: 1;
+            width: 100%;
         }
 
         .folder-icon, .exam-icon {
@@ -296,17 +338,12 @@ $result = $stmt->get_result();
         }
 
         .actions-col .dropdown-menu {
-            position: absolute !important;
-            right: 0;
-            top: 100% !important;
-            transform: none !important;
             z-index: 9999;
             margin-top: 2px;
             min-width: 160px;
             background: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             border: 1px solid rgba(0,0,0,0.1);
-            display: none;
         }
 
         .actions-col .dropdown.show .dropdown-menu {
@@ -374,6 +411,243 @@ $result = $stmt->get_result();
         .actions-col .btn-light .fas {
             font-size: 12px;
         }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #dc3545;
+            color: white !important;
+        }
+        
+        .dropdown-item.text-danger:hover i {
+            color: white !important;
+        }
+
+        .dropdown-toggle {
+            padding: 6px 12px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .dropdown-toggle:hover {
+            background-color: #f8f9fa;
+            border-color: #c1c9d0;
+        }
+
+        .dropdown-menu {
+            padding: 0.5rem 0;
+            border: 1px solid rgba(0,0,0,.15);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+            border-radius: 4px;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            margin-right: 0.5rem;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #fee2e2;
+            color: #dc3545 !important;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .modern-table th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modern-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #444;
+        }
+
+        .modern-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .modern-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn-modern {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary-modern {
+            background: #4361ee;
+            color: white;
+        }
+
+        .btn-primary-modern:hover {
+            background: #3451db;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-danger-modern {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger-modern:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .exam-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .modern-dropdown-menu {
+            padding: 0.5rem 0;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: white;
+            margin-top: 5px;
+        }
+
+        .modern-dropdown-menu .dropdown-item {
+            padding: 0.7rem 1rem;
+            color: #2c3e50;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .modern-dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #4361ee;
+        }
+
+        .modern-dropdown-menu .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 8px;
+        }
+
+        /* Update existing button styles */
+        .btn-modern.dropdown-toggle::after {
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .actions-col .dropdown-toggle {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2c3e50;
+            background: white;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .actions-col .dropdown-toggle:hover {
+            background: #f8f9fa;
+            border-color: #cbd5e1;
+        }
+
+        .actions-col .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.5rem 0;
+        }
+
+        /* Update the dropdown styles to be consistent */
+        .dropdown-toggle.btn-link {
+            background: none;
+            border: none;
+            padding: 8px;
+            color: #6c757d;
+            box-shadow: none !important;
+        }
+
+        .dropdown-toggle.btn-link:hover {
+            color: #4361ee;
+            background: none;
+        }
+
+        .dropdown-toggle.btn-link::after {
+            display: none;
+        }
+
+        .dropdown-toggle .fas.fa-ellipsis-v {
+            font-size: 16px;
+        }
+
+        .dropdown-menu .dropdown-item i {
+            width: 20px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .toast-container {
+            z-index: 9999;
+        }
+
+        .toast {
+            opacity: 1 !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .toast.bg-success {
+            background-color: #10b981 !important;
+        }
+
+        .toast.bg-danger {
+            background-color: #ef4444 !important;
+        }
+
+        .toast .toast-body {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -390,8 +664,8 @@ $result = $stmt->get_result();
                     <!-- Breadcrumb Navigation -->
                     <div class="folder-breadcrumb">
                         <a href="create-exam.php" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-home"></i>
-                            <span>Home</span>
+                            <i class="fas fa-book"></i>
+                            <span>Exam Library</span>
                         </a>
                         <?php if ($folderId): ?>
                             <i class="fas fa-chevron-right"></i>
@@ -409,12 +683,20 @@ $result = $stmt->get_result();
 
                         <!-- Add Dropdown -->
                         <div class="dropdown">
-                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                + Add
+                            <button class="btn-modern btn-primary-modern dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-plus"></i> Add
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="#" onclick="addAssessment()">Add Exam</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="addFolder()">Add Folder</a></li>
+                            <ul class="dropdown-menu modern-dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="addAssessment()">
+                                        <i class="fas fa-file-alt me-2"></i> Add Exam
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="addFolder()">
+                                        <i class="fas fa-folder me-2"></i> Add Folder
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
@@ -445,7 +727,7 @@ $result = $stmt->get_result();
                         <div class="list-header">
                             <div class="name-col">Name</div>
                             <div class="type-col">Type</div>
-                            <div class="date-col">Date Modified</div>
+                            <div class="date-col">Date</div>
                             <div class="actions-col">Actions</div>
                         </div>
 
@@ -468,14 +750,18 @@ $result = $stmt->get_result();
                                 echo "<div class='type-col'>Folder</div>";
                                 echo "<div class='date-col'>-</div>";
                                 echo "<div class='actions-col'>
-                                        <div class='dropdown'>
-                                            <button class='btn btn-light btn-sm dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
-                                                <i class='fas fa-bars'></i>
+                                        <div class='dropdown' onclick='event.stopPropagation();'>
+                                            <button class='btn btn-link dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+                                                <i class='fas fa-ellipsis-v'></i>
                                             </button>
-                                            <ul class='dropdown-menu'>
-                                                <li><a class='dropdown-item' href='#'><i class='fas fa-trash-alt me-2 text-danger'></i>Delete</a></li>
-                                                <li><a class='dropdown-item' href='#'><i class='fas fa-edit me-2 text-primary'></i>Rename</a></li>
-                                            </ul>
+                                            <div class='dropdown-menu dropdown-menu-end'>
+                                                <a class='dropdown-item' href='#' onclick='event.stopPropagation(); editFolder({$folder['folder_id']}, \"{$folder['folder_name']}\")'>
+                                                    <i class='fas fa-edit'></i> Edit
+                                                </a>
+                                                <a class='dropdown-item text-danger' href='javascript:void(0);' onclick='event.stopPropagation(); deleteFolder({$folder['folder_id']});'>
+                                                    <i class='fas fa-trash'></i> Delete
+                                                </a>
+                                            </div>
                                         </div>
                                      </div>";
                                 echo "</div>";
@@ -491,38 +777,35 @@ $result = $stmt->get_result();
                                 echo $row['exam_name'];
                                 echo "</div>";
                                 echo "<div class='type-col'>Exam</div>";
-                                echo "<div class='date-col'>" . $row['schedule_date'] . "</div>";
+                                if (isExamScheduled($row)) {
+                                    $status = getExamStatus($row);
+                                    echo "<div class='date-col'>Date: " . date('Y-m-d', strtotime($row['exam_date'])) . 
+                                         "<br>Time: " . date('h:i A', strtotime($row['exam_time'])) . 
+                                         "<br><span class='badge bg-" . $status['class'] . "'>" . $status['text'] . "</span></div>";
+                                } else {
+                                    echo "<div class='date-col'>Not Scheduled</div>";
+                                }
                                 echo '<div class="actions-col">
-                                        <div class="dropdown">
-                                            <button class="btn btn-light dropdown-toggle" type="button">
-                                                <i class="fas fa-bars"></i>
+                                        <div class="dropdown" onclick="event.stopPropagation();">
+                                            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
                                             </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="editExam(' . $row['exam_id'] . ', \'' . htmlspecialchars($row['exam_name']) . '\', \'' . $row['schedule_date'] . '\')">
-                                                        <i class="fas fa-edit me-2 text-primary"></i>Edit
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item text-primary" href="delete_exam.php?exam_id=' . $row['exam_id'] . '">
-                                                        <i class="fas fa-trash-alt me-2 text-danger"></i>Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item text-primary" href="test2.php?exam_id=' . $row['exam_id'] . '">
-                                                        <i class="fas fa-plus-circle me-2"></i>Add Questions
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="openMoveModal(' . $row['exam_id'] . ')">
-                                                        <i class="fas fa-arrows-alt me-2 text-warning"></i>Move
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="openCopyModal(' . $row['exam_id'] . ')">
-                                                        <i class="fas fa-copy me-2 text-info"></i>Copy
-                                                    </a>
-                                                </li>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); editExam(' . $row['exam_id'] . ', \'' . htmlspecialchars($row['exam_name']) . '\', \'' . htmlspecialchars($row['description']) . '\', ' . $row['duration'] . ', \'' . $row['exam_date'] . '\', \'' . $row['exam_time'] . '\')">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="event.stopPropagation(); deleteExam(' . $row['exam_id'] . ')">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="test2.php?exam_id=' . $row['exam_id'] . '" onclick="event.stopPropagation();">
+                                                    <i class="fas fa-question-circle"></i> Manage Questions
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); openMoveModal(' . $row['exam_id'] . ')">
+                                                    <i class="fas fa-arrows-alt"></i> Move
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); openCopyModal(' . $row['exam_id'] . ')">
+                                                    <i class="fas fa-copy"></i> Copy
+                                                </a></li>
                                             </ul>
                                         </div>
                                     </div>';
@@ -578,8 +861,14 @@ $result = $stmt->get_result();
                                         <input type="number" class="form-control" id="duration" name="duration" value="90">
                                     </div>
                                     <div class="mb-3">
-                                        <label id="scheduleDateLabel" for="scheduleDate" class="form-label">Schedule Date:</label>
-                                        <input type="date" class="form-control" id="scheduleDate" name="schedule_date" required>
+                                        <label id="scheduleDateLabel" for="scheduleDate" class="form-label">
+                                            Schedule Date (Optional):
+                                        </label>
+                                        <input type="date" class="form-control" id="scheduleDate" name="schedule_date" 
+                                            >
+                                        <small class="form-text text-muted">
+                                            Leave empty to create an unscheduled exam. You can set the schedule later.
+                                        </small>
                                     </div>
                                     <div class="mb-3">
                                         <label id="studentTypeLabel" class="form-label">Student Type:</label>
@@ -707,6 +996,109 @@ $result = $stmt->get_result();
                     </div>
                 </div>
 
+                <!-- Replace both editExamModal and manageScheduleModal with this new unified modal -->
+                <div class="modal fade" id="editExamModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Exam</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editExamForm">
+                                    <input type="hidden" id="editExamId" name="exam_id">
+                                    
+                                    <!-- Exam Details Section -->
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Exam Details</h6>
+                                        <div class="mb-3">
+                                            <label for="editExamName" class="form-label">Exam Name:</label>
+                                            <input type="text" class="form-control" id="editExamName" name="exam_name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editDescription" class="form-label">Description:</label>
+                                            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editDuration" class="form-label">Duration (minutes):</label>
+                                            <input type="number" class="form-control" id="editDuration" name="duration" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Schedule Section -->
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Exam Schedule</h6>
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="scheduleEnabled" onchange="toggleScheduleFields()">
+                                                <label class="form-check-label" for="scheduleEnabled">Enable Schedule</label>
+                                            </div>
+                                        </div>
+                                        <div id="scheduleFields" style="display: none;">
+                                            <div class="mb-3">
+                                                <label class="form-label">Date:</label>
+                                                <input type="date" class="form-control" id="scheduleDate" name="exam_date">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Time:</label>
+                                                <input type="time" class="form-control" id="scheduleTime" name="exam_time">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="saveExamChanges()">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Folder Confirmation Modal -->
+                <div class="modal fade" id="deleteFolderModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete Folder</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 24px;"></i>
+                                    <p class="mb-0">Are you sure you want to delete this folder? All exams inside will be moved to the root level.</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" id="confirmDeleteFolder">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Exam Confirmation Modal -->
+                <div class="modal fade" id="deleteExamModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete Exam</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 24px;"></i>
+                                    <p class="mb-0">Are you sure you want to delete this exam? This action cannot be undone.</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" id="confirmDeleteExam">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Footer -->
@@ -718,7 +1110,70 @@ $result = $stmt->get_result();
         </a>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <!-- Success Toast -->
+        <div class="toast align-items-center text-white bg-success border-0" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span id="successToastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        
+        <!-- Error Toast -->
+        <div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="errorToastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <script>
+    // First, define the utility functions
+    function showSuccessToast(message) {
+        const toast = document.getElementById('successToast');
+        const toastMessage = document.getElementById('successToastMessage');
+        toastMessage.textContent = message;
+        
+        const bsToast = new bootstrap.Toast(toast, {
+            autohide: true,
+            delay: 3000
+        });
+        bsToast.show();
+    }
+
+    function showErrorToast(message) {
+        const toast = document.getElementById('errorToast');
+        const toastMessage = document.getElementById('errorToastMessage');
+        toastMessage.textContent = message;
+        
+        const bsToast = new bootstrap.Toast(toast, {
+            autohide: true,
+            delay: 5000
+        });
+        bsToast.show();
+    }
+
+    function setButtonLoading(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            const originalText = button.innerHTML;
+            button.setAttribute('data-original-text', originalText);
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+        } else {
+            button.disabled = false;
+            const originalText = button.getAttribute('data-original-text');
+            button.innerHTML = originalText;
+        }
+    }
+
     let currentFolder = null;
 
     // Dropdown action handlers
@@ -859,35 +1314,42 @@ $result = $stmt->get_result();
     document.getElementById('createExamBtn').addEventListener('click', function() {
         const form = document.getElementById('createExamForm');
         const formData = new FormData(form);
-
-        // Validate student type selection
-        if (!formData.get('student_type')) {
+        
+        // Add student type validation
+        const studentType = formData.get('student_type');
+        if (!studentType) {
             alert('Please select a student type');
             return;
         }
+        
+        // Show loading indicator
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+        btn.disabled = true;
 
-        // Validate year selection
-        if (!formData.get('student_year')) {
-            alert('Please select a student year');
-            return;
-        }
-
-        fetch('process_create_exam.php', {
+        fetch('handlers/save_exam.php', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Exam created and automatically assigned to students');
-                window.location.href = `test2.php?exam_id=${data.exam_id}`;
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createExamModal'));
+                modal.hide();
+                location.reload();
             } else {
-                alert('Error: ' + data.message);
+                throw new Error(data.message || 'Error creating exam');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error creating exam');
+            alert(error.message || 'Error creating exam. Please try again.');
+        })
+        .finally(() => {
+            // Restore button state
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         });
     });
 
@@ -983,76 +1445,336 @@ $result = $stmt->get_result();
                 e.stopPropagation();
             });
         });
+
+        // Add sidebar toggle functionality
+        const sidebarToggle = document.body.querySelector('#sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.body.classList.toggle('sidebar-toggled');
+                document.querySelector('.sidebar').classList.toggle('toggled');
+                
+                // Optional: Save the state in localStorage
+                const isToggled = document.querySelector('.sidebar').classList.contains('toggled');
+                localStorage.setItem('sidebarToggled', isToggled);
+            });
+        }
+
+        // Optional: Restore sidebar state from localStorage on page load
+        const sidebarState = localStorage.getItem('sidebarToggled');
+        if (sidebarState === 'true') {
+            document.body.classList.add('sidebar-toggled');
+            document.querySelector('.sidebar').classList.add('toggled');
+        }
+
+        // Add responsive behavior
+        const mediaQuery = window.matchMedia('(max-width: 768px)');
+        function handleScreenChange(e) {
+            if (e.matches && !document.querySelector('.sidebar').classList.contains('toggled')) {
+                document.body.classList.add('sidebar-toggled');
+                document.querySelector('.sidebar').classList.add('toggled');
+            }
+        }
+        mediaQuery.addListener(handleScreenChange);
+        handleScreenChange(mediaQuery);
+
+        // Also add top sidebar toggle functionality
+        const sidebarToggleTop = document.body.querySelector('#sidebarToggleTop');
+        if (sidebarToggleTop) {
+            sidebarToggleTop.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.body.classList.toggle('sidebar-toggled');
+                document.querySelector('.sidebar').classList.toggle('toggled');
+            });
+        }
     });
 
     // Add these functions to handle exam editing
-    function editExam(examId, examName, scheduleDate) {
-        // Populate the edit modal with exam details
+    function editExam(examId, examName, description, duration, examDate, examTime) {
+        // Populate exam details
         document.getElementById('editExamId').value = examId;
         document.getElementById('editExamName').value = examName;
-        document.getElementById('editScheduleDate').value = scheduleDate;
+        document.getElementById('editDescription').value = description;
+        document.getElementById('editDuration').value = duration;
         
-        // Show the modal
+        // Handle schedule
+        const scheduleEnabled = document.getElementById('scheduleEnabled');
+        const scheduleFields = document.getElementById('scheduleFields');
+        const dateInput = document.getElementById('scheduleDate');
+        const timeInput = document.getElementById('scheduleTime');
+        
+        // Check if exam has a schedule
+        const hasSchedule = examDate && examTime && examDate !== 'null' && examTime !== 'null';
+        
+        // Set schedule enabled state based on existing schedule
+        scheduleEnabled.checked = hasSchedule;
+        scheduleFields.style.display = hasSchedule ? 'block' : 'none';
+        
+        // Store and set the date and time values if they exist
+        if (examDate && examDate !== 'null') {
+            dateInput.value = examDate;
+            dateInput.setAttribute('data-original-date', examDate);
+        }
+        if (examTime && examTime !== 'null') {
+            timeInput.value = examTime;
+            timeInput.setAttribute('data-original-time', examTime);
+        }
+        
         const modal = new bootstrap.Modal(document.getElementById('editExamModal'));
         modal.show();
     }
 
-    function updateExam() {
+    function saveExamChanges() {
         const form = document.getElementById('editExamForm');
         const formData = new FormData(form);
+        const scheduleEnabled = document.getElementById('scheduleEnabled').checked;
+        const dateInput = document.getElementById('scheduleDate');
+        const timeInput = document.getElementById('scheduleTime');
+        
+        // Preserve schedule if enabled and has values
+        if (scheduleEnabled) {
+            // Only update if the fields have values
+            if (dateInput.value && timeInput.value) {
+                formData.set('exam_date', dateInput.value);
+                formData.set('exam_time', timeInput.value);
+            } else {
+                // Keep existing values if no new values are provided
+                const existingDate = dateInput.getAttribute('data-original-date');
+                const existingTime = timeInput.getAttribute('data-original-time');
+                if (existingDate && existingTime) {
+                    formData.set('exam_date', existingDate);
+                    formData.set('exam_time', existingTime);
+                }
+            }
+        } else {
+            // Clear schedule if disabled
+            formData.set('exam_date', '');
+            formData.set('exam_time', '');
+        }
+        
+        formData.append('enabled', scheduleEnabled);
 
-        fetch('update_exam.php', {
+        // Show loading state on the save button
+        const saveButton = document.querySelector('[onclick="saveExamChanges()"]');
+        setButtonLoading(saveButton, true);
+
+        fetch('handlers/update_exam.php', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Close the modal
-                bootstrap.Modal.getInstance(document.getElementById('editExamModal')).hide();
-                // Show success message
-                alert('Exam updated successfully!');
-                // Reload the page to show updated data
-                location.reload();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editExamModal'));
+                modal.hide();
+                showSuccessToast('Exam updated successfully!');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
             } else {
-                alert('Error updating exam: ' + data.message);
+                throw new Error(data.message || 'Failed to update exam');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the exam');
+            showErrorToast(error.message || 'Error updating exam');
+        })
+        .finally(() => {
+            setButtonLoading(saveButton, false);
         });
     }
-    </script>
 
-    <!-- Add this modal HTML before the closing body tag -->
-    <div class="modal fade" id="editExamModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Exam</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editExamForm">
-                        <input type="hidden" id="editExamId" name="exam_id">
-                        <div class="mb-3">
-                            <label for="editExamName" class="form-label">Exam Name:</label>
-                            <input type="text" class="form-control" id="editExamName" name="exam_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editScheduleDate" class="form-label">Schedule Date:</label>
-                            <input type="date" class="form-control" id="editScheduleDate" name="schedule_date" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateExam()">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    function manageSchedule(examId, examName, scheduleDate) {
+        document.getElementById('scheduleExamId').value = examId;
+        document.getElementById('scheduleExamName').value = examName;
+        
+        const scheduleEnabled = document.getElementById('scheduleEnabled');
+        const scheduleFields = document.getElementById('scheduleFields');
+        const dateInput = document.getElementById('scheduleDate');
+        const timeInput = document.getElementById('scheduleTime');
+        
+        if (scheduleDate && scheduleDate !== 'null') {
+            const dateObj = new Date(scheduleDate);
+            scheduleEnabled.checked = true;
+            scheduleFields.style.display = 'block';
+            
+            // Format date as YYYY-MM-DD
+            dateInput.value = dateObj.toISOString().split('T')[0];
+            
+            // Format time as HH:MM
+            const hours = String(dateObj.getHours()).padStart(2, '0');
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            timeInput.value = `${hours}:${minutes}`;
+        } else {
+            scheduleEnabled.checked = false;
+            scheduleFields.style.display = 'none';
+            dateInput.value = '';
+            timeInput.value = '';
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('manageScheduleModal'));
+        modal.show();
+    }
+
+    function toggleScheduleFields() {
+        const enabled = document.getElementById('scheduleEnabled').checked;
+        const fields = document.getElementById('scheduleFields');
+        const dateInput = document.getElementById('scheduleDate');
+        const timeInput = document.getElementById('scheduleTime');
+        
+        fields.style.display = enabled ? 'block' : 'none';
+        
+        if (enabled) {
+            // Set default values if empty
+            if (!dateInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+            if (!timeInput.value) {
+                timeInput.value = '08:00';
+            }
+        }
+    }
+
+    function updateSchedule() {
+        const form = document.getElementById('manageScheduleForm');
+        const formData = new FormData(form);
+        formData.append('enabled', document.getElementById('scheduleEnabled').checked);
+        
+        fetch('handlers/update_schedule.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                $('#manageScheduleModal').modal('hide');
+                alert('Schedule updated successfully!');
+                location.reload();
+            } else {
+                alert('Error updating schedule: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating schedule');
+        });
+    }
+
+    function deleteFolder(folderId) {
+        if (!folderId) {
+            console.error('No folder ID provided');
+            return;
+        }
+
+        // Store the folder ID for use in confirmation
+        const confirmBtn = document.getElementById('confirmDeleteFolder');
+        confirmBtn.setAttribute('data-folder-id', folderId);
+
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('deleteFolderModal'));
+        modal.show();
+    }
+
+    // Add this function to handle exam deletion
+    function deleteExam(examId) {
+        if (!examId) {
+            console.error('No exam ID provided');
+            return;
+        }
+
+        // Store the exam ID for use in confirmation
+        const confirmBtn = document.getElementById('confirmDeleteExam');
+        confirmBtn.setAttribute('data-exam-id', examId);
+
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('deleteExamModal'));
+        modal.show();
+    }
+
+    // Add these event listeners in your document.addEventListener('DOMContentLoaded', function() {...})
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... (existing code) ...
+
+        // Handle folder deletion confirmation
+        document.getElementById('confirmDeleteFolder').addEventListener('click', function() {
+            const folderId = this.getAttribute('data-folder-id');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteFolderModal'));
+            
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+
+            fetch('handlers/delete_folder.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `folder_id=${folderId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modal.hide();
+                    showSuccessToast('Folder deleted successfully');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'Failed to delete folder');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorToast('Error deleting folder: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button state
+                this.disabled = false;
+                this.innerHTML = 'Delete';
+            });
+        });
+
+        // Handle exam deletion confirmation
+        document.getElementById('confirmDeleteExam').addEventListener('click', function() {
+            const examId = this.getAttribute('data-exam-id');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteExamModal'));
+            
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+
+            fetch('handlers/delete_exam.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `exam_id=${examId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modal.hide();
+                    showSuccessToast('Exam deleted successfully');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'Failed to delete exam');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorToast('Error deleting exam: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button state
+                this.disabled = false;
+                this.innerHTML = 'Delete';
+            });
+        });
+    });
+    </script>
 
 </body>
 </html>
