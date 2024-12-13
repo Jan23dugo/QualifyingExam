@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 08, 2024 at 03:40 PM
+-- Generation Time: Dec 13, 2024 at 12:12 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.13
 
@@ -24,6 +24,24 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `calendar_events`
+--
+
+CREATE TABLE `calendar_events` (
+  `event_id` int NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `event_date` date NOT NULL,
+  `event_time` time NOT NULL,
+  `duration` int NOT NULL DEFAULT '60',
+  `event_type` varchar(50) NOT NULL,
+  `created_by` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `coded_courses`
 --
 
@@ -32,7 +50,7 @@ CREATE TABLE `coded_courses` (
   `subject_code` varchar(100) NOT NULL,
   `subject_description` varchar(255) NOT NULL,
   `units` decimal(5,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `coded_courses`
@@ -75,22 +93,21 @@ CREATE TABLE `exams` (
   `exam_name` varchar(255) NOT NULL,
   `description` text,
   `duration` varchar(50) NOT NULL,
-  `schedule_date` date NOT NULL,
+  `status` enum('unscheduled','scheduled','completed') NOT NULL DEFAULT 'unscheduled',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `folder_id` int DEFAULT NULL,
   `student_type` enum('tech','non-tech') DEFAULT NULL,
-  `student_year` year DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `student_year` year DEFAULT NULL,
+  `exam_date` date DEFAULT NULL,
+  `exam_time` time DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `exams`
 --
 
-INSERT INTO `exams` (`exam_id`, `exam_name`, `description`, `duration`, `schedule_date`, `created_at`, `folder_id`, `student_type`, `student_year`) VALUES
-(6, 'CCIS Qualifying Exam', 'Qualifying Exam for Transferees, Ladderized, and Shiftees', '80', '2024-11-11', '2024-11-08 22:03:53', NULL, NULL, NULL),
-(8, 'fasf', 'fsa', '80', '2024-12-13', '2024-12-02 03:44:36', 2, NULL, NULL),
-(10, 'test', 'testtt', '90', '2024-12-07', '2024-12-02 10:17:33', NULL, 'non-tech', 2024),
-(11, 'inside a folder', 'this is a file inside a folder ', '90', '2024-12-21', '2024-12-03 10:38:00', 1, 'tech', 2024);
+INSERT INTO `exams` (`exam_id`, `exam_name`, `description`, `duration`, `status`, `created_at`, `folder_id`, `student_type`, `student_year`, `exam_date`, `exam_time`) VALUES
+(13, 'CCIS Qualifying Exam', 'test ', '22', 'scheduled', '2024-12-12 07:11:28', NULL, 'non-tech', 2024, '2024-12-13', '08:00:00');
 
 -- --------------------------------------------------------
 
@@ -103,32 +120,7 @@ CREATE TABLE `exam_assignments` (
   `exam_id` int NOT NULL,
   `student_id` int NOT NULL,
   `assigned_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `exam_assignments`
---
-
-INSERT INTO `exam_assignments` (`assignment_id`, `exam_id`, `student_id`, `assigned_date`) VALUES
-(7, 10, 42, '2024-12-02 10:17:33'),
-(8, 10, 51, '2024-12-02 10:17:33'),
-(9, 10, 52, '2024-12-02 10:17:33'),
-(10, 10, 53, '2024-12-02 10:17:33'),
-(11, 10, 54, '2024-12-02 10:17:33'),
-(12, 10, 55, '2024-12-02 10:17:33'),
-(13, 10, 56, '2024-12-02 10:17:33'),
-(14, 10, 57, '2024-12-02 10:17:33'),
-(15, 10, 58, '2024-12-02 10:17:33'),
-(16, 10, 59, '2024-12-02 10:17:33'),
-(17, 10, 60, '2024-12-02 10:17:33'),
-(18, 10, 61, '2024-12-02 10:17:33'),
-(19, 10, 62, '2024-12-02 10:17:33'),
-(20, 11, 43, '2024-12-03 10:38:00'),
-(21, 11, 44, '2024-12-03 10:38:00'),
-(22, 11, 45, '2024-12-03 10:38:00'),
-(23, 11, 46, '2024-12-03 10:38:00'),
-(24, 11, 48, '2024-12-03 10:38:00'),
-(25, 11, 50, '2024-12-03 10:38:00');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -143,7 +135,7 @@ CREATE TABLE `exam_results` (
   `score` int DEFAULT '0',
   `total_questions` int NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -159,14 +151,7 @@ CREATE TABLE `exam_sections` (
   `section_order` int NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `exam_sections`
---
-
-INSERT INTO `exam_sections` (`section_id`, `exam_id`, `section_title`, `section_description`, `section_order`, `created_at`, `updated_at`) VALUES
-(5, 6, 'Multiple Choice', 'Select the Correct ANSWER', 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -186,15 +171,14 @@ CREATE TABLE `exam_settings` (
   `max_attempts` int DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `exam_settings`
 --
 
 INSERT INTO `exam_settings` (`exam_id`, `randomize_questions`, `randomize_options`, `allow_view_after`, `time_limit`, `passing_score`, `show_results_immediately`, `allow_retake`, `max_attempts`, `created_at`, `updated_at`) VALUES
-(6, 1, 1, 0, NULL, NULL, 0, 0, 1, '2024-11-09 07:15:08', '2024-12-06 13:40:37'),
-(10, 0, 0, 0, NULL, NULL, 0, 0, 1, '2024-12-02 10:23:04', '2024-12-02 10:23:04');
+(13, 0, 0, 0, NULL, NULL, 0, 0, 1, '2024-12-12 09:01:27', '2024-12-12 09:01:27');
 
 -- --------------------------------------------------------
 
@@ -207,18 +191,14 @@ CREATE TABLE `folders` (
   `folder_name` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `parent_folder_id` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `folders`
 --
 
 INSERT INTO `folders` (`folder_id`, `folder_name`, `created_at`, `parent_folder_id`) VALUES
-(1, 'new folder', '2024-12-03 09:07:03', NULL),
-(2, 'inside a folder ', '2024-12-03 10:41:07', NULL),
-(3, 'this is inside', '2024-12-03 10:43:25', 1),
-(4, 'this is inside the f', '2024-12-03 10:43:48', 1),
-(5, 'another folder', '2024-12-03 10:45:48', 3);
+(6, 'new folder', '2024-12-12 07:11:40', NULL);
 
 -- --------------------------------------------------------
 
@@ -235,7 +215,7 @@ CREATE TABLE `matched_courses` (
   `grade` decimal(4,2) DEFAULT NULL,
   `student_id` int NOT NULL,
   `matched_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `matched_courses`
@@ -284,7 +264,9 @@ INSERT INTO `matched_courses` (`matched_id`, `subject_code`, `original_code`, `s
 (124, 'PHED 10022', 'RZL 1000', 'Rhythmic Activities', '2.00', '1.00', 56, '2024-11-10 09:28:28'),
 (125, 'GEED 10023', 'GEC 1000', 'Understanding the Self', '3.00', '1.00', 57, '2024-11-10 09:32:36'),
 (126, 'GEED 10053', 'GEC 4000', 'Mathematics in the Modern World', '3.00', '1.00', 57, '2024-11-10 09:32:36'),
-(127, 'NSTP 10023', 'NSTP2-M', 'National Service Training Program 2', '3.00', '1.50', 62, '2024-11-10 13:36:55');
+(127, 'NSTP 10023', 'NSTP2-M', 'National Service Training Program 2', '3.00', '1.50', 62, '2024-11-10 13:36:55'),
+(128, 'NSTP 10023', 'NSTP2-M', 'National Service Training Program 2', '3.00', '1.50', 63, '2024-12-08 17:21:34'),
+(129, 'NSTP 10023', 'NSTP2-M', 'National Service Training Program 2', '3.00', '1.50', 65, '2024-12-09 17:33:12');
 
 -- --------------------------------------------------------
 
@@ -300,53 +282,7 @@ CREATE TABLE `multiple_choice_options` (
   `option_order` int NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `multiple_choice_options`
---
-
-INSERT INTO `multiple_choice_options` (`option_id`, `question_id`, `option_text`, `is_correct`, `option_order`, `created_at`, `updated_at`) VALUES
-(16, 10, 'Central Power Unit', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(17, 10, 'Central Processing Unit', 1, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(18, 10, 'Computer Peripheral Unit', 0, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(19, 10, 'Core Processing Unit', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(20, 11, 'macOS', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(21, 11, 'Linux', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(22, 11, 'Android', 0, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(23, 11, 'Windows', 1, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(24, 12, 'Data storage', 1, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(25, 12, 'Processing information', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(26, 12, 'Power supply', 0, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(27, 12, 'Network connectivity', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(28, 13, 'Java', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(29, 13, 'Python', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(30, 13, 'HTML/CSS', 0, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(31, 13, 'All of the above', 1, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(32, 14, 'Data storage', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(33, 14, 'Network optimization', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(34, 14, 'Protecting against cyber threats', 1, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(35, 14, 'Software development', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(36, 15, 'Local storage', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(37, 15, 'Virtual storage', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(38, 15, 'On-demand online storage', 1, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(39, 15, 'Offline storage', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(40, 16, 'MySQL', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(41, 16, 'MongoDB', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(42, 16, 'Oracle', 0, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(43, 16, 'All of the above', 1, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(44, 17, 'Human intelligence', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(45, 17, 'Machine learning', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(46, 17, 'Robotics', 0, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(47, 17, 'Simulation of human intelligence', 1, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(48, 18, 'HTTP', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(49, 18, 'FTP', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(50, 18, 'HTTPS', 1, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(51, 18, 'SSH', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(52, 19, 'Network optimization', 0, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(53, 19, 'Data encryption', 0, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(54, 19, 'Blocking unauthorized access', 1, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(55, 19, 'Virus scanning', 0, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -360,7 +296,7 @@ CREATE TABLE `programming_languages` (
   `language_name` varchar(50) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -378,23 +314,7 @@ CREATE TABLE `questions` (
   `question_order` int NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `questions`
---
-
-INSERT INTO `questions` (`question_id`, `section_id`, `exam_id`, `question_text`, `question_type`, `points`, `question_order`, `created_at`, `updated_at`) VALUES
-(10, 5, 6, 'What does CPU stand for?\r\n', 'multiple_choice', 1, 0, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(11, 5, 6, 'Which operating system is developed by Microsoft?', 'multiple_choice', 1, 1, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(12, 5, 6, 'What is the primary function of RAM?', 'multiple_choice', 1, 2, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(13, 5, 6, 'Which programming language is used for web development?', 'multiple_choice', 1, 3, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(14, 5, 6, 'What is cybersecurity\'s main goal?', 'multiple_choice', 1, 4, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(15, 5, 6, 'What is cloud computing?', 'multiple_choice', 1, 5, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(16, 5, 6, 'Which database management system is widely used?', 'multiple_choice', 1, 6, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(17, 5, 6, 'What is artificial intelligence (AI)?', 'multiple_choice', 1, 7, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(18, 5, 6, 'Which network protocol is used for secure communication?', 'multiple_choice', 1, 8, '2024-11-08 22:16:20', '2024-11-08 22:16:20'),
-(19, 5, 6, 'What is the purpose of a firewall?', 'multiple_choice', 1, 9, '2024-11-08 22:16:20', '2024-11-09 07:14:24');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -410,7 +330,7 @@ CREATE TABLE `question_bank` (
   `correct_answer` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `question_bank`
@@ -439,7 +359,7 @@ CREATE TABLE `question_bank_answers` (
   `answer_id` int NOT NULL,
   `question_id` int DEFAULT NULL,
   `answer_text` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -452,7 +372,7 @@ CREATE TABLE `question_bank_choices` (
   `question_id` int DEFAULT NULL,
   `choice_text` text NOT NULL,
   `is_correct` tinyint(1) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `question_bank_choices`
@@ -497,7 +417,7 @@ CREATE TABLE `question_bank_programming` (
   `output_format` text NOT NULL,
   `constraints` text NOT NULL,
   `solution_template` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `question_bank_programming`
@@ -519,7 +439,7 @@ CREATE TABLE `question_bank_test_cases` (
   `expected_output` text NOT NULL,
   `explanation` text,
   `is_hidden` tinyint(1) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `question_bank_test_cases`
@@ -557,7 +477,7 @@ CREATE TABLE `students` (
   `reference_id` varchar(255) DEFAULT NULL,
   `is_tech` tinyint(1) DEFAULT NULL,
   `registration_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `students`
@@ -582,7 +502,10 @@ INSERT INTO `students` (`student_id`, `last_name`, `first_name`, `middle_name`, 
 (59, 'Dugo', 'Janlloyd', 'fdsa', 'Male', '2003-01-01', 'janlloyddugo242@gmail.com', '09667311122', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor in Advertising and Public Relation (BAPR)', 'BSIT', 'uploads/tor/3eec681b-c02d-4463-8a52-f45acd08cc2a.jpg', 'uploads/school_id/0b5b1c84-9a20-425e-8997-cba22f841adb.jpg', 'CCIS-2024-22033', 0, '2024-11-10 11:32:34'),
 (60, 'Dugo', 'Janlloyd', 'Santiago', 'Male', '2001-01-01', 'janlloyddugo177@gmail.com', '09667311332', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor of Science in Office Administration (BSOA)', 'BSIT', 'uploads/tor/3eec681b-c02d-4463-8a52-f45acd08cc2a.jpg', 'uploads/school_id/0b5b1c84-9a20-425e-8997-cba22f841adb.jpg', 'CCIS-2024-10229', 0, '2024-11-10 11:38:08'),
 (61, 'Dugo', 'Janlloyd', 'sdfasfsdf', 'Male', '2002-01-01', 'janlloyddugo252@gmail.com', '09667311888', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor in Advertising and Public Relation (BAPR)', 'BSIT', 'uploads/tor/3eec681b-c02d-4463-8a52-f45acd08cc2a.jpg', 'uploads/school_id/Educational Post Botox vs. Fillers Explained.jpg', 'CCIS-2024-60995', 0, '2024-11-10 11:47:12'),
-(62, 'Dugo', 'Janlloyd', 'dasf', 'Male', '2001-01-01', 'janlloyddugo141@gmail.com', '09667311332', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor in Advertising and Public Relation (BAPR)', 'BSIT', 'uploads/tor/3c58debb-5663-4974-a303-cdf2b74f8500.jpg', 'uploads/school_id/0b5b1c84-9a20-425e-8997-cba22f841adb.jpg', 'CCIS-2024-50272', 0, '2024-11-10 13:36:53');
+(62, 'Dugo', 'Janlloyd', 'dasf', 'Male', '2001-01-01', 'janlloyddugo141@gmail.com', '09667311332', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor in Advertising and Public Relation (BAPR)', 'BSIT', 'uploads/tor/3c58debb-5663-4974-a303-cdf2b74f8500.jpg', 'uploads/school_id/0b5b1c84-9a20-425e-8997-cba22f841adb.jpg', 'CCIS-2024-50272', 0, '2024-11-10 13:36:53'),
+(63, 'Dugo', 'Janlloyd', 'Yamoyam', 'Female', '2024-12-12', 'janlloyddugo2244@gmail.com', '09667311122', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor of Science in Information Technology (BSIT)', 'BSIT', 'uploads/tor/3c58debb-5663-4974-a303-cdf2b74f8500.jpg', 'uploads/school_id/0b5b1c84-9a20-425e-8997-cba22f841adb.jpg', 'CCIS-2024-04065', 0, '2024-12-08 17:21:29'),
+(64, 'Dugo', 'Janlloyd', 'Yamoyam', 'Male', '2024-12-26', 'janlloyddugo2102@gmail.com', '09667311122', 'C Raymundo Ave', 'transferee', 'Technological University of the Philippines', '1', 'Bachelor of Science in Electrical Engineering (BSEE)', 'BSIT', 'uploads/tor/Screenshot 2024-10-27 204757.png', 'uploads/school_id/449467909_1205163000647861_8408110911620157242_n.png', 'CCIS-2024-58557', 0, '2024-12-09 17:32:14'),
+(65, 'Dugo', 'Janlloyd', 'Yamoyam', 'Female', '2024-12-26', 'janlloyddugo1711@gmail.com', '09667311956', 'C Raymundo Ave', 'shiftee', 'Technological University of the Philippines', '1', 'Bachelor of Arts in Communication Research (ABCR)', 'BSIT', 'uploads/tor/3c58debb-5663-4974-a303-cdf2b74f8500.jpg', 'uploads/school_id/449292499_481139171214456_1108316609890498134_n.png', 'CCIS-2024-29763', 0, '2024-12-09 17:33:09');
 
 -- --------------------------------------------------------
 
@@ -598,7 +521,7 @@ CREATE TABLE `student_answers` (
   `is_correct` tinyint(1) DEFAULT '0',
   `points_earned` int DEFAULT '0',
   `submission_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -614,7 +537,7 @@ CREATE TABLE `test_cases` (
   `test_case_order` int NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -628,7 +551,7 @@ CREATE TABLE `university_grading_systems` (
   `min_percentage` decimal(5,2) NOT NULL,
   `max_percentage` decimal(5,2) NOT NULL,
   `grade_value` varchar(5) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `university_grading_systems`
@@ -684,7 +607,7 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
@@ -696,6 +619,13 @@ INSERT INTO `users` (`user_id`, `email`, `password`, `created_at`) VALUES
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `calendar_events`
+--
+ALTER TABLE `calendar_events`
+  ADD PRIMARY KEY (`event_id`),
+  ADD KEY `created_by` (`created_by`);
 
 --
 -- Indexes for table `coded_courses`
@@ -840,8 +770,20 @@ ALTER TABLE `university_grading_systems`
   ADD PRIMARY KEY (`grading_id`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `calendar_events`
+--
+ALTER TABLE `calendar_events`
+  MODIFY `event_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `coded_courses`
@@ -853,7 +795,7 @@ ALTER TABLE `coded_courses`
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `exam_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `exam_assignments`
@@ -877,13 +819,13 @@ ALTER TABLE `exam_sections`
 -- AUTO_INCREMENT for table `folders`
 --
 ALTER TABLE `folders`
-  MODIFY `folder_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `folder_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `matched_courses`
 --
 ALTER TABLE `matched_courses`
-  MODIFY `matched_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+  MODIFY `matched_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
 
 --
 -- AUTO_INCREMENT for table `multiple_choice_options`
@@ -937,7 +879,7 @@ ALTER TABLE `question_bank_test_cases`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `student_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `student_answers`
@@ -960,6 +902,12 @@ ALTER TABLE `university_grading_systems`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `calendar_events`
+--
+ALTER TABLE `calendar_events`
+  ADD CONSTRAINT `calendar_events_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `exams`
