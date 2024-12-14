@@ -77,9 +77,20 @@ if (!$result) {
     <style>
         /* Table container with fixed height and scroll */
         .table-container {
-            max-height: calc(100vh - 450px); /* Reduced height */
-            overflow-y: auto;
-            border-radius: 4px;
+            width: 100%;
+        }
+
+        .table-body {
+            max-height: 300px; /* Adjust this value to your preferred scrollable height */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: white; /* Ensures the header has a solid background */
+            z-index: 10;
+            border-bottom: 2px solid #dee2e6;
         }
 
         /* Keep the header fixed while scrolling */
@@ -133,6 +144,100 @@ if (!$result) {
         
         .table-fixed th:nth-child(7),
         .table-fixed td:nth-child(7) { width: 15%; } /* Action */
+
+        /* Common Modal Styles */
+        .modal-dialog {
+            max-width: 500px;
+        }
+        
+        .modal .modal-content {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .modal .modal-header {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 12px 12px 0 0;
+            padding: 1rem 1.5rem;
+        }
+        
+        .modal .modal-title {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .modal .modal-body {
+            padding: 1.5rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        
+        .modal .modal-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem;
+            background-color: #f8fafc;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .modal .btn {
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .modal .btn-secondary {
+            background-color: #f3f4f6;
+            border-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .modal .btn-secondary:hover {
+            background-color: #e5e7eb;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+        
+        .modal .btn-danger {
+            background-color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .modal .btn-danger:hover {
+            background-color: #dc2626;
+            border-color: #dc2626;
+        }
+        
+        .modal .btn-primary {
+            background-color: #6200ea;
+            border-color: #6200ea;
+        }
+        
+        .modal .btn-primary:hover {
+            background-color: #5000c9;
+            border-color: #5000c9;
+        }
+        
+        /* Modal Icons */
+        .modal .modal-body i {
+            font-size: 24px;
+            margin-right: 1rem;
+        }
+        
+        .modal .warning-icon {
+            color: #f59e0b;
+        }
+        
+        .modal .delete-icon {
+            color: #ef4444;
+        }
+        
+        .modal .info-icon {
+            color: #6200ea;
+        }
     </style>
 </head>
 
@@ -154,11 +259,24 @@ if (!$result) {
                         <div class="card-header py-3">
                             <p class="text-primary m-0 fw-bold">Student Records</p>
                         </div>
-                        <div class="card-body" style="font-family: 'Open Sans', sans-serif;">
+                       <div class="card-body" style="font-family: 'Open Sans', sans-serif;">
                             <div class="row">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Sort by Section on the Left -->
                                 <div class="col-md-6 col-xl-2 text-nowrap">
                                     <div class="btn-group">
-                                        <button class="btn btn-primary" type="button" style="background: var(--bs-card-cap-bg); color: var(--bs-emphasis-color);">Sort by:</button>
+                                        <button class="btn btn-primary" type="button" style="background: var(--bs-card-cap-bg); color: var(--bs-emphasis-color);">
+                                            Sort by: <?php 
+                                                $sort_labels = [
+                                                    'reference_id' => 'Reference Number',
+                                                    'full_name' => 'Name',
+                                                    'student_type' => 'Student Type',
+                                                    'is_tech' => 'Tech/Non-Tech',
+                                                    'registration_year' => 'Registration Year',
+                                                ];
+                                                echo $sort_labels[$sort] ?? 'Choose';
+                                            ?>
+                                        </button>
                                         <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" type="button" style="color: var(--bs-body-color); background: var(--bs-btn-hover-color);"></button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item <?php echo $sort === 'reference_id' ? 'active' : ''; ?>" 
@@ -185,13 +303,14 @@ if (!$result) {
                                     </div>
                                 </div>
 
-                                <div class="col-md-2">
+                                <div class="col-md-2 text-end">
                                     <select class="form-select form-select-sm" id="entriesPerPage" onchange="changeEntries(this.value)">
                                         <option value="20" <?php echo $entries_per_page == 20 ? 'selected' : ''; ?>>20 entries</option>
                                         <option value="40" <?php echo $entries_per_page == 40 ? 'selected' : ''; ?>>40 entries</option>
                                     </select>
                                 </div>
                             </div>
+                        </div>
 
                             <div class="table-container">
                                 <div class="table-responsive">
@@ -207,8 +326,12 @@ if (!$result) {
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <?php
+                                    </table>
+                                    <!-- Scrollable Table Body -->
+                                    <div class="table-body">
+                                        <table class="table table-fixed my-0">
+                                            <tbody>
+                                                <?php
                                             if ($result->num_rows > 0) {
                                                 while ($row = $result->fetch_assoc()) {
                                                     echo "<tr>";
@@ -231,6 +354,13 @@ if (!$result) {
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+
+                            <!-- Pagination Below -->
+                            <div class="pagination-container text-center">
+                                <?php
+                                // Your pagination controls go here
+                                ?>
                             </div>
 
                             <!-- Pagination -->
@@ -428,6 +558,28 @@ if (!$result) {
         </div>
     </div>
 
+    <!-- Delete Student Modal -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteStudentModalLabel">Delete Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-trash-alt delete-icon"></i>
+                        <p class="mb-0">Are you sure you want to delete this student? This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteStudent">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     // Search functionality
     document.getElementById('searchInput').addEventListener('keyup', function() {
@@ -496,16 +648,25 @@ if (!$result) {
         }
     }
 
-    // Delete student function
+    // Function to open the modal and set the student reference ID
     function deleteStudent(referenceId) {
-        if (confirm('Are you sure you want to delete this student?')) {
+        referenceIdToDelete = referenceId;
+
+        // Show the modal
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteStudentModal'));
+        deleteModal.show();
+    }
+
+    // Event listener for the "Confirm Delete" button in the modal
+    document.getElementById('confirmDeleteStudent').addEventListener('click', function () {
+        if (referenceIdToDelete) {
             // Send delete request to server
             fetch('delete_student.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ reference_id: referenceId })
+                body: JSON.stringify({ reference_id: referenceIdToDelete })
             })
             .then(response => response.json())
             .then(data => {
@@ -521,7 +682,7 @@ if (!$result) {
                 alert('Error deleting student');
             });
         }
-    }
+    });
 
     // View document in full size
     function viewDocument(type) {

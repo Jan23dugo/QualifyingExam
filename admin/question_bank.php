@@ -19,6 +19,112 @@ include('../config/config.php');
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.min.css">
     <link rel="stylesheet" href="assets/css/question-bank.css">
+    <style>
+    
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+    
+        .clickable-row:hover {
+            color: white;
+            background-color: #0056b3; /* Light gray hover effect */
+        }
+    
+        /* Common Modal Styles */
+        .modal-dialog {
+            max-width: 500px;
+        }
+        
+        .modal .modal-content {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .modal .modal-header {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 12px 12px 0 0;
+            padding: 1rem 1.5rem;
+        }
+        
+        .modal .modal-title {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .modal .modal-body {
+            padding: 1.5rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        
+        .modal .modal-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem;
+            background-color: #f8fafc;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .modal .btn {
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .modal .btn-secondary {
+            background-color: #f3f4f6;
+            border-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .modal .btn-secondary:hover {
+            background-color: #e5e7eb;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+        
+        .modal .btn-danger {
+            background-color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .modal .btn-danger:hover {
+            background-color: #dc2626;
+            border-color: #dc2626;
+        }
+        
+        .modal .btn-primary {
+            background-color: #6200ea;
+            border-color: #6200ea;
+        }
+        
+        .modal .btn-primary:hover {
+            background-color: #5000c9;
+            border-color: #5000c9;
+        }
+        
+        /* Modal Icons */
+        .modal .modal-body i {
+            font-size: 24px;
+            margin-right: 1rem;
+        }
+        
+        .modal .warning-icon {
+            color: #f59e0b;
+        }
+        
+        .modal .delete-icon {
+            color: #ef4444;
+        }
+        
+        .modal .info-icon {
+            color: #6200ea;
+        }
+    </style>
 </head>
 <body id="page-top">
     <div id="wrapper">
@@ -107,9 +213,8 @@ include('../config/config.php');
                                                 
                                                 if ($result && $result->num_rows > 0) {
                                                     while($row = $result->fetch_assoc()) {
-                                                        echo "<tr>";
-                                                        echo "<td><a href='view_questions.php?category=" . urlencode($row['category']) . "'>" . 
-                                                             htmlspecialchars($row['category']) . "</a></td>";
+                                                        echo "<tr class='clickable-row' data-href='view_questions.php?category=" . urlencode($row['category']) . "'>";
+                                                        echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                                                         echo "<td>" . $row['question_count'] . "</td>";
                                                         echo "<td>" . date('Y-m-d H:i', strtotime($row['last_modified'])) . "</td>";
                                                         echo "<td>";
@@ -118,11 +223,14 @@ include('../config/config.php');
                                                                 data-bs-toggle='modal' 
                                                                 data-bs-target='#addQuestionModal'>
                                                                 <i class='fas fa-plus'></i>
-                                                              </button>";
-                                                        echo "<button class='btn btn-sm btn-outline-danger delete-category' 
-                                                                data-category='" . htmlspecialchars($row['category']) . "'>
-                                                                <i class='fas fa-trash'></i>
-                                                              </button>";
+                                                            </button>";
+                                                        echo '<button 
+                                                            class="btn btn-sm btn-outline-danger delete-category" 
+                                                            data-category="' . htmlspecialchars($row['category']) . '" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteCategoryModal">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>';
                                                         echo "</td>";
                                                         echo "</tr>";
                                                     }
@@ -277,6 +385,26 @@ include('../config/config.php');
             </div>
         </div>
     </div>
+
+     <!-- Category Deletion -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCategoryModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- This text will be dynamically updated -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirmDeleteCategoryButton" type="button" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -861,22 +989,37 @@ include('../config/config.php');
             $('#importCategorySelect').prop('required', true);
         });
 
-        // Handle category deletion
-        $('.delete-category').click(function() {
-            const category = $(this).data('category');
-            if (confirm(`Are you sure you want to delete the category "${category}" and all its questions? This action cannot be undone.`)) {
+        // Show the confirmation modal and set category data
+        $('.delete-category').click(function () {
+            const categoryToDelete = $(this).data('category');
+
+            // Create the icon and text elements dynamically
+            const deleteIconDiv = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-trash-alt delete-icon"></i>
+                    <p>Are you sure you want to delete the category "<strong>${categoryToDelete}</strong>" and all its questions? This action cannot be undone.</p>
+                </div>
+            `;
+            // Update the modal body with the new content
+            $('#deleteCategoryModal .modal-body').html(deleteIconDiv);
+        });
+
+
+        // Handle delete confirmation
+        $('#confirmDeleteCategoryButton').click(function () {
+            if (categoryToDelete) {
                 $.ajax({
                     url: 'handlers/category_handler.php',
                     method: 'POST',
                     data: {
                         action: 'delete',
-                        category: category
+                        category: categoryToDelete
                     },
-                    success: function(response) {
+                    success: function (response) {
                         try {
                             const result = JSON.parse(response);
                             if (result.status === 'success') {
-                                location.reload();
+                                location.reload(); // Refresh the page
                             } else {
                                 alert('Error: ' + result.message);
                             }
@@ -884,11 +1027,12 @@ include('../config/config.php');
                             alert('Error processing the request');
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert('Error deleting the category');
                     }
                 });
             }
+            $('#deleteCategoryModal').modal('hide');
         });
 
         // Handle clicking "Add Question" button on a category
@@ -926,6 +1070,16 @@ include('../config/config.php');
                 importModal.show();
             });
         }
+    });
+        
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    window.location = this.dataset.href;
+                }
+            });
+        });
     });
     </script>
 </body>
