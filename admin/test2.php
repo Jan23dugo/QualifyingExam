@@ -1451,13 +1451,7 @@ document.addEventListener('DOMContentLoaded', function() {
             handleQuestionTypeChange(this, sectionId, questionIndex);
         });
 
-        // Add event listener for delete button
-        const deleteQuestionBtn = newQuestion.querySelector('.delete-question-btn');
-        deleteQuestionBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to delete this question?')) {
-                newQuestion.remove();
-            }
-        });
+        deleteQuestion();
     }
 
     // Handle question type change
@@ -1727,6 +1721,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleEmptyState();
                 });
                 
+                deleteModal.show();
+            });
+        });
+    }
+
+    function deleteQuestion() {
+        document.querySelectorAll('.delete-question-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const question = this.closest('.question-block'); // Adjust selector based on your structure
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteQuestionModal'));
+    
+                // Remove any existing event listener from the confirm button
+                const confirmBtn = document.getElementById('confirmDelete');
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+                // Add new event listener to confirm button
+                newConfirmBtn.addEventListener('click', () => {
+                    question.remove(); // Remove the question
+                    deleteModal.hide(); // Hide the modal
+                    toggleEmptyState(); // Optional: Update UI if needed
+                });
+    
+                // Show the modal
                 deleteModal.show();
             });
         });
@@ -2379,6 +2397,28 @@ const DisableGrammarly = function( editor ) {
                 <div class="d-flex align-items-center">
                     <i class="fas fa-trash-alt delete-icon"></i>
                     <p class="mb-0">Are you sure you want to delete this section? This action cannot be undone.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteQuestionModal" tabindex="-1" aria-labelledby="deleteQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteQuestionModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-trash-alt delete-icon"></i>
+                    <p class="mb-0">Are you sure you want to delete this question? This action cannot be undone.</p>
                 </div>
             </div>
             <div class="modal-footer">
