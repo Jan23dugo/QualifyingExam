@@ -77,9 +77,20 @@ if (!$result) {
     <style>
         /* Table container with fixed height and scroll */
         .table-container {
-            max-height: calc(100vh - 450px); /* Reduced height */
-            overflow-y: auto;
-            border-radius: 4px;
+            width: 100%;
+        }
+
+        .table-body {
+            max-height: 300px; /* Adjust this value to your preferred scrollable height */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: white; /* Ensures the header has a solid background */
+            z-index: 10;
+            border-bottom: 2px solid #dee2e6;
         }
 
         /* Keep the header fixed while scrolling */
@@ -248,11 +259,24 @@ if (!$result) {
                         <div class="card-header py-3">
                             <p class="text-primary m-0 fw-bold">Student Records</p>
                         </div>
-                        <div class="card-body" style="font-family: 'Open Sans', sans-serif;">
+                       <div class="card-body" style="font-family: 'Open Sans', sans-serif;">
                             <div class="row">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Sort by Section on the Left -->
                                 <div class="col-md-6 col-xl-2 text-nowrap">
                                     <div class="btn-group">
-                                        <button class="btn btn-primary" type="button" style="background: var(--bs-card-cap-bg); color: var(--bs-emphasis-color);">Sort by:</button>
+                                        <button class="btn btn-primary" type="button" style="background: var(--bs-card-cap-bg); color: var(--bs-emphasis-color);">
+                                            Sort by: <?php 
+                                                $sort_labels = [
+                                                    'reference_id' => 'Reference Number',
+                                                    'full_name' => 'Name',
+                                                    'student_type' => 'Student Type',
+                                                    'is_tech' => 'Tech/Non-Tech',
+                                                    'registration_year' => 'Registration Year',
+                                                ];
+                                                echo $sort_labels[$sort] ?? 'Choose';
+                                            ?>
+                                        </button>
                                         <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" type="button" style="color: var(--bs-body-color); background: var(--bs-btn-hover-color);"></button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item <?php echo $sort === 'reference_id' ? 'active' : ''; ?>" 
@@ -279,13 +303,14 @@ if (!$result) {
                                     </div>
                                 </div>
 
-                                <div class="col-md-2">
+                                <div class="col-md-2 text-end">
                                     <select class="form-select form-select-sm" id="entriesPerPage" onchange="changeEntries(this.value)">
                                         <option value="20" <?php echo $entries_per_page == 20 ? 'selected' : ''; ?>>20 entries</option>
                                         <option value="40" <?php echo $entries_per_page == 40 ? 'selected' : ''; ?>>40 entries</option>
                                     </select>
                                 </div>
                             </div>
+                        </div>
 
                             <div class="table-container">
                                 <div class="table-responsive">
@@ -301,8 +326,12 @@ if (!$result) {
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <?php
+                                    </table>
+                                    <!-- Scrollable Table Body -->
+                                    <div class="table-body">
+                                        <table class="table table-fixed my-0">
+                                            <tbody>
+                                                <?php
                                             if ($result->num_rows > 0) {
                                                 while ($row = $result->fetch_assoc()) {
                                                     echo "<tr>";
@@ -325,6 +354,13 @@ if (!$result) {
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+
+                            <!-- Pagination Below -->
+                            <div class="pagination-container text-center">
+                                <?php
+                                // Your pagination controls go here
+                                ?>
                             </div>
 
                             <!-- Pagination -->
