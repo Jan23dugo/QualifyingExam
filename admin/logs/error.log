@@ -1,0 +1,128 @@
+[2024-12-14T05:04:51.107Z]
+Context: Processing section 0
+URL: http://qualifyingexam.test/admin/test2.php?exam_id=14#
+Exam ID: 14
+Message: CKEDITOR is not defined
+Stack Trace:
+ReferenceError: CKEDITOR is not defined
+    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40
+    at NodeList.forEach (<anonymous>)
+    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)
+    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)
+--------------------------------------------------------------------------------
+[2024-12-14T05:12:44.353Z]
+Context: Processing section 0
+URL: http://qualifyingexam.test/admin/test2.php?exam_id=14#
+Exam ID: 14
+Message: CKEDITOR is not defined
+Stack Trace:
+ReferenceError: CKEDITOR is not defined
+    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40
+    at NodeList.forEach (<anonymous>)
+    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)
+    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)
+--------------------------------------------------------------------------------
+[2024-12-14 07:45:49] save_question.php: Exam ID is required
+[2024-12-14 07:47:49] save_question.php: Table 'qualifying_exam.exam_sections' doesn't exist
+[2024-12-14 07:47:56] save_question.php: Received data: Array
+(
+    [exam_id] => 14
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 2
+                    [title] => <p>dsfs</p>
+                    [description] => <p>fasfasdf</p>
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-14 07:47:56] save_question.php: Table 'qualifying_exam.exam_sections' doesn't exist
+[2024-12-14 07:51:43] save_question.php: Received data: Array
+(
+    [exam_id] => 14
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 1
+                    [title] => <p>df</p>
+                    [description] => <p>sdffas</p>
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-14 07:54:30] save_question.php: Received data: Array
+(
+    [exam_id] => 14
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 1
+                    [title] => <p>fsdfsa</p>
+                    [description] => <p>safasdfasdf</p>
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-14 08:02:05] save_question.php: Received data: Array
+(
+    [exam_id] => 14
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 1
+                    [title] => <p>dfasfas</p>
+                    [description] => <p>safasfs</p>
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-14 08:02:05] save_question.php: Processing exam_id: 14
+[2024-12-14 08:02:05] save_question.php: Processing section: Array
+(
+    [section_id] => 1
+    [title] => <p>dfasfas</p>
+    [description] => <p>safasfs</p>
+    [questions] => Array
+        (
+        )
+
+)
+
+[2024-12-14 08:02:05] save_question.php: Sanitized title: <p>dfasfas</p>
+[2024-12-14 08:02:05] save_question.php: Sanitized description: <p>safasfs</p>
+[2024-12-14 08:02:05] save_question.php: Updating section: 1
+[2024-12-14 08:02:05] save_question.php: Section ID: 1
+[2024-12-14 08:11:13] save_question.php: Invalid request method
+[2024-12-14 08:11:18] save_question.php: Raw input: {"exam_id":"14","sections":[{"section_id":"2","title":"<p>adfad</p>","description":"<p>fadfasdf</p>","questions":[]}]}
+[2024-12-14 08:11:20] save_question.php: Invalid request method
+[2024-12-14 09:49:54] save_question.php: Invalid request method
+[2024-12-14 09:49:57] save_question.php: Invalid request method

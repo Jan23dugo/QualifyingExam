@@ -31,7 +31,7 @@ $result = $conn->query($query);
 $events = array();
 $unscheduled_exams = array();
 
-while ($row = $result->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
     if ($row['exam_date'] && $row['exam_time']) {
         // Get status color
         $statusColor = '';
@@ -91,7 +91,7 @@ while ($row = $result->fetch_assoc()) {
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/css/styles.min.css">
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet'>
-
+    
     <style>
         /* Calendar specific styles */
         .calendar-container {

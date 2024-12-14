@@ -1,0 +1,60 @@
+Raw input: {"timestamp":"2024-12-14T05:04:51.107Z","context":"Processing section 0","message":"CKEDITOR is not defined","stack":"ReferenceError: CKEDITOR is not defined\n    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40\n    at NodeList.forEach (<anonymous>)\n    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)\n    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)","url":"http://qualifyingexam.test/admin/test2.php?exam_id=14#","exam_id":"14"}
+Parsed data: Array
+(
+    [timestamp] => 2024-12-14T05:04:51.107Z
+    [context] => Processing section 0
+    [message] => CKEDITOR is not defined
+    [stack] => ReferenceError: CKEDITOR is not defined
+    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40
+    at NodeList.forEach (<anonymous>)
+    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)
+    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)
+    [url] => http://qualifyingexam.test/admin/test2.php?exam_id=14#
+    [exam_id] => 14
+)
+
+Attempting to write message:
+[2024-12-14T05:04:51.107Z]
+Context: Processing section 0
+URL: http://qualifyingexam.test/admin/test2.php?exam_id=14#
+Exam ID: 14
+Message: CKEDITOR is not defined
+Stack Trace:
+ReferenceError: CKEDITOR is not defined
+    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40
+    at NodeList.forEach (<anonymous>)
+    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)
+    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)
+--------------------------------------------------------------------------------
+
+Successfully wrote to error.log
+Raw input: {"timestamp":"2024-12-14T05:12:44.353Z","context":"Processing section 0","message":"CKEDITOR is not defined","stack":"ReferenceError: CKEDITOR is not defined\n    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40\n    at NodeList.forEach (<anonymous>)\n    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)\n    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)","url":"http://qualifyingexam.test/admin/test2.php?exam_id=14#","exam_id":"14"}
+Parsed data: Array
+(
+    [timestamp] => 2024-12-14T05:12:44.353Z
+    [context] => Processing section 0
+    [message] => CKEDITOR is not defined
+    [stack] => ReferenceError: CKEDITOR is not defined
+    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40
+    at NodeList.forEach (<anonymous>)
+    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)
+    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)
+    [url] => http://qualifyingexam.test/admin/test2.php?exam_id=14#
+    [exam_id] => 14
+)
+
+Attempting to write message:
+[2024-12-14T05:12:44.353Z]
+Context: Processing section 0
+URL: http://qualifyingexam.test/admin/test2.php?exam_id=14#
+Exam ID: 14
+Message: CKEDITOR is not defined
+Stack Trace:
+ReferenceError: CKEDITOR is not defined
+    at http://qualifyingexam.test/admin/test2.php?exam_id=14:1804:40
+    at NodeList.forEach (<anonymous>)
+    at saveForm (http://qualifyingexam.test/admin/test2.php?exam_id=14:1788:22)
+    at HTMLButtonElement.<anonymous> (http://qualifyingexam.test/admin/test2.php?exam_id=14:1760:9)
+--------------------------------------------------------------------------------
+
+Successfully wrote to error.log
