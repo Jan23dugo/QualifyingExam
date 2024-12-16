@@ -28,8 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
             newSection.innerHTML = `
                 <div class="title-block">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <input type="text" class="form-control" name="section_title[${section.section_id}]" 
-                            value="${section.section_title}" style="flex: 1; margin-right: 10px;">
+                        <div class="form-control editable-field section-field" 
+                            contenteditable="true" 
+                            data-placeholder="Untitled Section"
+                            data-input-name="section_title[${section.section_id}]"
+                            style="flex: 1; margin-right: 10px;">${section.title || ''}</div>
+                        <input type="hidden" name="section_title[${section.section_id}]" value="${section.title || ''}">
                         <input type="hidden" name="section_id[${section.section_id}]" value="${section.section_id}">
                         <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
                             <i class="fas fa-trash-alt"></i>
@@ -37,13 +41,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="description-block">
-                    <input type="text" class="form-control" name="section_description[${section.section_id}]" 
-                        value="${section.section_description || ''}" placeholder="Description (optional)">
+                    <div class="form-control editable-field section-field" 
+                        contenteditable="true" 
+                        data-placeholder="Description (optional)"
+                        data-input-name="section_description[${section.section_id}]">${section.description || ''}</div>
+                    <input type="hidden" name="section_description[${section.section_id}]" value="${section.description || ''}">
                 </div>
                 <div id="question-container-${section.section_id}" class="question-block-container"></div>
             `;
 
             sectionBlocks.appendChild(newSection);
+
+            // Add event listeners for contenteditable fields
+            const editableFields = newSection.querySelectorAll('.editable-field');
+            editableFields.forEach(field => {
+                // Update hidden input when content changes
+                field.addEventListener('input', function() {
+                    const hiddenInput = this.nextElementSibling;
+                    if (hiddenInput && hiddenInput.type === 'hidden') {
+                        hiddenInput.value = this.innerHTML;
+                    }
+                });
+
+                // Show toolbar on click
+                field.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    currentField = this;
+                    toolbar.classList.add('active');
+                    positionToolbar(this);
+                });
+            });
 
             // Load questions for this section
             if (section.questions) {
@@ -62,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update sectionCounter to be higher than any existing section ID
         const maxSectionId = Math.max(...sections.map(s => parseInt(s.section_id)), 0);
-        sectionCounter = maxSectionId;
+        sectionCounter = maxSectionId + 1;
 
         attachEventListeners();
     }
@@ -117,6 +144,39 @@ document.addEventListener('DOMContentLoaded', function() {
             positionToolbar(this);
         });
 
+        if (questionData && questionData.question_type === 'multiple_choice' && questionData.options) {
+            const optionsContainer = newQuestion.querySelector('.question-options');
+            questionData.options.forEach((option, index) => {
+                const optionHtml = `
+                    <div class="option-container" style="margin-bottom: 10px;">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <input type="radio" name="correct_option[${sectionId}][${questionIndex}]" 
+                                        ${option.is_correct ? 'checked' : ''}>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control" 
+                                value="${option.text}" 
+                                placeholder="Enter option text">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-danger delete-option-btn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+            });
+        }
+
+        // Make sure the question type is selected
+        const questionTypeSelect = newQuestion.querySelector('.question-type-select');
+        if (questionData && questionData.question_type) {
+            questionTypeSelect.value = questionData.question_type;
+        }
+
         return newQuestion;
     }
 
@@ -142,39 +202,75 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add Section functionality
     function addSection() {
         sectionCounter++;
+        const exam_id = new URLSearchParams(window.location.search).get('exam_id');
+        
         const newSection = document.createElement('div');
         newSection.classList.add('section-block');
-        newSection.setAttribute('data-section-id', sectionCounter);
+        newSection.setAttribute('data-section-id', 'new_' + sectionCounter);
+        newSection.setAttribute('data-exam-id', exam_id);
 
         newSection.innerHTML = `
             <div class="title-block">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="form-control editable-field" 
+                    <div class="form-control editable-field section-field" 
                         contenteditable="true" 
                         data-placeholder="Untitled Section"
                         data-input-name="section_title[${sectionCounter}]"
                         style="flex: 1; margin-right: 10px;"></div>
+                    <input type="hidden" name="section_title[${sectionCounter}]">
+                    <input type="hidden" name="section_id[${sectionCounter}]" value="new_${sectionCounter}">
                     <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
             <div class="description-block">
-                <div class="form-control editable-field" 
+                <div class="form-control editable-field section-field" 
                     contenteditable="true" 
                     data-placeholder="Description (optional)"
                     data-input-name="section_description[${sectionCounter}]"></div>
+                <input type="hidden" name="section_description[${sectionCounter}]">
             </div>
             <div id="question-container-${sectionCounter}" class="question-block-container"></div>
+            <input type="hidden" name="exam_id" value="${exam_id}">
         `;
 
         document.getElementById('sectionBlocks').appendChild(newSection);
+
+        // Add event listeners for contenteditable fields
+        const editableFields = newSection.querySelectorAll('.editable-field');
+        editableFields.forEach(field => {
+            // Update hidden input when content changes
+            field.addEventListener('input', function() {
+                const hiddenInput = this.nextElementSibling;
+                if (hiddenInput && hiddenInput.type === 'hidden') {
+                    hiddenInput.value = this.innerHTML;
+                }
+            });
+
+            // Show toolbar on click
+            field.addEventListener('click', function(e) {
+                e.stopPropagation();
+                currentField = this;
+                toolbar.classList.add('active');
+                positionToolbar(this);
+            });
+        });
+
         attachEventListeners();
     }
 
     // Add Question functionality
     function addQuestionToSection(sectionId) {
-        const questionContainer = document.getElementById(`question-container-${sectionId}`);
+        // Remove 'new_' prefix if it exists
+        const cleanSectionId = sectionId.replace('new_', '');
+        const questionContainer = document.getElementById(`question-container-${cleanSectionId}`);
+        
+        if (!questionContainer) {
+            console.error(`Question container not found for section ${sectionId}`);
+            return;
+        }
+
         const questionIndex = questionContainer.children.length;
 
         const newQuestion = document.createElement('div');
@@ -189,11 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-control editable-field question-field" 
                     contenteditable="true" 
                     data-placeholder="Enter your question here"
-                    data-input-name="question_text[${sectionId}][${questionIndex}]"
+                    data-input-name="question_text[${cleanSectionId}][${questionIndex}]"
                     style="flex: 1; margin-right: 10px; min-height: 100px; cursor: text;"
                 ></div>
                 <div style="min-width: 200px;">
-                    <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
+                    <select class="form-control question-type-select" name="question_type[${cleanSectionId}][${questionIndex}]">
                         <option value="">Select Question Type</option>
                         <option value="multiple_choice">Multiple Choice</option>
                         <option value="true_false">True/False</option>
@@ -206,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="question-options" style="margin-top: 10px;"></div>
             <div style="margin-top: 10px;">
-                <input type="number" name="points[${sectionId}][${questionIndex}]" 
+                <input type="number" name="points[${cleanSectionId}][${questionIndex}]" 
                     class="form-control" placeholder="Points" style="width: 100px;">
             </div>
         `;
@@ -216,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add event listener for question type selection
         const questionTypeSelect = newQuestion.querySelector('.question-type-select');
         questionTypeSelect.addEventListener('change', function() {
-            handleQuestionTypeChange(this, sectionId, questionIndex);
+            handleQuestionTypeChange(this, cleanSectionId, questionIndex);
         });
 
         // Add event listener for delete question button
@@ -447,8 +543,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const lastSection = sections[sections.length - 1];
         const sectionId = lastSection.getAttribute('data-section-id');
-        addQuestionToSection(sectionId);
-        closeActionSidebar();
+        if (sectionId) {
+            addQuestionToSection(sectionId);
+            closeActionSidebar();
+        } else {
+            console.error('Section ID not found');
+        }
     });
 
     // Toggle action buttons
@@ -485,16 +585,101 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveForm() {
-        const formData = new FormData(document.getElementById('questionForm'));
+        const exam_id = new URLSearchParams(window.location.search).get('exam_id');
+        console.log('Saving with exam_id:', exam_id);
+
+        if (!exam_id) {
+            alert('No exam ID found. Please make sure you are editing a valid exam.');
+            return;
+        }
+
+        const sections = [];
+        const sectionBlocks = document.querySelectorAll('.section-block');
         
+        sectionBlocks.forEach((sectionBlock, sectionIndex) => {
+            const sectionId = sectionBlock.getAttribute('data-section-id');
+            const titleElement = sectionBlock.querySelector('[data-input-name^="section_title"]');
+            const descriptionElement = sectionBlock.querySelector('[data-input-name^="section_description"]');
+            
+            const section = {
+                section_id: sectionId.startsWith('new_') ? null : sectionId,
+                exam_id: parseInt(exam_id),
+                title: titleElement ? titleElement.innerHTML.trim() : '',
+                description: descriptionElement ? descriptionElement.innerHTML.trim() : '',
+                order: sectionIndex,
+                questions: []
+            };
+
+            // Get questions for this section
+            const questionBlocks = sectionBlock.querySelectorAll('.question-block');
+            questionBlocks.forEach((questionBlock, questionIndex) => {
+                const questionData = {
+                    question_id: questionBlock.getAttribute('data-original-question-id') || null,
+                    section_id: sectionId.startsWith('new_') ? null : sectionId,
+                    question_text: questionBlock.querySelector('.question-field').innerHTML,
+                    question_type: questionBlock.querySelector('.question-type-select').value,
+                    points: parseInt(questionBlock.querySelector('input[name^="points"]').value) || 0,
+                    order: questionIndex
+                };
+
+                // Handle different question types
+                switch (questionData.question_type) {
+                    case 'multiple_choice':
+                        const options = [];
+                        questionBlock.querySelectorAll('.option-container').forEach((optionContainer, optionIndex) => {
+                            options.push({
+                                text: optionContainer.querySelector('input[type="text"]').value,
+                                is_correct: optionContainer.querySelector('input[type="radio"]').checked ? 1 : 0,
+                                order: optionIndex
+                            });
+                        });
+                        questionData.options = options;
+                        break;
+
+                    case 'true_false':
+                        questionData.correct_answer = questionBlock.querySelector('select[name^="correct_answer"]').value;
+                        break;
+
+                    case 'programming':
+                        const testCases = [];
+                        questionBlock.querySelectorAll('.test-case').forEach((testCase, testIndex) => {
+                            testCases.push({
+                                input: testCase.querySelector('input[name^="test_case_input"]').value,
+                                expected_output: testCase.querySelector('input[name^="test_case_output"]').value,
+                                order: testIndex
+                            });
+                        });
+                        questionData.test_cases = testCases;
+                        break;
+                }
+
+                section.questions.push(questionData);
+            });
+
+            sections.push(section);
+        });
+
+        const data = {
+            exam_id: parseInt(exam_id),
+            action: 'save_sections',
+            sections: sections
+        };
+
+        console.log('Sending data:', data);
+
         fetch('save_question.php', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Response:', data);
             if (data.success) {
                 alert('Questions saved successfully!');
+                window.location.reload();
             } else {
                 alert('Error saving questions: ' + data.error);
             }

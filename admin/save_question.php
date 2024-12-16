@@ -3,10 +3,10 @@ include_once __DIR__ . '/../config/config.php';
 
 header('Content-Type: application/json');
 
-// Function to sanitize input but preserve HTML from CKEditor
+// Function to sanitize input but preserve HTML
 function sanitize_input($data) {
     if (empty($data)) return '';
-    return $data; // Preserve CKEditor formatting
+    return $data;
 }
 
 // Function to log errors
@@ -19,161 +19,263 @@ function logError($error, $context = '') {
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $postData = file_get_contents('php://input');
-        $data = json_decode($postData, true);
+        // Get and decode JSON data
+        $json_data = file_get_contents('php://input');
+        $data = json_decode($json_data, true);
         
+        // Log received data for debugging
+        logError("Received data: " . print_r($data, true), 'debug');
+
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new Exception('Invalid JSON data: ' . json_last_error_msg());
         }
-        
-        // Add more detailed validation
-        if (!isset($data['exam_id'])) {
-            throw new Exception('Exam ID is missing from request');
-        }
-        
-        if (empty($data['exam_id']) || !is_numeric($data['exam_id'])) {
-            throw new Exception('Invalid Exam ID format');
+
+        // Validate exam_id
+        if (!isset($data['exam_id']) || empty($data['exam_id'])) {
+            throw new Exception('Exam ID is required');
         }
 
         $exam_id = intval($data['exam_id']);
-        
-        // Verify exam exists
-        $stmt = $conn->prepare("SELECT exam_id FROM exams WHERE exam_id = ?");
-        if (!$stmt) {
-            throw new Exception('Failed to prepare exam verification query');
-        }
-        
-        $stmt->bind_param("i", $exam_id);
-        if (!$stmt->execute()) {
-            throw new Exception('Failed to verify exam existence');
-        }
-        
-        $result = $stmt->get_result();
-        if (!$result->fetch_assoc()) {
-            throw new Exception("Exam with ID $exam_id not found");
-        }
 
+        // Start transaction
         $conn->begin_transaction();
 
         try {
-            // Handle different actions
-            $action = $data['action'] ?? 'save_sections';
-            
-            switch ($action) {
-                case 'delete_section':
-                    if (empty($data['section_id'])) {
-                        throw new Exception('Section ID is required for deletion');
+            // Process each section
+            foreach ($data['sections'] as $section) {
+                // Ensure exam_id is set for the section
+                $section['exam_id'] = $exam_id;
+                
+                if (empty($section['exam_id'])) {
+                    throw new Exception('Section exam_id is required');
+                }
+
+                $section_id = isset($section['section_id']) ? intval($section['section_id']) : null;
+                $section_title = sanitize_input($section['title']);
+                $section_description = sanitize_input($section['description']);
+                $section_order = intval($section['order']);
+
+                if ($section_id) {
+                    // Update existing section
+                    $stmt = $conn->prepare("UPDATE sections SET title = ?, description = ?, section_order = ? WHERE section_id = ? AND exam_id = ?");
+                    if (!$stmt) {
+                        throw new Exception("Failed to prepare update statement: " . $conn->error);
                     }
-                    
-                    $section_id = intval($data['section_id']);
-                    
-                    // Delete the section (cascading delete will handle related records)
-                    $stmt = $conn->prepare("DELETE FROM sections WHERE section_id = ? AND exam_id = ?");
-                    $stmt->bind_param("ii", $section_id, $exam_id);
-                    if (!$stmt->execute()) {
-                        throw new Exception("Failed to delete section: " . $stmt->error);
+                    $stmt->bind_param("ssiii", $section_title, $section_description, $section_order, $section_id, $exam_id);
+                } else {
+                    // Insert new section
+                    $stmt = $conn->prepare("INSERT INTO sections (exam_id, title, description, section_order) VALUES (?, ?, ?, ?)");
+                    if (!$stmt) {
+                        throw new Exception("Failed to prepare insert statement: " . $conn->error);
                     }
-                    break;
+                    $stmt->bind_param("issi", $exam_id, $section_title, $section_description, $section_order);
+                }
 
-                case 'save_sections':
-                    if (!empty($data['sections'])) {
-                        foreach ($data['sections'] as $section) {
-                            $section_id = $section['section_id'] ? intval($section['section_id']) : null;
-                            
-                            if ($section_id) {
-                                // Update existing section
-                                $stmt = $conn->prepare("UPDATE sections SET title = ?, description = ?, section_order = ? WHERE section_id = ?");
-                                $stmt->bind_param("ssii", $section['title'], $section['description'], $section['order'], $section_id);
-                            } else {
-                                // Insert new section
-                                $stmt = $conn->prepare("INSERT INTO sections (exam_id, title, description, section_order) VALUES (?, ?, ?, ?)");
-                                $stmt->bind_param("issi", $exam_id, $section['title'], $section['description'], $section['order']);
+                if (!$stmt->execute()) {
+                    throw new Exception("Failed to save section: " . $stmt->error);
+                }
+
+                // Get section_id for new sections
+                if (!$section_id) {
+                    $section_id = $conn->insert_id;
+                }
+
+                // Process questions for this section
+                if (isset($section['questions']) && is_array($section['questions'])) {
+                    foreach ($section['questions'] as $question) {
+                        $question_id = isset($question['question_id']) ? intval($question['question_id']) : null;
+                        $question_text = sanitize_input($question['question_text']);
+                        $question_type = $question['question_type'];
+                        $points = intval($question['points']);
+                        $question_order = intval($question['order']);
+
+                        if ($question_id) {
+                            // Update existing question
+                            $stmt = $conn->prepare("UPDATE questions SET 
+                                exam_id = ?,
+                                section_id = ?, 
+                                question_text = ?, 
+                                question_type = ?, 
+                                points = ?, 
+                                question_order = ? 
+                                WHERE question_id = ?");
+                            if (!$stmt) {
+                                throw new Exception("Failed to prepare question update statement: " . $conn->error);
                             }
-                            $stmt->execute();
-                            
-                            if (!$section_id) {
-                                $section_id = $conn->insert_id;
+                            $stmt->bind_param("iissiii", 
+                                $exam_id,
+                                $section_id, 
+                                $question_text, 
+                                $question_type, 
+                                $points, 
+                                $question_order, 
+                                $question_id
+                            );
+                        } else {
+                            // Insert new question
+                            $stmt = $conn->prepare("INSERT INTO questions (
+                                exam_id,
+                                section_id, 
+                                question_text, 
+                                question_type, 
+                                points, 
+                                question_order
+                            ) VALUES (?, ?, ?, ?, ?, ?)");
+                            if (!$stmt) {
+                                throw new Exception("Failed to prepare question insert statement: " . $conn->error);
                             }
+                            $stmt->bind_param("iissii", 
+                                $exam_id,
+                                $section_id, 
+                                $question_text, 
+                                $question_type, 
+                                $points, 
+                                $question_order
+                            );
+                        }
 
-                            // Handle questions for this section
-                            if (!empty($section['questions'])) {
-                                foreach ($section['questions'] as $question) {
-                                    $question_id = $question['question_id'] ? intval($question['question_id']) : null;
-                                    
-                                    if ($question_id) {
-                                        // Update existing question
-                                        $stmt = $conn->prepare("UPDATE questions SET question_text = ?, question_type = ?, points = ?, question_order = ? WHERE question_id = ?");
-                                        $stmt->bind_param("ssiii", $question['question_text'], $question['question_type'], $question['points'], $question['order'], $question_id);
-                                    } else {
-                                        // Insert new question
-                                        $stmt = $conn->prepare("INSERT INTO questions (section_id, question_text, question_type, points, question_order) VALUES (?, ?, ?, ?, ?)");
-                                        $stmt->bind_param("issii", $section_id, $question['question_text'], $question['question_type'], $question['points'], $question['order']);
-                                    }
-                                    $stmt->execute();
-                                    
-                                    if (!$question_id) {
-                                        $question_id = $conn->insert_id;
-                                    }
+                        if (!$stmt->execute()) {
+                            throw new Exception("Failed to save question: " . $stmt->error);
+                        }
 
-                                    // Handle question type specific data
-                                    switch ($question['question_type']) {
-                                        case 'multiple_choice':
-                                            // Delete existing options if updating
-                                            if ($question_id) {
-                                                $stmt = $conn->prepare("DELETE FROM multiple_choice_options WHERE question_id = ?");
-                                                $stmt->bind_param("i", $question_id);
-                                                $stmt->execute();
-                                            }
-                                            
-                                            // Insert options
-                                            foreach ($question['options'] as $option) {
-                                                $stmt = $conn->prepare("INSERT INTO multiple_choice_options (question_id, choice_text, is_correct, option_order) VALUES (?, ?, ?, ?)");
-                                                $stmt->bind_param("isii", $question_id, $option['text'], $option['is_correct'], $option['order']);
-                                                $stmt->execute();
-                                            }
-                                            break;
+                        if (!$question_id) {
+                            $question_id = $conn->insert_id;
+                        }
 
-                                        case 'programming':
-                                            // Delete existing test cases if updating
-                                            if ($question_id) {
-                                                $stmt = $conn->prepare("DELETE FROM test_cases WHERE question_id = ?");
-                                                $stmt->bind_param("i", $question_id);
-                                                $stmt->execute();
-                                            }
-                                            
-                                            // Insert test cases
-                                            foreach ($question['test_cases'] as $testCase) {
-                                                $stmt = $conn->prepare("INSERT INTO test_cases (question_id, test_input, expected_output, test_case_order) VALUES (?, ?, ?, ?)");
-                                                $stmt->bind_param("issi", $question_id, $testCase['input'], $testCase['expected_output'], $testCase['order']);
-                                                $stmt->execute();
-                                            }
-                                            break;
+                        // Handle question type specific data
+                        switch ($question_type) {
+                            case 'multiple_choice':
+                                // Clear existing options
+                                $stmt = $conn->prepare("DELETE FROM multiple_choice_options WHERE question_id = ?");
+                                $stmt->bind_param("i", $question_id);
+                                $stmt->execute();
+
+                                // Insert new options
+                                if (isset($question['options']) && is_array($question['options'])) {
+                                    foreach ($question['options'] as $option) {
+                                        // Debug log to see what data we're getting
+                                        logError("Option data: " . print_r($option, true), 'debug');
+                                        
+                                        $stmt = $conn->prepare("INSERT INTO multiple_choice_options (
+                                            question_id, 
+                                            choice_text, 
+                                            is_correct
+                                        ) VALUES (?, ?, ?)");
+                                        
+                                        if (!$stmt) {
+                                            throw new Exception("Failed to prepare option insert statement: " . $conn->error);
+                                        }
+                                        
+                                        $stmt->bind_param("isi", 
+                                            $question_id, 
+                                            $option['text'], 
+                                            $option['is_correct']
+                                        );
+                                        
+                                        if (!$stmt->execute()) {
+                                            throw new Exception("Failed to save option: " . $stmt->error);
+                                        }
                                     }
                                 }
-                            }
+                                break;
+
+                            case 'programming':
+                                // Clear existing test cases
+                                $stmt = $conn->prepare("DELETE FROM test_cases WHERE question_id = ?");
+                                $stmt->bind_param("i", $question_id);
+                                $stmt->execute();
+
+                                // Insert new test cases
+                                if (isset($question['test_cases']) && is_array($question['test_cases'])) {
+                                    foreach ($question['test_cases'] as $test_case) {
+                                        $stmt = $conn->prepare("INSERT INTO test_cases (question_id, input_data, expected_output, test_case_order) VALUES (?, ?, ?, ?)");
+                                        $stmt->bind_param("issi", $question_id, $test_case['input'], $test_case['expected_output'], $test_case['order']);
+                                        $stmt->execute();
+                                    }
+                                }
+                                break;
                         }
                     }
-                    break;
-
-                default:
-                    throw new Exception('Invalid action specified');
+                }
             }
-            
+
             $conn->commit();
-            echo json_encode(['success' => true, 'message' => 'Changes saved successfully']);
-            
+            echo json_encode(['success' => true, 'message' => 'Questions saved successfully']);
+
         } catch (Exception $e) {
             $conn->rollback();
             throw $e;
         }
-    } else {
-        throw new Exception('Invalid request method');
+    } else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        // Handle GET request to fetch existing questions
+        if (!isset($_GET['exam_id'])) {
+            throw new Exception('Exam ID is required');
+        }
+        
+        $exam_id = intval($_GET['exam_id']);
+        
+        // Fetch sections and questions
+        $stmt = $conn->prepare("SELECT * FROM sections WHERE exam_id = ? ORDER BY section_order");
+        $stmt->bind_param("i", $exam_id);
+        $stmt->execute();
+        $sections_result = $stmt->get_result();
+        
+        $sections = [];
+        while ($section = $sections_result->fetch_assoc()) {
+            // Fetch questions for this section
+            $questions_stmt = $conn->prepare("SELECT * FROM questions WHERE section_id = ? ORDER BY question_order");
+            $questions_stmt->bind_param("i", $section['section_id']);
+            $questions_stmt->execute();
+            $questions_result = $questions_stmt->get_result();
+            
+            $questions = [];
+            while ($question = $questions_result->fetch_assoc()) {
+                // Add question type specific data
+                if ($question['question_type'] === 'multiple_choice') {
+                    $options_stmt = $conn->prepare("SELECT 
+                        option_id,
+                        question_id,
+                        choice_text,
+                        is_correct,
+                        created_at
+                    FROM multiple_choice_options 
+                    WHERE question_id = ?");
+                    
+                    if (!$options_stmt) {
+                        throw new Exception("Failed to prepare options select statement: " . $conn->error);
+                    }
+                    
+                    $options_stmt->bind_param("i", $question['question_id']);
+                    $options_stmt->execute();
+                    $options_result = $options_stmt->get_result();
+                    
+                    // Transform the options data to match the format expected by the frontend
+                    $options = [];
+                    while ($option = $options_result->fetch_assoc()) {
+                        $options[] = [
+                            'id' => $option['option_id'],
+                            'text' => $option['choice_text'],
+                            'is_correct' => (int)$option['is_correct']
+                        ];
+                    }
+                    $question['options'] = $options;
+                } else if ($question['question_type'] === 'programming') {
+                    $test_cases_stmt = $conn->prepare("SELECT * FROM test_cases WHERE question_id = ? ORDER BY test_case_order");
+                    $test_cases_stmt->bind_param("i", $question['question_id']);
+                    $test_cases_stmt->execute();
+                    $question['test_cases'] = $test_cases_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                }
+                $questions[] = $question;
+            }
+            
+            $section['questions'] = $questions;
+            $sections[] = $section;
+        }
+        
+        echo json_encode(['success' => true, 'sections' => $sections]);
     }
-    
 } catch (Exception $e) {
     logError($e->getMessage(), 'save_question.php');
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
-
-exit;
 ?>

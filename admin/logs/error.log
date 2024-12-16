@@ -241,3 +241,612 @@ ReferenceError: CKEDITOR is not defined
 [2024-12-16 13:51:57] save_question.php: Invalid request method
 [2024-12-16 13:55:59] save_question.php: Invalid request method
 [2024-12-16 14:04:38] save_question.php: Invalid request method
+[2024-12-16 14:08:40] save_question.php: Invalid JSON data: Syntax error
+[2024-12-16 14:16:27] save_question.php: Invalid request method
+[2024-12-16 14:16:45] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:16:51] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:29:16] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:35:16] debug: Raw input: {"exam_id":"14","action":"save_sections","sections":[{"section_id":"1","title":"fdsaf","description":"asdfsad","order":0,"questions":[{"question_id":null,"question_text":"dsfasf","question_type":"multiple_choice","points":1,"order":0,"options":[{"text":"fdsdaf","is_correct":1,"order":0},{"text":"sdfasdf","is_correct":0,"order":1},{"text":"fsadfasd","is_correct":0,"order":2},{"text":"dsaadsf","is_correct":0,"order":3}]}]}]}
+[2024-12-16 14:35:16] debug: Decoded data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 1
+                    [title] => fdsaf
+                    [description] => asdfsad
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [question_text] => dsfasf
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => fdsdaf
+                                                    [is_correct] => 1
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => sdfasdf
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => fsadfasd
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => dsaadsf
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:35:16] debug: Exam ID: 14
+[2024-12-16 14:35:16] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:35:53] debug: Raw input: {"exam_id":"14","action":"save_sections","sections":[{"section_id":"1","title":"fdsaf","description":"asdfsad","order":0,"questions":[]}]}
+[2024-12-16 14:35:53] debug: Decoded data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 1
+                    [title] => fdsaf
+                    [description] => asdfsad
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:35:53] debug: Exam ID: 14
+[2024-12-16 14:44:03] debug: Raw input: {"exam_id":"14","action":"save_sections","sections":[{"section_id":null,"exam_id":"14","title":"dsadsf","description":"asffasd","order":0,"questions":[]}]}
+[2024-12-16 14:44:03] debug: Decoded data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:44:03] debug: Exam ID: 14
+[2024-12-16 14:52:13] debug: Raw input: {"exam_id":"14","action":"save_sections","sections":[{"section_id":"7","exam_id":"14","title":"dsadsf","description":"asffasd","order":0,"questions":[{"question_id":null,"question_text":"fasdfsd","question_type":"multiple_choice","points":1,"order":0,"options":[{"text":"dsfad","is_correct":0,"order":0},{"text":"sfsafsd","is_correct":0,"order":1},{"text":"dfasf","is_correct":1,"order":2},{"text":"fasdfs","is_correct":0,"order":3}]}]}]}
+[2024-12-16 14:52:13] debug: Decoded data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [question_text] => fasdfsd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => dsfad
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => sfsafsd
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => dfasf
+                                                    [is_correct] => 1
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => fasdfs
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:52:13] debug: Exam ID: 14
+[2024-12-16 14:52:13] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:54:04] debug: Raw input: {"exam_id":14,"action":"save_sections","sections":[{"section_id":"7","exam_id":14,"title":"dsadsf","description":"asffasd","order":0,"questions":[{"question_id":null,"section_id":"7","question_text":"fdsafasd","question_type":"multiple_choice","points":1,"order":0,"options":[{"text":"fsfa","is_correct":1,"order":0},{"text":"sfasd","is_correct":0,"order":1},{"text":"fsadfa","is_correct":0,"order":2},{"text":"asdfsf","is_correct":0,"order":3}]}]}]}
+[2024-12-16 14:54:04] debug: Decoded data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fdsafasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => fsfa
+                                                    [is_correct] => 1
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => sfasd
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => fsadfa
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => asdfsf
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:54:04] debug: Exam ID: 14
+[2024-12-16 14:54:04] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:56:34] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fdsasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => dfasf
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => sadfasd
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => sfasd
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => assfasfd
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:56:34] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:56:38] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fdsasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => dfasf
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => sadfasd
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => sfasd
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => assfasfd
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:56:38] save_question.php: Field 'exam_id' doesn't have a default value
+[2024-12-16 14:58:51] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fsafdsf
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => fsadf
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => asfasdf
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => fsadfs
+                                                    [is_correct] => 1
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => fasdad
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:58:51] save_question.php: Unknown column 'option_text' in 'field list'
+[2024-12-16 14:59:55] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fsadfsdf
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => fasdasd
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => dsafas
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => dafsds
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => fsasadasf
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 14:59:55] debug: Option data: Array
+(
+    [text] => fasdasd
+    [is_correct] => 0
+    [order] => 0
+)
+
+[2024-12-16 14:59:55] save_question.php: Unknown column 'option_order' in 'field list'
+[2024-12-16 15:02:47] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fasdfasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => fasada
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => dsasf
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => sfasdsf
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 15:02:47] debug: Option data: Array
+(
+    [text] => fasada
+    [is_correct] => 0
+    [order] => 0
+)
+
+[2024-12-16 15:02:47] debug: Option data: Array
+(
+    [text] => dsasf
+    [is_correct] => 1
+    [order] => 1
+)
+
+[2024-12-16 15:02:47] debug: Option data: Array
+(
+    [text] => sfasdsf
+    [is_correct] => 0
+    [order] => 2
+)
+
+[2024-12-16 15:02:50] save_question.php: Unknown column 'option_order' in 'order clause'
+[2024-12-16 15:02:53] save_question.php: Unknown column 'option_order' in 'order clause'
+[2024-12-16 15:02:54] save_question.php: Unknown column 'option_order' in 'order clause'
+[2024-12-16 15:02:54] save_question.php: Unknown column 'option_order' in 'order clause'
