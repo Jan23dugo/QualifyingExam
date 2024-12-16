@@ -850,3 +850,183 @@ ReferenceError: CKEDITOR is not defined
 [2024-12-16 15:02:53] save_question.php: Unknown column 'option_order' in 'order clause'
 [2024-12-16 15:02:54] save_question.php: Unknown column 'option_order' in 'order clause'
 [2024-12-16 15:02:54] save_question.php: Unknown column 'option_order' in 'order clause'
+[2024-12-16 15:05:52] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 6
+                                    [section_id] => 7
+                                    [question_text] => fasdfasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => undefined
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => undefined
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => undefined
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                        )
+
+                                )
+
+                            [1] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => fsadfsd
+                                    [question_type] => true_false
+                                    [points] => 1
+                                    [order] => 1
+                                    [correct_answer] => true
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 15:05:52] debug: Option data: Array
+(
+    [text] => undefined
+    [is_correct] => 0
+    [order] => 0
+)
+
+[2024-12-16 15:05:52] debug: Option data: Array
+(
+    [text] => undefined
+    [is_correct] => 1
+    [order] => 1
+)
+
+[2024-12-16 15:05:52] debug: Option data: Array
+(
+    [text] => undefined
+    [is_correct] => 0
+    [order] => 2
+)
+
+[2024-12-16 15:10:53] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 6
+                                    [section_id] => 7
+                                    [question_text] => fasdfasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => undefined
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => undefined
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => undefined
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                        )
+
+                                )
+
+                            [1] => Array
+                                (
+                                    [question_id] => 7
+                                    [section_id] => 7
+                                    [question_text] => fsadfsd
+                                    [question_type] => true_false
+                                    [points] => 1
+                                    [order] => 1
+                                    [correct_answer] => false
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-16 15:10:53] debug: Option data: Array
+(
+    [text] => undefined
+    [is_correct] => 0
+    [order] => 0
+)
+
+[2024-12-16 15:10:53] debug: Option data: Array
+(
+    [text] => undefined
+    [is_correct] => 1
+    [order] => 1
+)
+
+[2024-12-16 15:10:53] debug: Option data: Array
+(
+    [text] => undefined
+    [is_correct] => 0
+    [order] => 2
+)
+

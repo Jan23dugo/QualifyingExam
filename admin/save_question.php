@@ -179,6 +179,21 @@ try {
                                 }
                                 break;
 
+                            case 'true_false':
+                                // Update the question's correct answer
+                                $stmt = $conn->prepare("UPDATE questions SET correct_answer = ? WHERE question_id = ?");
+                                if (!$stmt) {
+                                    throw new Exception("Failed to prepare true/false answer update statement: " . $conn->error);
+                                }
+                                
+                                $correct_answer = $question['correct_answer'];
+                                $stmt->bind_param("si", $correct_answer, $question_id);
+                                
+                                if (!$stmt->execute()) {
+                                    throw new Exception("Failed to save true/false answer: " . $stmt->error);
+                                }
+                                break;
+
                             case 'programming':
                                 // Clear existing test cases
                                 $stmt = $conn->prepare("DELETE FROM test_cases WHERE question_id = ?");
@@ -223,7 +238,23 @@ try {
         $sections = [];
         while ($section = $sections_result->fetch_assoc()) {
             // Fetch questions for this section
-            $questions_stmt = $conn->prepare("SELECT * FROM questions WHERE section_id = ? ORDER BY question_order");
+            $questions_stmt = $conn->prepare("
+                SELECT 
+                    question_id,
+                    exam_id,
+                    section_id,
+                    question_text,
+                    question_type,
+                    points,
+                    question_order,
+                    correct_answer,
+                    programming_language,
+                    created_at,
+                    updated_at
+                FROM questions 
+                WHERE section_id = ? 
+                ORDER BY question_order
+            ");
             $questions_stmt->bind_param("i", $section['section_id']);
             $questions_stmt->execute();
             $questions_result = $questions_stmt->get_result();

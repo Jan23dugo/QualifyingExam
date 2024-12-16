@@ -339,6 +339,18 @@ document.addEventListener('DOMContentLoaded', function() {
         optionsContainer.innerHTML = '';
 
         switch (select.value) {
+            case 'true_false':
+                optionsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Correct Answer:</label>
+                        <select class="form-control" name="correct_answer[${sectionId}][${questionIndex}]" style="width: 200px;">
+                            <option value="true" ${existingData && existingData.correct_answer === 'true' ? 'selected' : ''}>True</option>
+                            <option value="false" ${existingData && existingData.correct_answer === 'false' ? 'selected' : ''}>False</option>
+                        </select>
+                    </div>
+                `;
+                break;
+
             case 'multiple_choice':
                 optionsContainer.innerHTML = `
                     <div class="multiple-choice-options">
@@ -392,18 +404,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     addMultipleChoiceOption(optionsContainer, sectionId, questionIndex);
                     addMultipleChoiceOption(optionsContainer, sectionId, questionIndex);
                 }
-                break;
-
-            case 'true_false':
-                optionsContainer.innerHTML = `
-                    <div class="true-false-option">
-                        <select class="form-control" name="correct_answer[${sectionId}][${questionIndex}]" style="width: 200px;">
-                            <option value="">Select Correct Answer</option>
-                            <option value="true" ${existingData && existingData.correct_answer === 'true' ? 'selected' : ''}>True</option>
-                            <option value="false" ${existingData && existingData.correct_answer === 'false' ? 'selected' : ''}>False</option>
-                        </select>
-                    </div>
-                `;
                 break;
 
             case 'programming':
@@ -637,7 +637,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         break;
 
                     case 'true_false':
-                        questionData.correct_answer = questionBlock.querySelector('select[name^="correct_answer"]').value;
+                        const correctAnswerSelect = questionBlock.querySelector('select[name^="correct_answer"]');
+                        if (correctAnswerSelect) {
+                            questionData.correct_answer = correctAnswerSelect.value;
+                        }
                         break;
 
                     case 'programming':
