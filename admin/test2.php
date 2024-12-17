@@ -452,6 +452,85 @@ while ($row = $result->fetch_assoc()) {
     .toolbar-btn.active {
         background: #e0e0e0;
         color: #000;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .test-case {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+
+    .hidden-test-case-description {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #dee2e6;
+    }
+
+    .test-case .input-group-text label { margin-bottom: 0; }
+
+    /* Add these styles for hidden test cases */
+    .hidden-test-case {
+        background-color: rgba(255, 193, 7, 0.05);
+        border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .hidden-test-case input.form-control {
+        background-color: rgba(255, 193, 7, 0.05);
+    }
+
+    .hidden-test-case .input-group-text {
+        background-color: #ffc107;
+        border-color: rgba(255, 193, 7, 0.5);
+    }
+
+    .hidden-test-case-description .alert {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Add these styles for test cases */
+    .test-case {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+
+    .input-group-text {
+        display: flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+    }
+
+    .input-group-text input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    .hidden-test-case {
+        background-color: rgba(255, 193, 7, 0.05);
+    }
+
+    .hidden-test-case .input-group-text {
+        background-color: #ffc107;
+        border-color: rgba(255, 193, 7, 0.5);
+    }
+
+    .hidden-test-case-description {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #dee2e6;
+    }
+
+    .hidden-test-case-description .alert {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
     }
   </style>
 
@@ -650,5 +729,68 @@ while ($row = $result->fetch_assoc()) {
         </div>
     </div>
 </div>
+
+<!-- Add this modal for programming test cases -->
+<div class="modal fade" id="addTestCaseModal" tabindex="-1" aria-labelledby="addTestCaseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTestCaseModalLabel">Add Test Case</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Input</label>
+          <textarea class="form-control" id="testCaseInput" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Expected Output</label>
+          <textarea class="form-control" id="testCaseOutput" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="testCaseHidden">
+            <label class="form-check-label" for="testCaseHidden">
+              Hidden Test Case
+            </label>
+          </div>
+        </div>
+        <div class="mb-3 hidden-description" style="display: none;">
+          <label class="form-label">Description (shown to students for hidden test cases)</label>
+          <input type="text" class="form-control" id="testCaseDescription" placeholder="Optional description">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTestCase">Add Test Case</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add this script section at the end of the file -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize test case modal functionality
+    const testCaseModal = document.getElementById('addTestCaseModal');
+    const testCaseHidden = document.getElementById('testCaseHidden');
+    const hiddenDescription = testCaseModal.querySelector('.hidden-description');
+
+    // Show/hide description field when hidden checkbox changes
+    testCaseHidden.addEventListener('change', function() {
+        hiddenDescription.style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Reset modal when it's hidden
+    testCaseModal.addEventListener('hidden.bs.modal', function() {
+        testCaseModal.querySelector('#testCaseInput').value = '';
+        testCaseModal.querySelector('#testCaseOutput').value = '';
+        testCaseHidden.checked = false;
+        testCaseModal.querySelector('#testCaseDescription').value = '';
+        hiddenDescription.style.display = 'none';
+    });
+});
+</script>
+
 </body>
 </html>

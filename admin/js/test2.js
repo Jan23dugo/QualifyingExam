@@ -17,10 +17,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to load existing sections and questions
     function loadSectionsAndQuestions(sections) {
+        console.log('Starting to load sections and questions:', sections);
         const sectionBlocks = document.getElementById('sectionBlocks');
+        if (!sectionBlocks) {
+            console.error('sectionBlocks element not found');
+            return;
+        }
         sectionBlocks.innerHTML = ''; // Clear existing content
         
         sections.forEach(section => {
+            console.log('Processing section:', section);
             const newSection = document.createElement('div');
             newSection.classList.add('section-block');
             newSection.setAttribute('data-section-id', section.section_id);
@@ -182,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fetch existing data when page loads
     if (exam_id) {
+        console.log('Fetching exam data for exam_id:', exam_id);
         fetch(`save_question.php?exam_id=${exam_id}`, {
             method: 'GET',
             headers: {
@@ -190,12 +197,17 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Received data:', data);
             if (data.sections) {
+                console.log('Loading sections:', data.sections);
                 loadSectionsAndQuestions(data.sections);
+            } else {
+                console.log('No sections found in response');
             }
         })
         .catch(error => {
             console.error('Error fetching exam data:', error);
+            alert('Error loading exam data. Please check the console for details.');
         });
     }
 
@@ -359,9 +371,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         </button>
                     </div>
                 `;
+
                 const addOptionBtn = optionsContainer.querySelector('.add-option-btn');
                 addOptionBtn.addEventListener('click', () => addMultipleChoiceOption(optionsContainer, sectionId, questionIndex));
-
+                
                 // Load existing options if available
                 if (existingData && existingData.options) {
                     existingData.options.forEach((option, index) => {
@@ -373,10 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="input-group">
                                 <input type="text" class="form-control" 
                                     name="options[${sectionId}][${questionIndex}][]" 
-                                    value="${option.option_text}"
+                                    value="${option.text}"
                                     placeholder="Option ${index + 1}">
-                                <input type="hidden" name="option_id[${sectionId}][${questionIndex}][]" 
-                                    value="${option.option_id}">
                                 <div class="input-group-append">
                                     <div class="input-group-text">
                                         <input type="radio" name="correct_answer[${sectionId}][${questionIndex}]" 
@@ -434,14 +445,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" 
                                     name="test_case_input[${sectionId}][${questionIndex}][]" 
-                                    value="${testCase.input_data}"
-                                    placeholder="Input">
-                                <input type="hidden" name="test_case_id[${sectionId}][${questionIndex}][]" 
-                                    value="${testCase.test_case_id}">
+                                    value="${testCase.test_input}" readonly>
                                 <input type="text" class="form-control" 
                                     name="test_case_output[${sectionId}][${questionIndex}][]" 
                                     value="${testCase.expected_output}"
                                     placeholder="Expected Output">
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" 
+                                            name="test_case_hidden[${sectionId}][${questionIndex}][]" 
+                                            class="test-case-hidden"
+                                            ${testCase.is_hidden ? 'checked' : ''}
+                                            title="Hidden Test Case">
+                                        <label class="ms-2 mb-0">Hidden</label>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn btn-link text-danger remove-test-case-btn" style="padding: 5px;">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -463,9 +481,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Add multiple choice option
-    function addMultipleChoiceOption(container, sectionId, questionIndex) {
-        const optionsDiv = container.querySelector('.multiple-choice-options');
-        const optionCount = optionsDiv.querySelectorAll('.option-container').length;
+    function addMultipleChoiceOption(optionsContainer, sectionId, questionIndex) {
+        const optionsDiv = optionsContainer.querySelector('.multiple-choice-options');
+        const optionIndex = optionsDiv.querySelectorAll('.option-container').length;
         
         const optionDiv = document.createElement('div');
         optionDiv.classList.add('option-container');
@@ -474,11 +492,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="input-group">
                 <input type="text" class="form-control" 
                     name="options[${sectionId}][${questionIndex}][]" 
-                    placeholder="Option ${optionCount + 1}">
+                    placeholder="Option ${optionIndex + 1}">
                 <div class="input-group-append">
                     <div class="input-group-text">
                         <input type="radio" name="correct_answer[${sectionId}][${questionIndex}]" 
-                            value="${optionCount}">
+                            value="${optionIndex}">
                         <label style="margin-left: 5px;">Correct</label>
                     </div>
                 </div>
@@ -487,9 +505,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
         `;
-
+        
         // Insert before the Add Option button
-        const addButton = container.querySelector('.add-option-btn');
+        const addButton = optionsContainer.querySelector('.add-option-btn');
         optionsDiv.insertBefore(optionDiv, addButton);
 
         // Add event listener for remove button
@@ -498,11 +516,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add test case
+    // Update the addTestCase function to show the hidden test case option in the initial view
     function addTestCase(container, sectionId, questionIndex) {
         const testCasesDiv = container.querySelector('.test-cases');
-        const testCaseCount = testCasesDiv.children.length;
-        
         const testCaseDiv = document.createElement('div');
         testCaseDiv.classList.add('test-case');
         testCaseDiv.style.marginBottom = '10px';
@@ -514,18 +530,110 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="text" class="form-control" 
                     name="test_case_output[${sectionId}][${questionIndex}][]" 
                     placeholder="Expected Output">
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <input type="checkbox" 
+                            name="test_case_hidden[${sectionId}][${questionIndex}][]" 
+                            class="test-case-hidden"
+                            title="Hidden Test Case">
+                        <label class="ms-2 mb-0">Hidden</label>
+                    </div>
+                </div>
                 <button type="button" class="btn btn-link text-danger remove-test-case-btn" style="padding: 5px;">
                     <i class="fas fa-trash-alt"></i>
                 </button>
+            </div>
+            <div class="hidden-test-case-description" style="display: none;">
+                <div class="alert alert-warning">
+                    <small><i class="fas fa-info-circle"></i> This is a hidden test case. Students won't see the input/output.</small>
+                </div>
+                <input type="text" class="form-control" 
+                    name="test_case_description[${sectionId}][${questionIndex}][]" 
+                    placeholder="Description (optional, shown to students for hidden test cases)">
             </div>
         `;
 
         testCasesDiv.appendChild(testCaseDiv);
 
-        // Add event listener for remove button
+        // Add event listeners
+        const hiddenCheckbox = testCaseDiv.querySelector('.test-case-hidden');
+        const descriptionDiv = testCaseDiv.querySelector('.hidden-test-case-description');
+        const inputGroup = testCaseDiv.querySelector('.input-group');
+        
+        if (hiddenCheckbox && descriptionDiv) {
+            hiddenCheckbox.addEventListener('change', function() {
+                const isNowHidden = this.checked;
+                descriptionDiv.style.display = isNowHidden ? 'block' : 'none';
+                inputGroup.classList.toggle('hidden-test-case', isNowHidden);
+                
+                // Update the eye icon and warning background
+                const prependDiv = inputGroup.querySelector('.input-group-prepend');
+                if (isNowHidden) {
+                    if (!prependDiv) {
+                        inputGroup.insertAdjacentHTML('afterbegin', 
+                            '<div class="input-group-prepend"><span class="input-group-text bg-warning text-dark"><i class="fas fa-eye-slash"></i></span></div>'
+                        );
+                    }
+                    inputGroup.querySelector('.input-group-text').classList.add('bg-warning');
+                } else {
+                    if (prependDiv) prependDiv.remove();
+                    inputGroup.querySelector('.input-group-text').classList.remove('bg-warning');
+                }
+            });
+        }
+
         testCaseDiv.querySelector('.remove-test-case-btn').addEventListener('click', function() {
             testCaseDiv.remove();
         });
+    }
+
+    // Update the handleProgrammingImport function to include the "Add Test Case" button
+    function handleProgrammingImport(questionData, sectionId, questionIndex, questionElement) {
+        const optionsContainer = questionElement.querySelector('.question-options');
+        optionsContainer.innerHTML = `
+            <div class="programming-options">
+                <select class="form-control mb-3" name="programming_language[${sectionId}][${questionIndex}]">
+                    <option value="python" ${questionData.programming_language === 'python' ? 'selected' : ''}>Python</option>
+                    <option value="java" ${questionData.programming_language === 'java' ? 'selected' : ''}>Java</option>
+                    <option value="c" ${questionData.programming_language === 'c' ? 'selected' : ''}>C</option>
+                </select>
+                <div class="test-cases mt-3">
+                    ${questionData.test_cases ? questionData.test_cases.map(test => `
+                        <div class="test-case mb-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" 
+                                    name="test_case_input[${sectionId}][${questionIndex}][]" 
+                                    value="${test.test_input}" readonly>
+                                <input type="text" class="form-control" 
+                                    name="test_case_output[${sectionId}][${questionIndex}][]" 
+                                    value="${test.expected_output}" readonly>
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" 
+                                            name="test_case_hidden[${sectionId}][${questionIndex}][]" 
+                                            class="test-case-hidden"
+                                            ${test.is_hidden ? 'checked' : ''}
+                                            title="Hidden Test Case">
+                                        <label class="ms-2 mb-0">Hidden</label>
+                                    </div>
+                                </div>
+                            </div>
+                            ${test.is_hidden ? `
+                            <div class="hidden-test-case-description" style="display: block;">
+                                <input type="text" class="form-control" 
+                                    name="test_case_description[${sectionId}][${questionIndex}][]" 
+                                    value="${test.description || ''}"
+                                    placeholder="Description (optional, shown to students for hidden test cases)">
+                            </div>
+                            ` : ''}
+                        </div>
+                    `).join('') : ''}
+                </div>
+                <button type="button" class="btn btn-secondary add-test-case-btn mt-2" onclick="addTestCase(this.closest('.programming-options'), ${sectionId}, ${questionIndex})">
+                    Add Test Case
+                </button>
+            </div>
+        `;
     }
 
     // Event Listeners
@@ -616,9 +724,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const questionData = {
                     question_id: questionBlock.getAttribute('data-original-question-id') || null,
                     section_id: sectionId.startsWith('new_') ? null : sectionId,
-                    question_text: questionBlock.querySelector('.question-field').innerHTML,
-                    question_type: questionBlock.querySelector('.question-type-select').value,
-                    points: parseInt(questionBlock.querySelector('input[name^="points"]').value) || 0,
+                    question_text: questionBlock.querySelector('.question-field')?.innerHTML || '',
+                    question_type: questionBlock.querySelector('.question-type-select')?.value || '',
+                    points: parseInt(questionBlock.querySelector('input[name^="points"]')?.value) || 0,
                     order: questionIndex
                 };
 
@@ -627,11 +735,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'multiple_choice':
                         const options = [];
                         questionBlock.querySelectorAll('.option-container').forEach((optionContainer, optionIndex) => {
-                            options.push({
-                                text: optionContainer.querySelector('input[type="text"]').value,
-                                is_correct: optionContainer.querySelector('input[type="radio"]').checked ? 1 : 0,
-                                order: optionIndex
-                            });
+                            const optionText = optionContainer.querySelector('input[type="text"]')?.value;
+                            const isCorrect = optionContainer.querySelector('input[type="radio"]')?.checked;
+                            
+                            if (optionText?.trim() !== '') {  // Only add non-empty options
+                                options.push({
+                                    text: optionText,
+                                    is_correct: isCorrect ? 1 : 0,
+                                    order: optionIndex
+                                });
+                            }
                         });
                         questionData.options = options;
                         break;
@@ -645,13 +758,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     case 'programming':
                         const testCases = [];
-                        questionBlock.querySelectorAll('.test-case').forEach((testCase, testIndex) => {
-                            testCases.push({
-                                input: testCase.querySelector('input[name^="test_case_input"]').value,
-                                expected_output: testCase.querySelector('input[name^="test_case_output"]').value,
-                                order: testIndex
+                        const testCaseContainers = questionBlock.querySelectorAll('.test-case');
+                        
+                        console.log('Found test cases:', testCaseContainers.length); // Debug log
+                        
+                        testCaseContainers.forEach((testCase, testIndex) => {
+                            // Safely get input and output values
+                            const inputElement = testCase.querySelector('input[name^="test_case_input"]');
+                            const outputElement = testCase.querySelector('input[name^="test_case_output"]');
+                            const hiddenElement = testCase.querySelector('input[name^="test_case_hidden"]');
+                            const descriptionElement = testCase.querySelector('input[name^="test_case_description"]');
+
+                            console.log('Test case elements:', { // Debug log
+                                input: inputElement?.value,
+                                output: outputElement?.value,
+                                hidden: hiddenElement?.checked,
+                                description: descriptionElement?.value
                             });
+
+                            if (inputElement && outputElement) {
+                                const testCase = {
+                                    test_input: inputElement.value,
+                                    expected_output: outputElement.value,
+                                    is_hidden: hiddenElement ? hiddenElement.checked : false,
+                                    description: descriptionElement ? descriptionElement.value : '',
+                                    order: testIndex
+                                };
+                                console.log('Adding test case:', testCase); // Debug log
+                                testCases.push(testCase);
+                            }
                         });
+                        
+                        // Add programming language
+                        const languageSelect = questionBlock.querySelector('select[name^="programming_language"]');
+                        questionData.programming_language = languageSelect ? languageSelect.value : 'python';
                         questionData.test_cases = testCases;
                         break;
                 }
@@ -679,7 +819,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Response:', data);
+            console.log('Response from server:', data); // Debug log
             if (data.success) {
                 alert('Questions saved successfully!');
                 window.location.reload();
@@ -1001,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const optionsContainer = questionElement.querySelector('.question-options');
         optionsContainer.innerHTML = `
             <div class="programming-options">
-                <select class="form-control" name="programming_language[${sectionId}][${questionIndex}]">
+                <select class="form-control mb-3" name="programming_language[${sectionId}][${questionIndex}]">
                     <option value="python" ${questionData.programming_language === 'python' ? 'selected' : ''}>Python</option>
                     <option value="java" ${questionData.programming_language === 'java' ? 'selected' : ''}>Java</option>
                     <option value="c" ${questionData.programming_language === 'c' ? 'selected' : ''}>C</option>
@@ -1010,18 +1150,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${questionData.test_cases ? questionData.test_cases.map(test => `
                         <div class="test-case mb-2">
                             <div class="input-group">
-                                <span class="input-group-text">Input</span>
                                 <input type="text" class="form-control" 
                                     name="test_case_input[${sectionId}][${questionIndex}][]" 
                                     value="${test.test_input}" readonly>
-                                <span class="input-group-text">Output</span>
                                 <input type="text" class="form-control" 
                                     name="test_case_output[${sectionId}][${questionIndex}][]" 
                                     value="${test.expected_output}" readonly>
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" 
+                                            name="test_case_hidden[${sectionId}][${questionIndex}][]" 
+                                            class="test-case-hidden"
+                                            ${test.is_hidden ? 'checked' : ''}
+                                            title="Hidden Test Case">
+                                        <label class="ms-2 mb-0">Hidden</label>
+                                    </div>
+                                </div>
                             </div>
+                            ${test.is_hidden ? `
+                            <div class="hidden-test-case-description" style="display: block;">
+                                <input type="text" class="form-control" 
+                                    name="test_case_description[${sectionId}][${questionIndex}][]" 
+                                    value="${test.description || ''}"
+                                    placeholder="Description (optional, shown to students for hidden test cases)">
+                            </div>
+                            ` : ''}
                         </div>
                     `).join('') : ''}
                 </div>
+                <button type="button" class="btn btn-secondary add-test-case-btn mt-2" onclick="addTestCase(this.closest('.programming-options'), ${sectionId}, ${questionIndex})">
+                    Add Test Case
+                </button>
             </div>
         `;
     }
