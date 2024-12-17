@@ -319,11 +319,15 @@ $unscheduled_exams = array();
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Event Type:</label>
-                            <select class="form-control" name="event_type">
+                            <select class="form-control" name="event_type" id="eventType" onchange="toggleSpecificEventType()">
                                 <option value="meeting">Meeting</option>
                                 <option value="reminder">Reminder</option>
                                 <option value="other">Other</option>
                             </select>
+                        </div>
+                        <div class="mb-3" id="specificEventTypeContainer" style="display: none;">
+                            <label class="form-label">Specific Event Type:</label>
+                            <input type="text" class="form-control" name="specific_event_type" id="specificEventType">
                         </div>
                     </form>
                 </div>
@@ -349,6 +353,8 @@ $unscheduled_exams = array();
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
+            var inlineEvents = <?php echo json_encode($events); ?>; // PHP inline events
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 headerToolbar: {
@@ -356,12 +362,24 @@ $unscheduled_exams = array();
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
                 },
-                events: <?php echo json_encode($events); ?>,
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    // Fetch external events
+                    fetch('calendar_events.php')
+                        .then(response => response.json())
+                        .then(function(externalEvents) {
+                            // Combine inline and external events
+                            var allEvents = inlineEvents.concat(externalEvents);
+                            successCallback(allEvents);
+                        })
+                        .catch(function(error) {
+                            console.error('Error fetching events:', error);
+                            failureCallback(error);
+                        });
+                },
                 eventClick: function(info) {
                     showEventDetails(info.event);
                 },
-                // Add event drop handling for drag and drop scheduling
-                editable: true,
+                editable: true, // Enable drag and drop
                 eventDrop: function(info) {
                     updateExamSchedule(
                         info.event.id,
@@ -370,8 +388,8 @@ $unscheduled_exams = array();
                     );
                 }
             });
+
             calendar.render();
-            
             updateCalendarStats();
         });
 
@@ -499,9 +517,33 @@ $unscheduled_exams = array();
             });
         }
 
+        function toggleSpecificEventType() {
+            const eventType = document.getElementById('eventType').value;
+            const specificEventTypeContainer = document.getElementById('specificEventTypeContainer');
+            const specificEventTypeInput = document.getElementById('specificEventType');
+            
+            if (eventType === 'other') {
+                specificEventTypeContainer.style.display = 'block';
+                specificEventTypeInput.required = true; // Set as required when visible
+            } else {
+                specificEventTypeContainer.style.display = 'none';
+                specificEventTypeInput.value = ''; // Clear value if hidden
+                specificEventTypeInput.required = false; // Remove required attribute
+            }
+        }
+
         function saveEvent() {
             const form = document.getElementById('createEventForm');
             const formData = new FormData(form);
+
+            // Check if "Other" is selected and replace event_type with the specific event type
+            const eventType = formData.get('event_type');
+            const specificEventType = formData.get('specific_event_type');
+            
+            if (eventType === 'other' && specificEventType) {
+                formData.set('event_type', specificEventType); // Replace "other" with the specific event type
+                formData.delete('specific_event_type'); // Remove the specific_event_type field
+            }
             
             fetch('handlers/save_event.php', {
                 method: 'POST',
