@@ -182,19 +182,20 @@ try {
 
                                 // Insert new options
                                 if (isset($question['options']) && is_array($question['options'])) {
+                                    error_log("Processing options: " . print_r($question['options'], true));
+                                    
                                     foreach ($question['options'] as $option) {
-                                        // Debug log to see what data we're getting
-                                        logError("Option data: " . print_r($option, true), 'debug');
-                                        
+                                        if (empty($option['text'])) {
+                                            continue;
+                                        }
+
                                         $stmt = $conn->prepare("INSERT INTO multiple_choice_options (
                                             question_id, 
                                             choice_text, 
                                             is_correct
                                         ) VALUES (?, ?, ?)");
                                         
-                                        if (!$stmt) {
-                                            throw new Exception("Failed to prepare option insert statement: " . $conn->error);
-                                        }
+                                        error_log("Saving option: " . print_r($option, true));
                                         
                                         $stmt->bind_param("isi", 
                                             $question_id, 
@@ -371,11 +372,22 @@ try {
                 
                 // Add question type specific data
                 if ($question['question_type'] === 'multiple_choice') {
-                    $options_stmt = $conn->prepare("SELECT * FROM multiple_choice_options WHERE question_id = ?");
+                    error_log("Fetching options for question ID: " . $question['question_id']);
+                    $options_stmt = $conn->prepare("
+                        SELECT 
+                            option_id,
+                            question_id,
+                            choice_text as text,
+                            is_correct 
+                        FROM multiple_choice_options 
+                        WHERE question_id = ?
+                        ORDER BY option_id
+                    ");
                     $options_stmt->bind_param("i", $question['question_id']);
                     $options_stmt->execute();
                     $options_result = $options_stmt->get_result();
                     $question['options'] = $options_result->fetch_all(MYSQLI_ASSOC);
+                    error_log("Fetched options: " . print_r($question['options'], true));
                 } else if ($question['question_type'] === 'programming') {
                     $test_cases_stmt = $conn->prepare("SELECT * FROM test_cases WHERE question_id = ? ORDER BY test_case_id");
                     $test_cases_stmt->bind_param("i", $question['question_id']);

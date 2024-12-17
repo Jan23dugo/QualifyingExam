@@ -152,28 +152,57 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (questionData && questionData.question_type === 'multiple_choice' && questionData.options) {
             const optionsContainer = newQuestion.querySelector('.question-options');
+            console.log('Question Data for Multiple Choice:', questionData);
+            console.log('Options from database:', questionData.options);
+
+            optionsContainer.innerHTML = `
+                <div class="multiple-choice-options">
+                    <!-- Options will be inserted here -->
+                </div>
+                <button type="button" class="btn btn-secondary add-option-btn" style="margin-bottom: 10px;">
+                    Add Option
+                </button>
+            `;
+
             questionData.options.forEach((option, index) => {
+                console.log('Processing option:', option);
                 const optionHtml = `
                     <div class="option-container" style="margin-bottom: 10px;">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
                                     <input type="radio" name="correct_option[${sectionId}][${questionIndex}]" 
-                                        ${option.is_correct ? 'checked' : ''}>
+                                        ${parseInt(option.is_correct) === 1 ? 'checked' : ''}>
                                 </div>
                             </div>
                             <input type="text" class="form-control" 
-                                value="${option.text}" 
+                                name="options[${sectionId}][${questionIndex}][]"
+                                value="${option.choice_text}"
                                 placeholder="Enter option text">
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-danger delete-option-btn">
-                                    <i class="fas fa-times"></i>
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 `;
-                optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+
+                const optionsDiv = optionsContainer.querySelector('.multiple-choice-options');
+                optionsDiv.insertAdjacentHTML('beforeend', optionHtml);
+            });
+
+            // Add event listeners for delete buttons after adding all options
+            optionsContainer.querySelectorAll('.delete-option-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.option-container').remove();
+                });
+            });
+
+            // Add event listener for Add Option button
+            const addOptionBtn = optionsContainer.querySelector('.add-option-btn');
+            addOptionBtn.addEventListener('click', () => {
+                addMultipleChoiceOption(optionsContainer, sectionId, questionIndex);
             });
         }
 
@@ -221,31 +250,43 @@ document.addEventListener('DOMContentLoaded', function() {
         newSection.setAttribute('data-section-id', 'new_' + sectionCounter);
         newSection.setAttribute('data-exam-id', exam_id);
 
-        newSection.innerHTML = `
-            <div class="title-block">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+        // Create section header with toggle and counter
+        const sectionHeader = `
+            <div class="section-header">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-chevron-down toggle-icon me-2"></i>
                     <div class="form-control editable-field section-field" 
                         contenteditable="true" 
                         data-placeholder="Untitled Section"
-                        data-input-name="section_title[${sectionCounter}]"
-                        style="flex: 1; margin-right: 10px;"></div>
-                    <input type="hidden" name="section_title[${sectionCounter}]">
-                    <input type="hidden" name="section_id[${sectionCounter}]" value="new_${sectionCounter}">
-                    <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                        data-input-name="section_title[${sectionCounter}]">${section.title || ''}</div>
                 </div>
+                <span class="question-count">0 Questions</span>
             </div>
-            <div class="description-block">
-                <div class="form-control editable-field section-field" 
-                    contenteditable="true" 
-                    data-placeholder="Description (optional)"
-                    data-input-name="section_description[${sectionCounter}]"></div>
-                <input type="hidden" name="section_description[${sectionCounter}]">
-            </div>
-            <div id="question-container-${sectionCounter}" class="question-block-container"></div>
-            <input type="hidden" name="exam_id" value="${exam_id}">
         `;
+
+        // Create section content (initially hidden)
+        const sectionContent = `
+            <div class="section-content">
+                <div class="description-block">
+                    <div class="form-control editable-field section-field" 
+                        contenteditable="true" 
+                        data-placeholder="Description (optional)"
+                        data-input-name="section_description[${sectionCounter}]"></div>
+                </div>
+                <div class="search-filter-container">
+                    <input type="text" class="form-control section-search" placeholder="Search questions...">
+                    <div class="filter-options mt-2">
+                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-type="all">All</button>
+                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-type="multiple_choice">Multiple Choice</button>
+                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-type="programming">Programming</button>
+                    </div>
+                </div>
+                <div id="question-container-${sectionCounter}" class="question-block-container"></div>
+                <div class="questions-pagination"></div>
+            </div>
+        `;
+
+        newSection.innerHTML = sectionHeader + sectionContent;
 
         document.getElementById('sectionBlocks').appendChild(newSection);
 
@@ -465,6 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                             </div>
                         `;
+                        
                         testCasesDiv.appendChild(testCaseDiv);
 
                         // Add event listener for remove button
@@ -490,8 +532,9 @@ document.addEventListener('DOMContentLoaded', function() {
         optionDiv.style.marginBottom = '10px';
         optionDiv.innerHTML = `
             <div class="input-group">
-                <input type="text" class="form-control" 
+                <input type="text" class="form-control option-text" 
                     name="options[${sectionId}][${questionIndex}][]" 
+                    value="Option ${optionIndex + 1}"
                     placeholder="Option ${optionIndex + 1}">
                 <div class="input-group-append">
                     <div class="input-group-text">
@@ -735,17 +778,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'multiple_choice':
                         const options = [];
                         questionBlock.querySelectorAll('.option-container').forEach((optionContainer, optionIndex) => {
-                            const optionText = optionContainer.querySelector('input[type="text"]')?.value;
+                            const optionInput = optionContainer.querySelector('input[type="text"]');
+                            console.log('Option input element:', optionInput); // Debug log
+                            const optionText = optionInput?.value;
                             const isCorrect = optionContainer.querySelector('input[type="radio"]')?.checked;
                             
                             if (optionText?.trim() !== '') {  // Only add non-empty options
                                 options.push({
-                                    text: optionText,
+                                    text: optionText,         // This should match what save_question.php expects
                                     is_correct: isCorrect ? 1 : 0,
                                     order: optionIndex
                                 });
                             }
                         });
+                        console.log('Saving options:', options);
                         questionData.options = options;
                         break;
 
@@ -801,6 +847,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
             sections.push(section);
         });
+
+        // Log the options before sending to the server
+        const questionsData = sections.map(section => {
+            return {
+                section_id: section.section_id,
+                questions: section.questions.map(question => {
+                    console.log('Question data before sending:', question);
+                    return {
+                        question_id: question.question_id,
+                        question_text: question.question_text,
+                        question_type: question.question_type,
+                        options: question.options,
+                        points: question.points,
+                        order: question.order
+                    };
+                })
+            };
+        });
+        console.log('Final data to send:', JSON.stringify({ exam_id, sections: questionsData }));
 
         const data = {
             exam_id: parseInt(exam_id),
@@ -1361,6 +1426,92 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.appendChild(hiddenInput);
                 }
             });
+        });
+    }
+
+    // Add these functions to handle pagination and search
+    function initializeSectionControls() {
+        // Toggle section content
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                header.classList.toggle('active');
+                content.classList.toggle('show');
+            });
+        });
+
+        // Search functionality
+        document.querySelectorAll('.section-search').forEach(searchInput => {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const section = searchInput.closest('.section-block');
+                const questions = section.querySelectorAll('.question-block');
+                
+                questions.forEach(question => {
+                    const text = question.textContent.toLowerCase();
+                    question.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                });
+                updatePagination(section);
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const filterType = e.target.dataset.type;
+                const section = btn.closest('.section-block');
+                const questions = section.querySelectorAll('.question-block');
+                
+                questions.forEach(question => {
+                    if (filterType === 'all') {
+                        question.style.display = 'block';
+                    } else {
+                        const questionType = question.dataset.questionType;
+                        question.style.display = questionType === filterType ? 'block' : 'none';
+                    }
+                });
+                updatePagination(section);
+            });
+        });
+    }
+
+    // Initialize pagination
+    function initializePagination(section, questionsPerPage = 10) {
+        const questions = section.querySelectorAll('.question-block:not([style*="display: none"])');
+        const pageCount = Math.ceil(questions.length / questionsPerPage);
+        const paginationContainer = section.querySelector('.questions-pagination');
+        
+        // Create pagination buttons
+        let paginationHTML = '';
+        for (let i = 1; i <= pageCount; i++) {
+            paginationHTML += `<button class="page-button ${i === 1 ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        }
+        paginationContainer.innerHTML = paginationHTML;
+
+        // Show first page
+        showPage(section, 1, questionsPerPage);
+
+        // Add click handlers to pagination buttons
+        paginationContainer.querySelectorAll('.page-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const page = parseInt(button.dataset.page);
+                showPage(section, page, questionsPerPage);
+                
+                // Update active button
+                paginationContainer.querySelectorAll('.page-button').forEach(btn => {
+                    btn.classList.toggle('active', btn === button);
+                });
+            });
+        });
+    }
+
+    function showPage(section, pageNumber, questionsPerPage) {
+        const questions = section.querySelectorAll('.question-block:not([style*="display: none"])');
+        const startIndex = (pageNumber - 1) * questionsPerPage;
+        const endIndex = startIndex + questionsPerPage;
+
+        questions.forEach((question, index) => {
+            question.style.display = (index >= startIndex && index < endIndex) ? 'block' : 'none';
         });
     }
 });
