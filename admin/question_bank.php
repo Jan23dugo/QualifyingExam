@@ -174,17 +174,6 @@ include('../config/config.php');
                                                 ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <select class="form-control" id="typeFilter">
-                                                <option value="">All Question Types</option>
-                                                <option value="multiple_choice">Multiple Choice</option>
-                                                <option value="true_false">True/False</option>
-                                                <option value="essay">Essay</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control" id="searchInput" placeholder="Search questions...">
-                                        </div>
                                     </div>
 
                                     <!-- Questions Table -->
