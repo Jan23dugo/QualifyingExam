@@ -43,10 +43,30 @@ try {
 
         $exam_id = intval($data['exam_id']);
 
-        // Start transaction
+        // Start transaction BEFORE any database operations
         $conn->begin_transaction();
 
         try {
+            // Handle deleted questions first
+            if (isset($data['deleted_questions']) && is_array($data['deleted_questions'])) {
+                foreach ($data['deleted_questions'] as $question_id) {
+                    // Delete the question directly (related data will be deleted automatically via foreign key constraints)
+                    $delete_stmt = $conn->prepare("DELETE FROM questions WHERE question_id = ?");
+                    if (!$delete_stmt) {
+                        error_log("Error preparing delete question statement: " . $conn->error);
+                        continue;
+                    }
+                    $delete_stmt->bind_param("i", $question_id);
+                    $result = $delete_stmt->execute();
+                    
+                    if ($result) {
+                        error_log("Successfully deleted question ID: " . $question_id);
+                    } else {
+                        error_log("Failed to delete question ID: " . $question_id . ". Error: " . $delete_stmt->error);
+                    }
+                }
+            }
+
             // Get all existing sections for this exam
             $existing_sections = [];
             $stmt = $conn->prepare("SELECT section_id FROM sections WHERE exam_id = ?");

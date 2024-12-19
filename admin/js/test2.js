@@ -241,10 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Add Section functionality
-    function addSection() {
-        sectionCounter++;
-        const exam_id = new URLSearchParams(window.location.search).get('exam_id');
-        
+    function addSection(sectionData = null) {
         const newSection = document.createElement('div');
         newSection.classList.add('section-block');
         newSection.setAttribute('data-section-id', 'new_' + sectionCounter);
@@ -252,43 +249,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Create section header with toggle and counter
         const sectionHeader = `
-            <div class="section-header">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-chevron-down toggle-icon me-2"></i>
+            <div class="title-block">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="form-control editable-field section-field" 
                         contenteditable="true" 
                         data-placeholder="Untitled Section"
-                        data-input-name="section_title[${sectionCounter}]">${section.title || ''}</div>
+                        data-input-name="section_title[${sectionCounter}]"></div>
+                    <input type="hidden" name="section_title[${sectionCounter}]" value="">
+                    <button type="button" class="delete-button btn btn-link text-danger" style="padding: 5px;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
-                <span class="question-count">0 Questions</span>
             </div>
         `;
 
-        // Create section content (initially hidden)
+        // Create section content
         const sectionContent = `
-            <div class="section-content">
-                <div class="description-block">
-                    <div class="form-control editable-field section-field" 
-                        contenteditable="true" 
-                        data-placeholder="Description (optional)"
-                        data-input-name="section_description[${sectionCounter}]"></div>
-                </div>
-                <div class="search-filter-container">
-                    <input type="text" class="form-control section-search" placeholder="Search questions...">
-                    <div class="filter-options mt-2">
-                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-type="all">All</button>
-                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-type="multiple_choice">Multiple Choice</button>
-                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-type="programming">Programming</button>
-                    </div>
-                </div>
-                <div id="question-container-${sectionCounter}" class="question-block-container"></div>
-                <div class="questions-pagination"></div>
+            <div class="description-block">
+                <div class="form-control editable-field section-field" 
+                    contenteditable="true" 
+                    data-placeholder="Description (optional)"
+                    data-input-name="section_description[${sectionCounter}]"></div>
+                <input type="hidden" name="section_description[${sectionCounter}]" value="">
             </div>
+            <div id="question-container-${sectionCounter}" class="question-block-container"></div>
         `;
 
         newSection.innerHTML = sectionHeader + sectionContent;
 
-        document.getElementById('sectionBlocks').appendChild(newSection);
+        const sectionBlocks = document.getElementById('sectionBlocks');
+        if (sectionBlocks) {
+            sectionBlocks.appendChild(newSection);
+
+            // If we have section data, update the fields after adding to DOM
+            if (sectionData) {
+                const titleField = newSection.querySelector('[data-input-name^="section_title"]');
+                const titleInput = newSection.querySelector('input[name^="section_title"]');
+                const descField = newSection.querySelector('[data-input-name^="section_description"]');
+                const descInput = newSection.querySelector('input[name^="section_description"]');
+
+                if (titleField && titleInput && sectionData.title) {
+                    titleField.innerHTML = sectionData.title;
+                    titleInput.value = sectionData.title;
+                }
+
+                if (descField && descInput && sectionData.description) {
+                    descField.innerHTML = sectionData.description;
+                    descInput.value = sectionData.description;
+                }
+            }
+        } else {
+            console.error('sectionBlocks element not found');
+            return;
+        }
 
         // Add event listeners for contenteditable fields
         const editableFields = newSection.querySelectorAll('.editable-field');
@@ -310,7 +323,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+        // Add delete button functionality
+        const deleteButton = newSection.querySelector('.delete-button');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this section?')) {
+                    newSection.remove();
+                }
+            });
+        }
+
         attachEventListeners();
+        sectionCounter++; // Increment counter after section is added
     }
 
     // Add Question functionality
@@ -680,10 +704,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Event Listeners
-    addSectionBtn.addEventListener('click', () => {
-        addSection();
-        closeActionSidebar();
-    });
+    if (addSectionBtn) {
+        addSectionBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addSection();
+            closeActionSidebar();
+        });
+    } else {
+        console.error('Add Section button not found');
+    }
 
     globalAddQuestionBtn.addEventListener('click', () => {
         const sections = document.querySelectorAll('.section-block');
@@ -870,7 +899,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = {
             exam_id: parseInt(exam_id),
             action: 'save_sections',
-            sections: sections
+            sections: sections,
+            deleted_questions: window.deletedQuestions || []
         };
 
         console.log('Sending data:', data);
@@ -886,6 +916,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Response from server:', data); // Debug log
             if (data.success) {
+                window.deletedQuestions = [];
                 alert('Questions saved successfully!');
                 window.location.reload();
             } else {
@@ -900,10 +931,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function attachEventListeners() {
         // Add event listeners for dynamic elements
-        document.querySelectorAll('.delete-button').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to delete this section?')) {
-                    this.closest('.section-block').remove();
+        document.querySelectorAll('.delete-question-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to delete this question?')) {
+                    const questionBlock = this.closest('.question-block');
+                    const questionId = questionBlock.getAttribute('data-original-question-id');
+                    
+                    if (questionId && questionId !== 'null' && questionId !== 'undefined') {
+                        // Send delete request to server
+                        fetch('delete_question.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                question_id: questionId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                questionBlock.remove();
+                                console.log('Question deleted successfully');
+                            } else {
+                                alert('Error deleting question: ' + (data.error || 'Unknown error'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting the question.');
+                        });
+                    } else {
+                        // If it's a new question that hasn't been saved yet
+                        questionBlock.remove();
+                    }
                 }
             });
         });
@@ -1513,5 +1575,27 @@ document.addEventListener('DOMContentLoaded', function() {
         questions.forEach((question, index) => {
             question.style.display = (index >= startIndex && index < endIndex) ? 'block' : 'none';
         });
+    }
+
+    // Find where the question delete button is created and add this event listener
+    function attachQuestionDeleteHandler(questionBlock) {
+        const deleteButton = questionBlock.querySelector('.delete-button');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to delete this question?')) {
+                    const questionId = questionBlock.getAttribute('data-question-id');
+                    if (questionId) {
+                        // If the question exists in database, mark it for deletion
+                        const deletedQuestionsInput = document.createElement('input');
+                        deletedQuestionsInput.type = 'hidden';
+                        deletedQuestionsInput.name = 'deleted_questions[]';
+                        deletedQuestionsInput.value = questionId;
+                        document.getElementById('questionForm').appendChild(deletedQuestionsInput);
+                    }
+                    questionBlock.remove();
+                }
+            });
+        }
     }
 });

@@ -3072,3 +3072,233 @@ ReferenceError: CKEDITOR is not defined
 
 )
 
+[2024-12-18 06:48:12] debug: Received data: Array
+(
+    [exam_id] => 14
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 7
+                    [exam_id] => 14
+                    [title] => dsadsf
+                    [description] => asffasd
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 6
+                                    [section_id] => 7
+                                    [question_text] => fasdfasd
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => dsaf
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => safd
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => asdf
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                        )
+
+                                )
+
+                            [1] => Array
+                                (
+                                    [question_id] => 7
+                                    [section_id] => 7
+                                    [question_text] => fsadfsd
+                                    [question_type] => true_false
+                                    [points] => 1
+                                    [order] => 1
+                                    [correct_answer] => false
+                                )
+
+                            [2] => Array
+                                (
+                                    [question_id] => 10
+                                    [section_id] => 7
+                                    [question_text] => das
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 2
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => asdf
+                                                    [is_correct] => 1
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => sadf
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => asdf
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                        )
+
+                                )
+
+                            [3] => Array
+                                (
+                                    [question_id] => 14
+                                    [section_id] => 7
+                                    [question_text] => fdsa
+                                    [question_type] => programming
+                                    [points] => 1
+                                    [order] => 3
+                                    [programming_language] => python
+                                    [test_cases] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [test_input] => 1 2
+                                                    [expected_output] => 3
+                                                    [is_hidden] => 
+                                                    [description] => 
+                                                    [order] => 0
+                                                )
+
+                                        )
+
+                                )
+
+                            [4] => Array
+                                (
+                                    [question_id] => 15
+                                    [section_id] => 7
+                                    [question_text] => dsa
+                                    [question_type] => programming
+                                    [points] => 2
+                                    [order] => 4
+                                    [programming_language] => python
+                                    [test_cases] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [test_input] => 2 3
+                                                    [expected_output] => 5
+                                                    [is_hidden] => 1
+                                                    [description] => 
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [test_input] => 4 5
+                                                    [expected_output] => 9
+                                                    [is_hidden] => 
+                                                    [description] => 
+                                                    [order] => 1
+                                                )
+
+                                        )
+
+                                )
+
+                            [5] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 7
+                                    [question_text] => <b><i>testing</i></b>
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 5
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => gds
+                                                    [is_correct] => 1
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => gfjg
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                            [2] => Array
+                                                (
+                                                    [text] => fdhdfhdgf
+                                                    [is_correct] => 0
+                                                    [order] => 2
+                                                )
+
+                                            [3] => Array
+                                                (
+                                                    [text] => hdgf
+                                                    [is_correct] => 0
+                                                    [order] => 3
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+[2024-12-19 09:00:57] debug: Received data: Array
+(
+    [exam_id] => 15
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 15
+                    [title] => <b>ghvv</b>
+                    [description] => jhjbh
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+

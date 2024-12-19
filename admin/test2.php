@@ -60,26 +60,6 @@ while ($row = $result->fetch_assoc()) {
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/styles.min.css">
   <style>
-    /* Main container styling */
-    .form-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 30px;
-        background-color: #f8f9fa;
-        border-radius: 12px;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Section styling */
-    .section-block {
-        background: linear-gradient(to right bottom, #ffffff, #fafafa);
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        border: 1px solid #e8e8e8;
-    }
 
     .section-block:hover {
         box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
@@ -89,41 +69,51 @@ while ($row = $result->fetch_assoc()) {
 
     /* Title and description styling */
     .title-block {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         position: relative;
     }
 
     .title-block input {
-        font-size: 1.25rem;
-        font-weight: bold;
+        font-size: 24px;
+        font-weight: 600;
         border: none;
+        padding: 8px 0;
         border-bottom: 2px solid #6200ea;
         color: #333;
         background: transparent;
+        width: 100%;
         transition: all 0.3s ease;
-        padding: 10px 0;
     }
 
-    .title-block input:focus {
-        outline: none;
+    .title-block input:hover {
         border-bottom-color: #3700b3;
     }
 
     .description-block {
-        margin: 20px 0;
-        padding: 15px 0;
+        margin: 10px 0;
+        padding: 8px 0;
         border-bottom: 1px solid #eee;
     }
 
     /* Question block styling */
     .question-block {
         background: #ffffff;
-        border-radius: 8px;
-        padding: 20px;
-        margin: 15px 0;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        margin: 8px 0;
         border: 1px solid #eaeaea;
         transition: all 0.3s ease;
     }
+    /* Question text input/area */
+.question-block .question-field {
+    font-size: 16px;  /* Adjust text size */
+    line-height: 1.6;  /* Line height for better readability */
+    min-height: 100px;  /* Minimum height for question text area */
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
 
     .question-block:hover {
         background: linear-gradient(to right, #ffffff, #fafafa);
@@ -135,9 +125,9 @@ while ($row = $result->fetch_assoc()) {
     .form-control {
         border: 1px solid #e2e2e2;
         border-radius: 6px;
-        padding: 12px 15px;
+        padding: 8px 10px;
         transition: all 0.3s ease;
-        margin-bottom: 15px;
+        margin-bottom: 8px;
         background-color: #ffffff;
     }
 
@@ -175,6 +165,44 @@ while ($row = $result->fetch_assoc()) {
         opacity: 1;
         transform: scale(1.1);
     }
+/* Style for option delete button (X button) - make it more specific */
+.input-group .delete-option-btn,
+.option-container .delete-option-btn {
+    background: transparent;
+    color: #dc3545;
+    border: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.input-group .delete-option-btn::before,
+.option-container .delete-option-btn::before {
+    content: '×';
+    font-weight: bold;
+}
+
+.input-group .delete-option-btn:hover,
+.option-container .delete-option-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    transform: scale(1.1);
+}
+
+/* Hide any existing trash icons */
+.delete-option-btn i,
+.delete-option-btn .fas,
+.delete-option-btn .fa-trash-alt {
+    display: none !important;
+}
 
     /* Test case styling */
     .test-case {
@@ -200,7 +228,7 @@ while ($row = $result->fetch_assoc()) {
     .input-group-text {
         background: #f8f9fa;
         border: 1px solid #dee2e6;
-        padding: 8px 12px;
+        padding: 2px 8px;
     }
 
     /* Hidden test case styling */
@@ -242,7 +270,7 @@ while ($row = $result->fetch_assoc()) {
 
     /* Custom Styling */
     .form-container {
-      max-width: 1200px;
+      max-width: 900px;
       margin: 20px auto;  
       padding: 20px;
       background-color: #fff;
@@ -273,21 +301,12 @@ while ($row = $result->fetch_assoc()) {
       background: #3700b3;
     }
 
-    .section-block {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #f9f9f9;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
     .title-block {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
 
     .title-block input {
-        font-size: 18px;
+        font-size: 10px;
         font-weight: bold;
         border-bottom: 2px solid #6200ea;
         color: #333;
@@ -318,37 +337,57 @@ while ($row = $result->fetch_assoc()) {
     }
 
     .tab-menu {
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: flex-start;
-      gap: 10px; 
-      background: #ffffff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid #eee;
+    padding: 0;
+}
 
-    .tab-menu button {
-      padding: 10px 20px;
-      background-color: #6200ea;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+.tab-menu button,
+.tab-menu .btn {
+    background: transparent;
+    color: #666;
+    padding: 15px 25px;
+    border: none;
+    position: relative;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
 
-    .tab-menu button.active {
-      background-color: #3700b3;
-    }
+.tab-menu button::after,
+.tab-menu .btn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #6200ea;
+    transition: width 0.3s ease;
+}
 
-    .tab-menu button:hover {
-      background-color: #3700b3;
-    }
+.tab-menu button.active::after,
+.tab-menu .btn.active::after {
+    width: 100%;
+}
+
+.tab-menu button.active,
+.tab-menu .btn.active {
+    color: #6200ea;
+}
+
+.tab-menu button:hover,
+.tab-menu .btn:hover {
+    transform: scale(1.05);
+    color: #6200ea;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
     .option-container {
     display: flex;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
   }
 
   .option-container input[type="text"] {
@@ -357,15 +396,15 @@ while ($row = $result->fetch_assoc()) {
   }
 
   .option-container input[type="radio"] {
-      margin-right: 5px;
+      margin-right: 0px;
     }
 
     .plus-button {
         position: absolute;
         bottom: 20px;
         left: 20px;
-        width: 45px;
-        height: 45px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         background: #6200ea;
         color: white;
@@ -436,10 +475,6 @@ while ($row = $result->fetch_assoc()) {
         font-size: 1.1rem;
     }
 
-    .input-group .btn-link.text-danger {
-        border: none;
-        background: transparent;
-    }
 
     /* Add these styles to your existing CSS */
     .modal.loading .modal-content {
@@ -460,10 +495,10 @@ while ($row = $result->fetch_assoc()) {
     }
 
     /* Adjust the container width on smaller screens */
-    @media (max-width: 1400px) {
+    @media (max-width: 768px) {
         .form-container {
-            max-width: 95%;
-            margin: 20px auto;
+            max-width: 90%;
+            margin: 10px auto;
         }
     }
 
@@ -475,7 +510,7 @@ while ($row = $result->fetch_assoc()) {
         background-color: #007bff;
         color: white;
         border: none;
-        padding: 10px 15px;
+        padding: 2px 5px;
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s;
@@ -742,25 +777,25 @@ while ($row = $result->fetch_assoc()) {
     }
 
     .section-block {
-        background: #f8f9fa;
-        border: 2px solid #dee2e6;
+        background: block;
+        border: 0px solid #dee2e6;
         border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 30px;
+        padding: 12px;
+        margin-bottom: 15px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .title-block {
         background: #fff;
-        padding: 15px;
+        padding: 1px;
         border-radius: 6px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         border: 1px solid #e9ecef;
     }
 
     .description-block {
         background: #fff;
-        padding: 15px;
+        padding: -10px;
         border-radius: 6px;
         margin-bottom: 20px;
         border: 1px solid #e9ecef;
@@ -769,10 +804,10 @@ while ($row = $result->fetch_assoc()) {
     .question-block {
         background: white;
         border: 1px solid #e9ecef;
-        border-radius: 6px;
-        padding: 15px;
+        border-radius: 8px;
+        padding: 12px;
         margin-bottom: 15px;
-        margin-left: 20px;
+        
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
@@ -782,11 +817,12 @@ while ($row = $result->fetch_assoc()) {
     }
 
     .section-field[contenteditable="true"] {
-        font-size: 1.2rem;
+        font-size: 1rem;
         font-weight: 500;
         color: #2c3e50;
         border: 1px solid transparent;
         transition: all 0.3s ease;
+        padding: 6px;
     }
 
     .section-field[contenteditable="true"]:hover,
@@ -799,26 +835,42 @@ while ($row = $result->fetch_assoc()) {
     .question-field {
         font-size: 1rem;
         color: #495057;
+        min-height: 40px !important;
+        height: auto;
     }
 
     .multiple-choice-options,
     .programming-options {
-        margin-left: 20px;
-        margin-top: 15px;
+        margin-left: 0px;
+        margin-top: 1px;
     }
 
     .option-container {
-        background: #f8f9fa;
+        background: hidden;
         border-radius: 4px;
-        padding: 8px;
-        margin-bottom: 8px;
+        padding: -1px;
+        margin-bottom: -5px;
     }
 
-    .add-option-btn,
+    .add-option-btn {
+    background-color: transparent;
+    color: #6200ea;
+    padding: 6px 12px;
+    border: none;
+    font-size: 14px;
+    margin: -40px 0 -5px -5px;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+}
+
+.add-option-btn:hover {
+    color: #ddddff;
+    text-decoration: none;
+}
+
     .add-test-case-btn {
-        margin-left: 20px;
+        margin-left: 0px;
     }
-
     /* Visual separator between sections */
     .section-block:not(:last-child)::after {
         content: '';
@@ -833,7 +885,7 @@ while ($row = $result->fetch_assoc()) {
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
-        padding: 15px;
+        padding: 8px 12px;
         background: #fff;
         border-radius: 8px;
         margin-bottom: 10px;
@@ -841,7 +893,7 @@ while ($row = $result->fetch_assoc()) {
 
     .section-content {
         display: none;
-        padding: 15px;
+        padding: 10px;
     }
 
     .section-content.show {
@@ -955,10 +1007,10 @@ while ($row = $result->fetch_assoc()) {
 
           <!-- Navigation tabs -->
           <div class="tab-menu">
-              <a href="create-exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-secondary">Back to Exam Creation</a>
+              <a href="create-exam.php?exam_id=<?php echo $exam_id; ?>" class="btn">Back to Exam Creation</a>
               <button class="active">Questions</button>
-              <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Preview</a>
-              <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn btn-primary">Settings</a>
+              <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn">Preview</a>
+              <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn">Settings</a>
           </div>
 
           <div class="form-container">
@@ -984,7 +1036,7 @@ while ($row = $result->fetch_assoc()) {
       </div>
 
       <!-- Footer -->
-      <?php include 'footer.php'; ?>
+    
     </div>
   </div>
 
