@@ -3302,3 +3302,136 @@ ReferenceError: CKEDITOR is not defined
 
 )
 
+[2024-12-19 10:31:53] debug: Received data: Array
+(
+    [exam_id] => 15
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 8
+                    [exam_id] => 15
+                    [title] => <b>ghvv</b>
+                    [description] => jhjbh
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+            [1] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 15
+                    [title] => dfsdaf
+                    [description] => sdafadfas
+                    [order] => 1
+                    [questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+
+[2024-12-19 10:42:05] debug: Received data: Array
+(
+    [exam_id] => 15
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 15
+                    [title] => fsdf
+                    [description] => sfsf
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 
+                                    [question_text] => hhhhhh
+                                    [question_type] => multiple_choice
+                                    [points] => 0
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => Option 1hfd
+                                                    [is_correct] => 1
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => Option 2dgdf
+                                                    [is_correct] => 0
+                                                    [order] => 1
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+
+[2024-12-19 12:06:50] debug: Received data: Array
+(
+    [exam_id] => 15
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 15
+                    [title] => fsdd
+                    [description] => sdsdf
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 
+                                    [question_text] => fsdf
+                                    [question_type] => true_false
+                                    [points] => 2
+                                    [order] => 0
+                                    [correct_answer] => true
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+

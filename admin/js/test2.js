@@ -1,3 +1,8 @@
+// At the top of test2.js, make handleQuestionTypeChange globally accessible
+window.handleQuestionTypeChange = function(select, sectionId, questionIndex, existingData = null) {
+    // Your existing handleQuestionTypeChange code...
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all modals
     const modals = document.querySelectorAll('.modal');
@@ -8,12 +13,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let sectionCounter = 1;
     const exam_id = new URLSearchParams(window.location.search).get('exam_id');
 
-    // Initialize UI elements
+    // Initialize UI elements with null checks
     const showActionSidebarBtn = document.getElementById('showActionSidebar');
     const actionButtons = document.getElementById('actionButtons');
     const saveFormBtn = document.getElementById('save-form-btn');
     const addSectionBtn = document.getElementById('add-section-btn');
     const globalAddQuestionBtn = document.getElementById('global-add-question-btn');
+    const importQuestionsBtn = document.getElementById('import-questions-btn');
+    const questionSearch = document.getElementById('questionSearch');
+    const importSelectedQuestionsBtn = document.getElementById('importSelectedQuestions');
 
     // Function to load existing sections and questions
     function loadSectionsAndQuestions(sections) {
@@ -714,29 +722,64 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Add Section button not found');
     }
 
-    globalAddQuestionBtn.addEventListener('click', () => {
-        const sections = document.querySelectorAll('.section-block');
-        if (sections.length === 0) {
-            alert('Please add a section first before adding questions.');
-            return;
-        }
-        
-        const lastSection = sections[sections.length - 1];
-        const sectionId = lastSection.getAttribute('data-section-id');
-        if (sectionId) {
-            addQuestionToSection(sectionId);
-            closeActionSidebar();
-        } else {
-            console.error('Section ID not found');
-        }
-    });
+    if (globalAddQuestionBtn) {
+        globalAddQuestionBtn.addEventListener('click', () => {
+            const sections = document.querySelectorAll('.section-block');
+            if (sections.length === 0) {
+                alert('Please add a section first before adding questions.');
+                return;
+            }
+            
+            const lastSection = sections[sections.length - 1];
+            const sectionId = lastSection.getAttribute('data-section-id');
+            if (sectionId) {
+                addQuestionToSection(sectionId);
+                closeActionSidebar();
+            } else {
+                console.error('Section ID not found');
+            }
+        });
+    }
+
+    if (importQuestionsBtn) {
+        importQuestionsBtn.addEventListener('click', function() {
+            try {
+                const questionBankModal = document.getElementById('questionBankModal');
+                if (!questionBankModal) {
+                    console.error('Question bank modal not found');
+                    return;
+                }
+                const modal = new bootstrap.Modal(questionBankModal, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                loadCategories(); // Load categories first
+                loadQuestionBank(); // Then load questions
+                modal.show();
+            } catch (error) {
+                console.error('Error showing modal:', error);
+            }
+        });
+    }
+
+    if (questionSearch) {
+        questionSearch.addEventListener('input', debounce(function() {
+            loadQuestionBank(this.value);
+        }, 300));
+    }
+
+    if (importSelectedQuestionsBtn) {
+        importSelectedQuestionsBtn.addEventListener('click', importSelectedQuestions);
+    }
 
     // Toggle action buttons
-    showActionSidebarBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showActionSidebarBtn.classList.toggle('active');
-        actionButtons.classList.toggle('active');
-    });
+    if (showActionSidebarBtn && actionButtons) {
+        showActionSidebarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showActionSidebarBtn.classList.toggle('active');
+            actionButtons.classList.toggle('active');
+        });
+    }
 
     // Hide buttons when clicking outside
     document.addEventListener('click', (e) => {
@@ -753,10 +796,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Button Click Handlers
-    saveFormBtn.addEventListener('click', () => {
-        saveForm();
-        closeActionSidebar();
-    });
+    if (saveFormBtn) {
+        saveFormBtn.addEventListener('click', () => {
+            saveForm();
+            closeActionSidebar();
+        });
+    }
 
     // Helper Functions
     function closeActionSidebar() {
@@ -989,11 +1034,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error showing modal:', error);
         }
-    });
-
-    document.getElementById('selectAll').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('#questionBankList input[type="checkbox"]');
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
     });
 
     document.getElementById('questionSearch').addEventListener('input', debounce(function() {

@@ -17,8 +17,19 @@ try {
 
     // Get exam data using the handler
     $exam_data = getExamData($exam_id, $conn);
+    
+    // Check if exam data exists
+    if (!$exam_data || !isset($exam_data['exam']) || !isset($exam_data['sections'])) {
+        throw new Exception("Exam data not found");
+    }
+
     $exam = $exam_data['exam'];
-    $sections = $exam_data['sections'];
+    $sections = $exam_data['sections'] ?? [];
+
+    // Initialize sections array if empty
+    if (empty($sections)) {
+        $sections = [];
+    }
 
     // Initialize pagination variables
     $questions_per_page = 10;
@@ -27,10 +38,16 @@ try {
     // Calculate total questions
     $total_questions = 0;
     $all_questions = [];
+    
+    // Only process sections if they exist and have questions
     foreach ($sections as $section) {
-        foreach ($section['questions'] as $question) {
-            $all_questions[] = $question;
-            $total_questions++;
+        if (isset($section['questions']) && is_array($section['questions'])) {
+            foreach ($section['questions'] as $question) {
+                if (is_array($question)) {  // Make sure question is an array
+                    $all_questions[] = $question;
+                    $total_questions++;
+                }
+            }
         }
     }
 
@@ -51,21 +68,28 @@ try {
     $settings_stmt = $conn->prepare("SELECT * FROM exam_settings WHERE exam_id = ?");
     $settings_stmt->bind_param("i", $exam_id);
     $settings_stmt->execute();
-    $exam_settings = $settings_stmt->get_result()->fetch_assoc();
+    $exam_settings = $settings_stmt->get_result()->fetch_assoc() ?? [];
 
     // Apply randomization to questions if enabled
-    if ($exam_settings['randomize_questions']) {
+    if (!empty($exam_settings['randomize_questions'])) {
         foreach ($sections as &$section) {
-            shuffle($section['questions']);
+            if (isset($section['questions']) && is_array($section['questions'])) {
+                shuffle($section['questions']);
+            }
         }
     }
 
     // Apply randomization to multiple choice options if enabled
-    if ($exam_settings['randomize_options']) {
+    if (!empty($exam_settings['randomize_options'])) {
         foreach ($sections as &$section) {
-            foreach ($section['questions'] as &$question) {
-                if ($question['type'] === 'multiple_choice' && isset($question['options'])) {
-                    shuffle($question['options']);
+            if (isset($section['questions']) && is_array($section['questions'])) {
+                foreach ($section['questions'] as &$question) {
+                    if (isset($question['type']) && 
+                        $question['type'] === 'multiple_choice' && 
+                        isset($question['options']) && 
+                        is_array($question['options'])) {
+                        shuffle($question['options']);
+                    }
                 }
             }
         }
