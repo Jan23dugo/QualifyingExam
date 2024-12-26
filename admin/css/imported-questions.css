@@ -1,206 +1,29 @@
-<?php 
-// Get the exam_id from the query string
-$exam_id = $_GET['exam_id'] ?? null;
-
-// Ensure exam_id is passed
-if (!$exam_id) {
-    die("Exam ID is required to add questions.");
+   /* Question block styling */
+   .question-block {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    padding: 15px;
+    margin: 8px 0;
+    border: 1px solid #eaeaea;
+    transition: all 0.3s ease;
 }
-
-// Fetch existing questions for this exam_id
-$questions = [];
-include_once __DIR__ . '/../config/config.php'; // Includes the MySQLi connection ($conn)
-$stmt = $conn->prepare("SELECT * FROM questions WHERE exam_id = ?");
-$stmt->bind_param("i", $exam_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-while ($row = $result->fetch_assoc()) {
-    // Fetch options if the question is multiple choice
-    $question_id = $row['question_id'];
-    if ($row['question_type'] == 'multiple_choice') {
-        $options_stmt = $conn->prepare("SELECT * FROM multiple_choice_options WHERE question_id = ?");
-        $options_stmt->bind_param("i", $question_id);
-        $options_stmt->execute();
-        $options_result = $options_stmt->get_result();
-        $options = $options_result->fetch_all(MYSQLI_ASSOC);
-        $row['options'] = $options;
-    }
-    // Fetch test cases if the question is programming
-    if ($row['question_type'] == 'programming') {
-        $test_stmt = $conn->prepare("SELECT * FROM test_cases WHERE question_id = ?");
-        $test_stmt->bind_param("i", $question_id);
-        $test_stmt->execute();
-        $test_result = $test_stmt->get_result();
-        $test_cases = $test_result->fetch_all(MYSQLI_ASSOC);
-        $row['test_cases'] = $test_cases;
-    }
-    $questions[] = $row;
-}
-?>
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Create Exam - Brand</title>
-  
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-  
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-  
-  <!-- Fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&display=swap">
-  <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-  
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/styles.min.css">
-  <link rel="stylesheet" href="css/question-bank.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/question-bank.css" rel="stylesheet">
-  <link href="css/imported-questions.css" rel="stylesheet">
-  <style>
-
-    .section-block:hover {
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-        border-color: #d0d0d0;
-    }
-
-    /* Title and description styling */
-    .title-block {
-        margin-bottom: 10px;
-        position: relative;
-    }
-
-    .title-block input {
-        font-size: 24px;
-        font-weight: 600;
-        border: none;
-        padding: 8px 0;
-        border-bottom: 2px solid #6200ea;
-        color: #333;
-        background: transparent;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-
-    .title-block input:hover {
-        border-bottom-color: #3700b3;
-    }
-
-    .description-block {
-        margin: 10px 0;
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    /* Question block styling */
-    .question-block {
-        background: #ffffff;
-        border: 1px solid #e9ecef;
-        padding: 15px;
-        margin: 8px 0;
-        border: 1px solid #eaeaea;
-        transition: all 0.3s ease;
-    }
-    /* Question text input/area */
+/* Question text input/area */
 .question-block .question-field {
-    font-size: 16px;  /* Adjust text size */
-    line-height: 1.6;  /* Line height for better readability */
-    min-height: 100px;  /* Minimum height for question text area */
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
+font-size: 16px;  /* Adjust text size */
+line-height: 1.6;  /* Line height for better readability */
+min-height: 100px;  /* Minimum height for question text area */
+width: 100%;
+padding: 12px;
+margin-bottom: 15px;
 }
 
 
-    .question-block:hover {
-        background: linear-gradient(to right, #ffffff, #fafafa);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        border-color: #d8d8d8;
-    }
-
-    /* Form controls styling */
-    .form-control {
-        border: 1px solid #e2e2e2;
-        border-radius: 6px;
-        padding: 8px 10px;
-        transition: all 0.3s ease;
-        margin-bottom: 8px;
-        background-color: #ffffff;
-    }
-
-    .form-control:focus {
-        border-color: #6200ea;
-        box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.1);
-        outline: none;
-        background-color: #ffffff;
-    }
-
-    /* Button styling */
-    .btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-
-    .btn-primary {
-        background: #6200ea;
-        border: none;
-    }
-
-    .btn-primary:hover {
-        background: #3700b3;
-        transform: translateY(-1px);
-    }
-
-    .delete-button {
-        opacity: 0.7;
-        transition: all 0.3s ease;
-    }
-
-    .delete-button:hover {
-        opacity: 1;
-        transform: scale(1.1);
-    }
-/* Style for option delete button (X button) - make it more specific */
-.input-group .delete-option-btn,
-.option-container .delete-option-btn {
-    background: transparent;
-    color: #dc3545;
-    border: none;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    font-size: 18px;
-    line-height: 1;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    margin-left: 5px;
-    cursor: pointer;
+.question-block:hover {
+    background: linear-gradient(to right, #ffffff, #fafafa);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    border-color: #d8d8d8;
 }
 
-.input-group .delete-option-btn::before,
-.option-container .delete-option-btn::before {
-    content: '×';
-    font-weight: bold;
-}
-
-.input-group .delete-option-btn:hover,
-.option-container .delete-option-btn:hover {
-    background-color: rgba(220, 53, 69, 0.1);
-    transform: scale(1.1);
-}
 
 /* Hide any existing trash icons */
 .delete-option-btn i,
@@ -952,102 +775,3 @@ while ($row = $result->fetch_assoc()) {
         color: #fff;
         border-color: #007bff;
     }
-  </style>
-
-</head>
-<body>
-  <div class="floating-toolbar" id="floatingToolbar">
-    <button type="button" class="toolbar-btn" data-command="bold">
-      <i class="fas fa-bold"></i>
-    </button>
-    <button type="button" class="toolbar-btn" data-command="italic">
-      <i class="fas fa-italic"></i>
-    </button>
-    <button type="button" class="toolbar-btn" data-command="underline">
-      <i class="fas fa-underline"></i>
-    </button>
-    <span class="toolbar-separator">|</span>
-    <button type="button" class="toolbar-btn" data-command="insertUnorderedList">
-      <i class="fas fa-list-ul"></i>
-    </button>
-    <button type="button" class="toolbar-btn" data-command="insertOrderedList">
-      <i class="fas fa-list-ol"></i>
-    </button>
-  </div>
-
-  <div id="wrapper">
-    <!-- Sidebar -->
-    <nav class="sidebar sidebar-dark accordion" id="accordionSidebar">
-      <?php include 'sidebar.php'; ?>
-    </nav>
-    
-    <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
-      <div id="content">
-        <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
-          <div class="container-fluid">
-            <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
-              <i class="fas fa-bars"></i>
-            </button>
-            <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
-              <div class="input-group">
-                <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
-                <button class="btn btn-primary py-0" type="button" style="background: rgb(255,255,255);">
-                  <i class="fas fa-search" style="font-size: 19px;color: var(--bs-secondary-color);"></i>
-                </button>
-              </div>
-            </form>
-            <ul class="navbar-nav flex-nowrap ms-auto">
-              <li class="nav-item dropdown no-arrow mx-1">
-                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="width: 60px;height: 60px;">
-                  <i class="far fa-user-circle" style="font-size: 30px;color: var(--bs-navbar-disabled-color);backdrop-filter: brightness(99%);-webkit-backdrop-filter: brightness(99%);"></i>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-
-        <div class="container-fluid">
-          <div id="successMessage" class="alert alert-success" style="display: none;"></div>
-
-          <!-- Navigation tabs -->
-          <div class="tab-menu">
-              <a href="create-exam.php?exam_id=<?php echo $exam_id; ?>" class="btn">Back to Exam Creation</a>
-              <button class="active">Questions</button>
-              <a href="preview_exam.php?exam_id=<?php echo $exam_id; ?>" class="btn">Preview</a>
-              <a href="exam_settings.php?exam_id=<?php echo $exam_id; ?>" class="btn">Settings</a>
-          </div>
-
-          <div class="form-container">
-          <?php include 'question_toolbar.php'; ?>
-              <div class="form-scrollable">
-                  <form id="questionForm" method="POST" action="save_question.php">
-                      <input type="hidden" name="exam_id" value="<?php echo $exam_id; ?>">
-                      <div id="sectionBlocks">
-                          <!-- Sections will be added here dynamically -->
-                      </div>
-                  </form>
-              </div>
-
-              <button class="plus-button" id="showActionSidebar">+</button>
-              <div class="action-buttons" id="actionButtons">
-                  <button type="button" id="add-section-btn">Add Section</button>
-                  <button type="button" id="global-add-question-btn">Add Question</button>
-                  <button type="button" id="import-questions-btn">Import from Bank</button>
-                  <button type="button" id="save-form-btn">Save</button>
-              </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-    
-    </div>
-  </div>
-
-<script src="js/test2.js"></script>
-<?php include 'includes/question-bank-modal.php'; ?>
-<script src="js/question-bank.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const addSectionBtn = document.getElementById('add-section-btn');
     const globalAddQuestionBtn = document.getElementById('global-add-question-btn');
     const importQuestionsBtn = document.getElementById('import-questions-btn');
-    const questionSearch = document.getElementById('questionSearch');
+    const searchQuestion = document.getElementById('searchQuestion');
     const importSelectedQuestionsBtn = document.getElementById('importSelectedQuestions');
 
     // Function to load existing sections and questions
@@ -762,8 +762,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (questionSearch) {
-        questionSearch.addEventListener('input', debounce(function() {
+    if (searchQuestion) {
+        searchQuestion.addEventListener('input', debounce(function() {
             loadQuestionBank(this.value);
         }, 300));
     }
@@ -1036,13 +1036,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('questionSearch').addEventListener('input', debounce(function() {
+    document.getElementById('searchQuestion').addEventListener('input', debounce(function() {
         loadQuestionBank(this.value);
     }, 300));
 
     document.getElementById('importSelectedQuestions').addEventListener('click', importSelectedQuestions);
 
-    // Add these functions
+    // Add these functions (keep only one copy)
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -1056,11 +1056,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadQuestionBank(search = '') {
-        const category = document.getElementById('categorySelect').value;
+        const categorySelect = document.getElementById('categorySelect');
+        const questionList = document.getElementById('questionBankList');
+        const questionBankModal = document.getElementById('questionBankModal');
+        
+        // Check if required elements exist
+        if (!questionList || !questionBankModal) {
+            console.error('Required elements not found:', {
+                questionList: !!questionList,
+                questionBankModal: !!questionBankModal
+            });
+            return;
+        }
+
+        const category = categorySelect ? categorySelect.value : '';
         const url = `fetch_question_bank.php?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
         
         // Show loading state
-        const questionList = document.getElementById('questionBankList');
         questionList.innerHTML = `
             <tr>
                 <td colspan="4" class="text-center py-4">
@@ -1073,7 +1085,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         // Add loading class to modal
-        document.getElementById('questionBankModal').classList.add('loading');
+        questionBankModal.classList.add('loading');
         
         fetch(url)
             .then(response => {
@@ -1108,26 +1120,46 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading questions:', error);
-                questionList.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center text-danger py-3">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            Error loading questions. Please try again.
-                        </td>
-                    </tr>`;
+                if (questionList) {
+                    questionList.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center text-danger py-3">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Error loading questions. Please try again.
+                            </td>
+                        </tr>`;
+                }
             })
             .finally(() => {
-                // Remove loading class
-                document.getElementById('questionBankModal').classList.remove('loading');
+                // Remove loading class if modal exists
+                if (questionBankModal) {
+                    questionBankModal.classList.remove('loading');
+                }
             });
     }
 
-    // Add this function to handle checkbox events
+    // Add null check for checkbox listeners
     function attachCheckboxListeners() {
         const checkboxes = document.querySelectorAll('#questionBankList input[type="checkbox"]');
+        if (!checkboxes.length) {
+            console.warn('No checkboxes found to attach listeners to');
+            return;
+        }
+        
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', updateSelectionCounter);
         });
+    }
+
+    function updateSelectionCounter() {
+        const counter = document.getElementById('selectionCounter');
+        if (!counter) {
+            console.warn('Selection counter element not found');
+            return;
+        }
+        
+        const count = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked').length;
+        counter.textContent = `${count} question${count !== 1 ? 's' : ''} selected`;
     }
 
     function importSelectedQuestions() {
@@ -1173,469 +1205,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.value === 'auto' ? 'block' : 'none';
         });
     });
-
-    // Modify the importSelectedQuestions function
-    document.getElementById('importSelectedQuestions').addEventListener('click', function() {
-        const importType = document.querySelector('input[name="importType"]:checked').value;
-        
-        if (importType === 'manual') {
-            importManuallySelectedQuestions();
-        } else {
-            importAutoGeneratedQuestions();
-        }
-    });
-
-    function importManuallySelectedQuestions() {
-        const selectedQuestions = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked');
-        if (selectedQuestions.length === 0) {
-            alert('Please select at least one question');
-            return;
-        }
-        importQuestionsToSection(Array.from(selectedQuestions).map(cb => JSON.parse(cb.dataset.question)));
-    }
-
-    function importAutoGeneratedQuestions() {
-        const count = parseInt(document.getElementById('questionCount').value);
-        const category = document.getElementById('autoGenerateCategory').value;
-        const selectedTypes = Array.from(document.querySelectorAll('#autoGenerateSection input[type="checkbox"]:checked'))
-            .map(cb => cb.value);
-        
-        if (selectedTypes.length === 0) {
-            alert('Please select at least one question type');
-            return;
-        }
-
-        // Fetch random questions from the question bank
-        fetch(`fetch_random_questions.php?count=${count}&types=${selectedTypes.join(',')}&category=${encodeURIComponent(category)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.questions.length > 0) {
-                    importQuestionsToSection(data.questions);
-                } else {
-                    alert('No questions found matching the criteria');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error fetching random questions');
-            });
-    }
-
-    function importQuestionsToSection(questions) {
-        const sections = document.querySelectorAll('.section-block');
-        if (sections.length === 0) {
-            alert('Please create a section first');
-            return;
-        }
-        
-        const lastSection = sections[sections.length - 1];
-        const sectionId = lastSection.getAttribute('data-section-id');
-        const questionContainer = document.getElementById(`question-container-${sectionId}`);
-        
-        // Keep track of already imported questions
-        const existingQuestionIds = Array.from(questionContainer.querySelectorAll('.question-block'))
-            .map(block => block.getAttribute('data-original-question-id'))
-            .filter(id => id); // Remove null/undefined values
-
-        // Filter out already imported questions
-        const newQuestions = questions.filter(question => 
-            !existingQuestionIds.includes(question.question_id.toString())
-        );
-
-        if (newQuestions.length === 0) {
-            alert('All selected questions have already been imported to this section');
-            return;
-        }
-
-        newQuestions.forEach(questionData => {
-            const questionIndex = questionContainer.children.length;
-            const newQuestion = createQuestionElement(sectionId, questionIndex, questionData);
-            questionContainer.appendChild(newQuestion);
-            
-            const questionTypeSelect = newQuestion.querySelector('.question-type-select');
-            questionTypeSelect.value = questionData.question_type;
-            
-            switch(questionData.question_type) {
-                case 'multiple_choice':
-                    handleMultipleChoiceImport(questionData, sectionId, questionIndex, newQuestion);
-                    break;
-                case 'true_false':
-                    handleTrueFalseImport(questionData, sectionId, questionIndex, newQuestion);
-                    break;
-                case 'programming':
-                    handleProgrammingImport(questionData, sectionId, questionIndex, newQuestion);
-                    break;
-            }
-        });
-        
-        bootstrap.Modal.getInstance(document.getElementById('questionBankModal')).hide();
-    }
-
-    // Add these helper functions
-    function handleMultipleChoiceImport(questionData, sectionId, questionIndex, questionElement) {
-        const optionsContainer = questionElement.querySelector('.question-options');
-        optionsContainer.innerHTML = `
-            <div class="multiple-choice-options">
-                ${questionData.choices.map((choice, idx) => `
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" 
-                            name="options[${sectionId}][${questionIndex}][]" 
-                            value="${choice.choice_text}" readonly>
-                        <div class="input-group-text">
-                            <input type="radio" name="correct_answer[${sectionId}][${questionIndex}]" 
-                                value="${idx}" ${choice.is_correct == 1 ? 'checked' : ''}>
-                            <label class="ms-2 mb-0">Correct</label>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-
-    function handleTrueFalseImport(questionData, sectionId, questionIndex, questionElement) {
-        const optionsContainer = questionElement.querySelector('.question-options');
-        optionsContainer.innerHTML = `
-            <div class="true-false-option">
-                <select class="form-control" name="correct_answer[${sectionId}][${questionIndex}]">
-                    <option value="true" ${questionData.correct_answer === 'true' ? 'selected' : ''}>True</option>
-                    <option value="false" ${questionData.correct_answer === 'false' ? 'selected' : ''}>False</option>
-                </select>
-            </div>
-        `;
-    }
-
-    function handleProgrammingImport(questionData, sectionId, questionIndex, questionElement) {
-        const optionsContainer = questionElement.querySelector('.question-options');
-        optionsContainer.innerHTML = `
-            <div class="programming-options">
-                <select class="form-control mb-3" name="programming_language[${sectionId}][${questionIndex}]">
-                    <option value="python" ${questionData.programming_language === 'python' ? 'selected' : ''}>Python</option>
-                    <option value="java" ${questionData.programming_language === 'java' ? 'selected' : ''}>Java</option>
-                    <option value="c" ${questionData.programming_language === 'c' ? 'selected' : ''}>C</option>
-                </select>
-                <div class="test-cases mt-3">
-                    ${questionData.test_cases ? questionData.test_cases.map(test => `
-                        <div class="test-case mb-2">
-                            <div class="input-group">
-                                <input type="text" class="form-control" 
-                                    name="test_case_input[${sectionId}][${questionIndex}][]" 
-                                    value="${test.test_input}" readonly>
-                                <input type="text" class="form-control" 
-                                    name="test_case_output[${sectionId}][${questionIndex}][]" 
-                                    value="${test.expected_output}" readonly>
-                                <div class="input-group-append">
-                                    <div class="input-group-text">
-                                        <input type="checkbox" 
-                                            name="test_case_hidden[${sectionId}][${questionIndex}][]" 
-                                            class="test-case-hidden"
-                                            ${test.is_hidden ? 'checked' : ''}
-                                            title="Hidden Test Case">
-                                        <label class="ms-2 mb-0">Hidden</label>
-                                    </div>
-                                </div>
-                            </div>
-                            ${test.is_hidden ? `
-                            <div class="hidden-test-case-description" style="display: block;">
-                                <input type="text" class="form-control" 
-                                    name="test_case_description[${sectionId}][${questionIndex}][]" 
-                                    value="${test.description || ''}"
-                                    placeholder="Description (optional, shown to students for hidden test cases)">
-                            </div>
-                            ` : ''}
-                        </div>
-                    `).join('') : ''}
-                </div>
-                <button type="button" class="btn btn-secondary add-test-case-btn mt-2" onclick="addTestCase(this.closest('.programming-options'), ${sectionId}, ${questionIndex})">
-                    Add Test Case
-                </button>
-            </div>
-        `;
-    }
-
-    // Add this to your existing JavaScript
-    function loadCategories() {
-        fetch('fetch_categories.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.categories) {
-                    // Update both category selects
-                    const selects = [
-                        document.getElementById('categorySelect'),
-                        document.getElementById('autoGenerateCategory')
-                    ];
-                    
-                    selects.forEach(categorySelect => {
-                        // Clear existing options except the first "All Categories" option
-                        while (categorySelect.options.length > 1) {
-                            categorySelect.remove(1);
-                        }
-                        data.categories.forEach(category => {
-                            const option = document.createElement('option');
-                            option.value = category;
-                            option.textContent = category;
-                            categorySelect.appendChild(option);
-                        });
-                    });
-                }
-            })
-            .catch(error => console.error('Error loading categories:', error));
-    }
-
-    // Add this to your existing event listeners
-    document.getElementById('categorySelect').addEventListener('change', function() {
-        loadQuestionBank(document.getElementById('questionSearch').value);
-    });
-
-    // Add this function to update available question counts
-    function updateQuestionCounts(category = '') {
-        fetch(`get_question_counts.php?category=${encodeURIComponent(category)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('mcCount').textContent = data.counts.multiple_choice || 0;
-                    document.getElementById('tfCount').textContent = data.counts.true_false || 0;
-                    document.getElementById('progCount').textContent = data.counts.programming || 0;
-                    
-                    const total = Object.values(data.counts).reduce((a, b) => a + b, 0);
-                    document.getElementById('availableQuestionCount').textContent = 
-                        `Total available questions: ${total}`;
-                    
-                    // Update max value of questionCount input
-                    document.getElementById('questionCount').max = total;
-                    if (parseInt(document.getElementById('questionCount').value) > total) {
-                        document.getElementById('questionCount').value = total;
-                    }
-                }
-            })
-            .catch(error => console.error('Error getting question counts:', error));
-    }
-
-    // Add event listener for category change
-    document.getElementById('autoGenerateCategory').addEventListener('change', function() {
-        updateQuestionCounts(this.value);
-    });
-
-    // Update counts when switching to auto-generate mode
-    document.getElementById('autoGenerate').addEventListener('change', function() {
-        if (this.checked) {
-            updateQuestionCounts(document.getElementById('autoGenerateCategory').value);
-        }
-    });
-
-    function getDifficultyColor(difficulty) {
-        switch(difficulty?.toLowerCase()) {
-            case 'easy': return 'success';
-            case 'medium': return 'warning';
-            case 'hard': return 'danger';
-            default: return 'secondary';
-        }
-    }
-
-    function previewQuestion(questionId) {
-        const question = document.querySelector(`input[value="${questionId}"]`).dataset.question;
-        const data = JSON.parse(question);
-        
-        const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-        document.getElementById('previewContent').innerHTML = generatePreviewHTML(data);
-        previewModal.show();
-    }
-
-    function updateSelectionCounter() {
-        const count = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked').length;
-        document.getElementById('selectionCounter').textContent = `${count} question${count !== 1 ? 's' : ''} selected`;
-    }
-
-    // Add keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'f' && document.getElementById('questionBankModal').classList.contains('show')) {
-            e.preventDefault();
-            document.getElementById('questionSearch').focus();
-        }
-        
-        if (e.key === 'Escape' && document.getElementById('questionBankModal').classList.contains('show')) {
-            bootstrap.Modal.getInstance(document.getElementById('questionBankModal')).hide();
-        }
-    });
-
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Modify the toolbar initialization code
-    const toolbar = document.getElementById('floatingToolbar');
-    let currentField = null;
-
-    if (toolbar) {
-        function positionToolbar(target) {
-            const rect = target.getBoundingClientRect();
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            toolbar.style.top = (rect.top + scrollTop - toolbar.offsetHeight - 5) + 'px';
-            toolbar.style.left = rect.left + 'px';
-        }
-
-        // Update click event listener to handle both section and question fields
-        document.addEventListener('click', function(e) {
-            const target = e.target;
-            // Check if the clicked element is a question field or its parent
-            const questionField = target.closest('.question-field') || target.closest('.editable-field');
-            
-            if (questionField) {
-                currentField = questionField;
-                toolbar.classList.add('active');
-                positionToolbar(questionField);
-            } else if (!toolbar.contains(e.target)) {
-                toolbar.classList.remove('active');
-                currentField = null;
-            }
-        });
-
-        // Handle toolbar button clicks
-        toolbar.addEventListener('click', function(e) {
-            const button = e.target.closest('.toolbar-btn');
-            if (!button || !currentField) return;
-
-            e.preventDefault();
-            const command = button.dataset.command;
-
-            if (currentField) {
-                document.execCommand(command, false, null);
-                currentField.focus();
-            }
-        });
-
-        // Update toolbar position on scroll
-        document.addEventListener('scroll', () => {
-            if (currentField) {
-                positionToolbar(currentField);
-            }
-        }, true);
-
-        // Prevent toolbar from disappearing when clicking its buttons
-        toolbar.addEventListener('mousedown', e => e.preventDefault());
-
-        // Handle form submission for contenteditable fields
-        document.getElementById('questionForm').addEventListener('submit', function(e) {
-            document.querySelectorAll('.editable-field, .question-field').forEach(field => {
-                const inputName = field.getAttribute('data-input-name');
-                if (inputName) {
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = inputName;
-                    hiddenInput.value = field.innerHTML;
-                    this.appendChild(hiddenInput);
-                }
-            });
-        });
-    }
-
-    // Add these functions to handle pagination and search
-    function initializeSectionControls() {
-        // Toggle section content
-        document.querySelectorAll('.section-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
-                header.classList.toggle('active');
-                content.classList.toggle('show');
-            });
-        });
-
-        // Search functionality
-        document.querySelectorAll('.section-search').forEach(searchInput => {
-            searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const section = searchInput.closest('.section-block');
-                const questions = section.querySelectorAll('.question-block');
-                
-                questions.forEach(question => {
-                    const text = question.textContent.toLowerCase();
-                    question.style.display = text.includes(searchTerm) ? 'block' : 'none';
-                });
-                updatePagination(section);
-            });
-        });
-
-        // Filter functionality
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const filterType = e.target.dataset.type;
-                const section = btn.closest('.section-block');
-                const questions = section.querySelectorAll('.question-block');
-                
-                questions.forEach(question => {
-                    if (filterType === 'all') {
-                        question.style.display = 'block';
-                    } else {
-                        const questionType = question.dataset.questionType;
-                        question.style.display = questionType === filterType ? 'block' : 'none';
-                    }
-                });
-                updatePagination(section);
-            });
-        });
-    }
-
-    // Initialize pagination
-    function initializePagination(section, questionsPerPage = 10) {
-        const questions = section.querySelectorAll('.question-block:not([style*="display: none"])');
-        const pageCount = Math.ceil(questions.length / questionsPerPage);
-        const paginationContainer = section.querySelector('.questions-pagination');
-        
-        // Create pagination buttons
-        let paginationHTML = '';
-        for (let i = 1; i <= pageCount; i++) {
-            paginationHTML += `<button class="page-button ${i === 1 ? 'active' : ''}" data-page="${i}">${i}</button>`;
-        }
-        paginationContainer.innerHTML = paginationHTML;
-
-        // Show first page
-        showPage(section, 1, questionsPerPage);
-
-        // Add click handlers to pagination buttons
-        paginationContainer.querySelectorAll('.page-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const page = parseInt(button.dataset.page);
-                showPage(section, page, questionsPerPage);
-                
-                // Update active button
-                paginationContainer.querySelectorAll('.page-button').forEach(btn => {
-                    btn.classList.toggle('active', btn === button);
-                });
-            });
-        });
-    }
-
-    function showPage(section, pageNumber, questionsPerPage) {
-        const questions = section.querySelectorAll('.question-block:not([style*="display: none"])');
-        const startIndex = (pageNumber - 1) * questionsPerPage;
-        const endIndex = startIndex + questionsPerPage;
-
-        questions.forEach((question, index) => {
-            question.style.display = (index >= startIndex && index < endIndex) ? 'block' : 'none';
-        });
-    }
-
-    // Find where the question delete button is created and add this event listener
-    function attachQuestionDeleteHandler(questionBlock) {
-        const deleteButton = questionBlock.querySelector('.delete-button');
-        if (deleteButton) {
-            deleteButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Are you sure you want to delete this question?')) {
-                    const questionId = questionBlock.getAttribute('data-question-id');
-                    if (questionId) {
-                        // If the question exists in database, mark it for deletion
-                        const deletedQuestionsInput = document.createElement('input');
-                        deletedQuestionsInput.type = 'hidden';
-                        deletedQuestionsInput.name = 'deleted_questions[]';
-                        deletedQuestionsInput.value = questionId;
-                        document.getElementById('questionForm').appendChild(deletedQuestionsInput);
-                    }
-                    questionBlock.remove();
-                }
-            });
-        }
-    }
-});
+}); // Close the DOMContentLoaded event listener

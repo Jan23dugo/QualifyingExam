@@ -1,78 +1,159 @@
-/* Question Bank Modal Styles */
-.modal.loading .modal-content {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.modal.loading .modal-footer button {
-    cursor: not-allowed;
-}
-
-#questionBankList tr {
-    transition: background-color 0.2s ease;
-}
-
-#questionBankList tr:hover {
-    background-color: rgba(0,0,0,0.02);
-}
-
-/* Search and filter container */
-.search-filter-container {
-    background: #fff;
-    padding: 15px;
+/* Imported Question Block */
+.imported-question-block {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    padding: 20px;
+    margin: 15px 0;
     border-radius: 8px;
-    margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* Pagination container */
-.questions-pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    gap: 10px;
-}
-
-.page-button {
-    padding: 5px 10px;
-    border: 1px solid #dee2e6;
+/* Question Text Area */
+.imported-editable-field {
+    width: 100%;
+    min-height: 60px;
+    padding: 12px;
+    border: 1px solid #ced4da;
     border-radius: 4px;
-    background: #fff;
-    cursor: pointer;
+    margin-bottom: 15px;
+    font-size: 16px;
+    line-height: 1.5;
+    resize: vertical;
 }
 
-.page-button.active {
-    background: #007bff;
-    color: #fff;
-    border-color: #007bff;
+.imported-editable-field:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* Question list styles */
-.table {
-    background: #fff;
-    border-radius: 8px;
+/* Multiple Choice Options */
+.imported-mc-options {
+    margin: 15px 0;
+}
+
+.imported-option-item {
+    margin-bottom: 10px;
+}
+
+.imported-option-item .input-group {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
     overflow: hidden;
 }
 
-.table thead th {
-    background: #f8f9fa;
-    border-bottom: 2px solid #dee2e6;
+.imported-option-item .input-group-prepend .input-group-text {
+    background-color: #f8f9fa;
+    border: none;
+    border-right: 1px solid #ced4da;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    min-width: 100px;
 }
 
-.table td, .table th {
-    padding: 12px;
-    vertical-align: middle;
+.imported-option-item .input-group-text input[type="radio"] {
+    margin-right: 8px;
 }
 
-/* Checkbox styles */
-.question-checkbox {
-    width: 18px;
-    height: 18px;
+.imported-option-item .form-control {
+    border: none;
+    padding: 8px 15px;
+    flex: 1;
+}
+
+.imported-remove-btn {
+    background: transparent;
+    color: #dc3545;
+    border: none;
+    border-left: 1px solid #ced4da;
+    width: 40px;
+    height: 38px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-#selectAll {
-    width: 18px;
-    height: 18px;
+.imported-remove-btn:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* Add Option Button */
+.imported-add-option {
+    color: #4f46e5;
+    background: transparent;
+    border: none;
+    padding: 8px 0;
+    font-size: 14px;
     cursor: pointer;
-} 
+    text-decoration: none;
+    margin-top: -5px;
+    margin-left: -5px;
+    transition: color 0.2s ease;
+}
+
+.imported-add-option:hover {
+    color: #4338ca;
+    text-decoration: underline;
+}
+
+/* Points Input */
+.imported-points-input {
+    margin-top: 15px;
+}
+
+.imported-points-input input {
+    width: 100px;
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+/* Delete Question Button */
+.delete-question {
+    color: #dc3545;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-question:hover {
+    color: #bb2d3b;
+    transform: scale(1.1);
+}
+
+/* Correct Label Styling */
+.input-group-text label {
+    margin: 0;
+    font-weight: normal;
+    color: #495057;
+    user-select: none;
+}
+
+/* Radio Button Styling */
+.input-group-text input[type="radio"] {
+    cursor: pointer;
+    margin: 0;
+    margin-right: 8px;
+}
+
+/* Remove Bootstrap's default focus styles */
+.form-control:focus {
+    box-shadow: none;
+    border-color: #80bdff;
+}
+
+/* Hover effect for option containers */
+.imported-option-item:hover .input-group {
+    border-color: #80bdff;
+}
