@@ -5,10 +5,12 @@ header('Content-Type: application/json');
 
 try {
     $search = isset($_GET['search']) ? $_GET['search'] : '';
+    $category = isset($_GET['category']) ? $_GET['category'] : '';
 
-    // Query to fetch questions and related choices
+    // Query to fetch questions with categories and related choices
     $query = "
         SELECT q.*, 
+               q.category,
                GROUP_CONCAT(
                    CONCAT(c.choice_text, ':', c.is_correct) 
                    ORDER BY c.choice_id 
@@ -20,15 +22,27 @@ try {
 
     $params = [];
     $types = '';
+    $whereConditions = [];
 
     if (!empty($search)) {
-        $query .= " WHERE q.question_text LIKE ?";
+        $whereConditions[] = "q.question_text LIKE ?";
         $params[] = "%$search%";
         $types .= 's';
     }
 
+    if (!empty($category)) {
+        $whereConditions[] = "q.category = ?";
+        $params[] = $category;
+        $types .= 's';
+    }
+
+    if (!empty($whereConditions)) {
+        $query .= " WHERE " . implode(' AND ', $whereConditions);
+    }
+
     $query .= " GROUP BY q.question_id";
 
+    // Prepare and execute the main query
     $stmt = $conn->prepare($query);
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
@@ -36,6 +50,7 @@ try {
     $stmt->execute();
     $result = $stmt->get_result();
 
+    // Fetch all questions
     $questions = [];
     while ($row = $result->fetch_assoc()) {
         // Process choices if it's a multiple choice question
@@ -54,9 +69,20 @@ try {
         $questions[] = $row;
     }
 
+    // Fetch distinct categories
+    $categoryQuery = "SELECT DISTINCT category FROM question_bank WHERE category IS NOT NULL AND category != '' ORDER BY category";
+    $categoryResult = $conn->query($categoryQuery);
+    $categories = [];
+    
+    while ($categoryRow = $categoryResult->fetch_assoc()) {
+        $categories[] = $categoryRow['category'];
+    }
+
+    // Return both questions and categories
     echo json_encode([
         'success' => true,
-        'questions' => $questions
+        'questions' => $questions,
+        'categories' => $categories
     ]);
 
 } catch (Exception $e) {

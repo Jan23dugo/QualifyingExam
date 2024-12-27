@@ -2,7 +2,7 @@
 let currentPage = 1;
 let questionBankModal;
 let searchInput;
-const categorySelect = document.getElementById('qbCategorySelect');
+let categorySelect = null;
 const questionsList = document.getElementById('qbQuestionsList');
 const paginationContainer = document.getElementById('qbPagination');
 const selectAllCheckbox = document.getElementById('qbSelectAll');
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeQuestionBank();
 });
 
-async function loadQuestionBank(search = '') {
+async function loadQuestionBank(search = '', category = '') {
     try {
         const questionsList = document.getElementById('qbQuestionsList');
         if (!questionsList) {
@@ -36,35 +36,52 @@ async function loadQuestionBank(search = '') {
 
         questionsList.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
 
-        const response = await fetch(`fetch_question_bank.php${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+        // Get the category value
+        const categorySelect = document.getElementById('qbCategorySelect');
+        const categoryValue = category || (categorySelect ? categorySelect.value : '');
+
+        const response = await fetch(`fetch_question_bank.php?${new URLSearchParams({
+            search: search || '',
+            category: categoryValue || ''
+        })}`);
+
         if (!response.ok) throw new Error('Network response was not ok');
         
         const data = await response.json();
         console.log('Received data:', data);
 
-        if (data.success && Array.isArray(data.questions)) {
-            if (data.questions.length === 0) {
-                questionsList.innerHTML = '<tr><td colspan="4" class="text-center">No questions found</td></tr>';
-                return;
+        if (data.success) {
+            // Update categories if they're included in the response
+            if (data.categories && Array.isArray(data.categories)) {
+                updateCategorySelect(data.categories);
             }
 
-            questionsList.innerHTML = data.questions.map(question => `
-                <tr>
-                    <td style="width: 40px;">
-                        <input type="checkbox" 
-                            class="question-checkbox" 
-                            value="${question.question_id}"
-                            data-question='${JSON.stringify(question)}'>
-                    </td>
-                    <td>${question.question_text}</td>
-                    <td>${question.question_type}</td>
-                    <td>${question.category || 'Uncategorized'}</td>
-                </tr>
-            `).join('');
+            // Render questions
+            if (Array.isArray(data.questions)) {
+                if (data.questions.length === 0) {
+                    questionsList.innerHTML = '<tr><td colspan="4" class="text-center">No questions found</td></tr>';
+                    return;
+                }
 
-            questionsList.querySelectorAll('.question-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', updateSelectionCounter);
-            });
+                questionsList.innerHTML = data.questions.map(question => `
+                    <tr>
+                        <td style="width: 40px;">
+                            <input type="checkbox" 
+                                class="question-checkbox" 
+                                value="${question.question_id}"
+                                data-question='${JSON.stringify(question)}'>
+                        </td>
+                        <td>${question.question_text}</td>
+                        <td>${question.question_type}</td>
+                        <td>${question.category || 'Uncategorized'}</td>
+                    </tr>
+                `).join('');
+
+                // Add event listeners to checkboxes
+                questionsList.querySelectorAll('.question-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', updateSelectionCounter);
+                });
+            }
         } else {
             throw new Error(data.error || 'Failed to load questions');
         }
@@ -80,14 +97,40 @@ async function loadQuestionBank(search = '') {
     }
 }
 
+// Add function to update category select
+function updateCategorySelect(categories) {
+    const categorySelect = document.getElementById('qbCategorySelect');
+    if (categorySelect) {
+        const currentValue = categorySelect.value;
+        categorySelect.innerHTML = '<option value="">All Categories</option>';
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+        });
+        categorySelect.value = currentValue; // Maintain selected value
+    }
+}
+
 // Make sure initializeQuestionBank is called when needed
 function initializeQuestionBank() {
     // Add event listeners for search
     const searchInput = document.getElementById('qbSearchQuestion');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(function() {
-            loadQuestionBank(this.value);
+            const categorySelect = document.getElementById('qbCategorySelect');
+            loadQuestionBank(this.value, categorySelect ? categorySelect.value : '');
         }, 300));
+    }
+
+    // Add event listener for category select
+    const categorySelect = document.getElementById('qbCategorySelect');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            const searchInput = document.getElementById('qbSearchQuestion');
+            loadQuestionBank(searchInput ? searchInput.value : '', this.value);
+        });
     }
 
     // Add event listener for select all checkbox
@@ -113,7 +156,15 @@ function initializeQuestionBank() {
 async function loadCategories() {
     try {
         console.log('Fetching categories...');
-        // Use absolute path
+        
+        // Get the category select element - use qbCategorySelect consistently
+        categorySelect = document.getElementById('qbCategorySelect') || document.getElementById('categorySelect');
+        
+        if (!categorySelect) {
+            console.warn('Category select element not found. Will retry after modal opens.');
+            return;
+        }
+
         const response = await fetch('../admin/fetch_categories.php');
         
         if (!response.ok) {
@@ -123,15 +174,7 @@ async function loadCategories() {
         const data = await response.json();
         console.log('Categories response:', data);
 
-        if (!categorySelect) {
-            console.error('Category select element not found. Element ID:', 'categorySelect');
-            // Log the current state of the DOM
-            console.log('Current modal content:', document.getElementById('questionBankModal')?.innerHTML);
-            return;
-        }
-
         if (data.success && Array.isArray(data.categories)) {
-            console.log('Loading categories:', data.categories);
             categorySelect.innerHTML = '<option value="">All Categories</option>';
             data.categories.forEach(category => {
                 const option = document.createElement('option');
@@ -139,12 +182,8 @@ async function loadCategories() {
                 option.textContent = category;
                 categorySelect.appendChild(option);
             });
-            
-            // Load questions after categories are loaded
-            loadQuestions(1);
         } else {
             console.error('Failed to load categories:', data.error || 'Unknown error');
-            // Show error in the select element
             categorySelect.innerHTML = '<option value="">Error loading categories</option>';
         }
     } catch (error) {
@@ -154,6 +193,35 @@ async function loadCategories() {
         }
     }
 }
+
+// Add event listener for modal show event
+document.addEventListener('DOMContentLoaded', function() {
+    const qbModal = document.getElementById('qbModal');
+    if (qbModal) {
+        const modal = new bootstrap.Modal(qbModal, {
+            backdrop: 'static',
+            keyboard: true // Allow keyboard navigation
+        });
+
+        // Handle focus management
+        qbModal.addEventListener('shown.bs.modal', function () {
+            // Set focus to the first focusable element
+            const firstFocusable = qbModal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+        });
+
+        // Handle proper cleanup
+        qbModal.addEventListener('hidden.bs.modal', function () {
+            // Reset focus to the trigger element if needed
+            const trigger = document.querySelector('[data-bs-target="#qbModal"]');
+            if (trigger) {
+                trigger.focus();
+            }
+        });
+    }
+});
 
 // Function to load questions
 async function loadQuestions(page = 1) {

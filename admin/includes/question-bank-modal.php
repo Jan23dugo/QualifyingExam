@@ -7,9 +7,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="qb-search-filter-container mb-3">
-                    <input type="text" id="qbSearchQuestion" class="form-control" placeholder="Search questions...">
+                <!-- Add search and category filter container -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" 
+                            id="qbSearchQuestion" 
+                            class="form-control" 
+                            placeholder="Search questions...">
+                    </div>
+                    <div class="col-md-6">
+                        <select id="qbCategorySelect" class="form-control">
+                            <option value="">All Categories</option>
+                            <!-- Categories will be loaded dynamically -->
+                        </select>
+                    </div>
                 </div>
+
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -38,6 +51,33 @@
 </div>
 
 <style>
+/* Add styles for the search and category container */
+.row.mb-3 {
+    margin: 0 -10px 1rem;
+}
+
+.col-md-6 {
+    padding: 0 10px;
+}
+
+#qbSearchQuestion,
+#qbCategorySelect {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#qbSearchQuestion:focus,
+#qbCategorySelect:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
 /* Imported Multiple Choice Styles */
 .imported-mc-options {
     margin-top: 10px;

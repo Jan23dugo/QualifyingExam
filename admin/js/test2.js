@@ -1409,4 +1409,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // At the top of the file, after your existing variables
+    let categorySelect = null;
+
+    // Update or add this function
+    function initializeCategories() {
+        categorySelect = document.getElementById('qbCategorySelect') || document.getElementById('categorySelect');
+        if (categorySelect) {
+            loadCategories();
+        }
+    }
+
+    // Add this to your DOMContentLoaded event listener
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... your existing code ...
+
+        // Initialize categories when modal opens
+        const qbModal = document.getElementById('qbModal');
+        if (qbModal) {
+            qbModal.addEventListener('shown.bs.modal', function () {
+                initializeCategories();
+            });
+        }
+    });
 }); // Close the DOMContentLoaded event listener
