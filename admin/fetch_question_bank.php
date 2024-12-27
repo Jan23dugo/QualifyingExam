@@ -5,29 +5,29 @@ header('Content-Type: application/json');
 
 try {
     $search = isset($_GET['search']) ? $_GET['search'] : '';
-    $category = isset($_GET['category']) ? $_GET['category'] : '';
 
-    $query = "SELECT * FROM question_bank q";
+    // Query to fetch questions and related choices
+    $query = "
+        SELECT q.*, 
+               GROUP_CONCAT(
+                   CONCAT(c.choice_text, ':', c.is_correct) 
+                   ORDER BY c.choice_id 
+                   SEPARATOR '||'
+               ) as choices
+        FROM question_bank q
+        LEFT JOIN question_bank_choices c ON q.question_id = c.question_id
+    ";
 
-    $whereConditions = [];
     $params = [];
     $types = '';
 
     if (!empty($search)) {
-        $whereConditions[] = "q.question_text LIKE ?";
+        $query .= " WHERE q.question_text LIKE ?";
         $params[] = "%$search%";
         $types .= 's';
     }
 
-    if (!empty($category)) {
-        $whereConditions[] = "q.category = ?";
-        $params[] = $category;
-        $types .= 's';
-    }
-
-    if (!empty($whereConditions)) {
-        $query .= " WHERE " . implode(" AND ", $whereConditions);
-    }
+    $query .= " GROUP BY q.question_id";
 
     $stmt = $conn->prepare($query);
     if (!empty($params)) {
@@ -38,47 +38,31 @@ try {
 
     $questions = [];
     while ($row = $result->fetch_assoc()) {
-        if ($row['question_type'] === 'multiple_choice') {
-            $choices_query = "SELECT choice_text, is_correct FROM question_bank_choices 
-                            WHERE question_id = ?";
-            $choices_stmt = $conn->prepare($choices_query);
-            $choices_stmt->bind_param('i', $row['question_id']);
-            $choices_stmt->execute();
-            $choices_result = $choices_stmt->get_result();
-            $row['choices'] = $choices_result->fetch_all(MYSQLI_ASSOC);
-        }
-
-        if ($row['question_type'] === 'programming') {
-            $prog_query = "SELECT * FROM question_bank_programming 
-                          WHERE question_id = ?";
-            $prog_stmt = $conn->prepare($prog_query);
-            $prog_stmt->bind_param('i', $row['question_id']);
-            $prog_stmt->execute();
-            $prog_result = $prog_stmt->get_result();
-            $prog_details = $prog_result->fetch_assoc();
-            if ($prog_details) {
-                $row = array_merge($row, $prog_details);
+        // Process choices if it's a multiple choice question
+        if ($row['question_type'] === 'multiple_choice' && !empty($row['choices'])) {
+            $choices = explode('||', $row['choices']);
+            $options = [];
+            foreach ($choices as $choice) {
+                list($text, $is_correct) = explode(':', $choice);
+                $options[] = [
+                    'choice_text' => $text,
+                    'is_correct' => (bool)$is_correct
+                ];
             }
-            
-            $test_query = "SELECT test_input, expected_output FROM question_bank_test_cases 
-                          WHERE question_id = ?";
-            $test_stmt = $conn->prepare($test_query);
-            $test_stmt->bind_param('i', $row['question_id']);
-            $test_stmt->execute();
-            $test_result = $test_stmt->get_result();
-            $row['test_cases'] = $test_result->fetch_all(MYSQLI_ASSOC);
+            $row['choices'] = $options;
         }
-
         $questions[] = $row;
     }
 
-    echo json_encode(['success' => true, 'questions' => $questions]);
+    echo json_encode([
+        'success' => true,
+        'questions' => $questions
+    ]);
 
 } catch (Exception $e) {
     echo json_encode([
-        'success' => false, 
-        'error' => $e->getMessage(),
-        'questions' => []
+        'success' => false,
+        'error' => $e->getMessage()
     ]);
 }
 ?> 

@@ -3,12 +3,205 @@ window.handleQuestionTypeChange = function(select, sectionId, questionIndex, exi
     // Your existing handleQuestionTypeChange code...
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all modals
+// At the top of the file, add Bootstrap check
+function initializeModals() {
     const modals = document.querySelectorAll('.modal');
+    if (typeof bootstrap === 'undefined') {
+        console.error('Bootstrap is not loaded. Please ensure Bootstrap JS is included.');
+        return;
+    }
+    
     modals.forEach(modalElement => {
-        new bootstrap.Modal(modalElement);
+        if (modalElement) {
+            try {
+                new bootstrap.Modal(modalElement);
+            } catch (error) {
+                console.error('Error initializing modal:', error);
+            }
+        }
     });
+}
+
+// Add these toolbar-related variables at the top of the file, after handleQuestionTypeChange
+let currentField = null;
+let toolbar = document.getElementById('floatingToolbar');
+
+// Add this function to initialize the toolbar
+function initializeToolbar() {
+    if (!toolbar) {
+        console.error('Floating toolbar not found');
+        return;
+    }
+
+    // Add hover styles for toolbar buttons
+    toolbar.querySelectorAll('.toolbar-btn').forEach(button => {
+        Object.assign(button.style, {
+            background: 'none',
+            border: '1px solid transparent',
+            padding: '4px 8px',
+            margin: '0 2px',
+            cursor: 'pointer',
+            borderRadius: '3px',
+            transition: 'all 0.2s ease'
+        });
+
+        button.addEventListener('mouseover', () => {
+            button.style.backgroundColor = '#f0f0f0';
+            button.style.borderColor = '#ddd';
+        });
+
+        button.addEventListener('mouseout', () => {
+            button.style.backgroundColor = 'transparent';
+            button.style.borderColor = 'transparent';
+        });
+
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const command = this.getAttribute('data-command');
+            document.execCommand(command, false, null);
+            if (currentField) {
+                currentField.focus();
+            }
+        });
+    });
+
+    // Hide toolbar when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!toolbar.contains(e.target) && 
+            !e.target.classList.contains('editable-field')) {
+            toolbar.style.display = 'none';
+            currentField = null;
+        }
+    });
+
+    // Prevent toolbar from disappearing when clicking inside it
+    toolbar.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+}
+
+// Add this function to position the toolbar
+function positionToolbar(field) {
+    if (!toolbar || !field) return;
+    
+    // Find the parent container (question-block or section-block)
+    const container = field.closest('.question-block') || field.closest('.section-block');
+    if (!container) return;
+    
+    // Get container and field positions
+    const containerRect = container.getBoundingClientRect();
+    const fieldRect = field.getBoundingClientRect();
+    
+    // Set toolbar styles directly
+    Object.assign(toolbar.style, {
+        position: 'absolute',
+        display: 'block',
+        top: '0',
+        left: '0',
+        zIndex: '9999',
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+        padding: '5px',
+        whiteSpace: 'nowrap'
+    });
+
+    // Calculate position relative to the container
+    const relativeTop = fieldRect.top - containerRect.top - toolbar.offsetHeight - 5;
+    const relativeLeft = fieldRect.left - containerRect.left;
+
+    // Position the toolbar
+    toolbar.style.transform = `translate(${relativeLeft}px, ${relativeTop}px)`;
+
+    // Move toolbar to the container
+    container.appendChild(toolbar);
+
+    // Add arrow pointer at bottom of toolbar
+    const toolbarContent = toolbar.innerHTML;
+    toolbar.innerHTML = `
+        <div style="
+            position: absolute;
+            bottom: -8px;
+            left: 10px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #ddd;
+            z-index: 1;
+        "></div>
+        <div style="
+            position: absolute;
+            bottom: -7px;
+            left: 10px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #fff;
+            z-index: 2;
+        "></div>
+        ${toolbarContent}
+    `;
+
+    // If toolbar would go above container, position it below the field
+    if (relativeTop < 0) {
+        const belowTop = fieldRect.bottom - containerRect.top + 5;
+        toolbar.style.transform = `translate(${relativeLeft}px, ${belowTop}px)`;
+        
+        // Flip the arrow to point upward
+        toolbar.querySelector('div:first-child').style.cssText = `
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #ddd;
+            border-top: none;
+            z-index: 1;
+        `;
+        toolbar.querySelector('div:nth-child(2)').style.cssText = `
+            position: absolute;
+            top: -7px;
+            left: 10px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #fff;
+            border-top: none;
+            z-index: 2;
+        `;
+    }
+
+    // Ensure toolbar stays within container width
+    const containerWidth = container.offsetWidth;
+    const toolbarWidth = toolbar.offsetWidth;
+    const rightEdge = relativeLeft + toolbarWidth;
+
+    if (rightEdge > containerWidth) {
+        const adjustedLeft = containerWidth - toolbarWidth - 10;
+        toolbar.style.transform = `translate(${adjustedLeft}px, ${relativeTop < 0 ? fieldRect.bottom - containerRect.top + 5 : relativeTop}px)`;
+    }
+}
+
+// Add resize event listener to handle window resizing
+window.addEventListener('resize', function() {
+    if (currentField && toolbar.style.display === 'block') {
+        positionToolbar(currentField);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modals with error handling
+    initializeModals();
+    
+    // Initialize toolbar
+    initializeToolbar();
 
     let sectionCounter = 1;
     const exam_id = new URLSearchParams(window.location.search).get('exam_id');
@@ -20,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const addSectionBtn = document.getElementById('add-section-btn');
     const globalAddQuestionBtn = document.getElementById('global-add-question-btn');
     const importQuestionsBtn = document.getElementById('import-questions-btn');
-    const searchQuestion = document.getElementById('searchQuestion');
+    const qbSearchQuestion = document.getElementById('qbSearchQuestion');
     const importSelectedQuestionsBtn = document.getElementById('importSelectedQuestions');
 
     // Function to load existing sections and questions
@@ -81,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 field.addEventListener('click', function(e) {
                     e.stopPropagation();
                     currentField = this;
-                    toolbar.classList.add('active');
                     positionToolbar(this);
                 });
             });
@@ -154,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
         questionField.addEventListener('click', function(e) {
             e.stopPropagation();
             currentField = this;
-            toolbar.classList.add('active');
             positionToolbar(this);
         });
 
@@ -326,7 +517,6 @@ document.addEventListener('DOMContentLoaded', function() {
             field.addEventListener('click', function(e) {
                 e.stopPropagation();
                 currentField = this;
-                toolbar.classList.add('active');
                 positionToolbar(this);
             });
         });
@@ -413,7 +603,6 @@ document.addEventListener('DOMContentLoaded', function() {
         questionField.addEventListener('click', function(e) {
             e.stopPropagation();
             currentField = this;
-            toolbar.classList.add('active');
             positionToolbar(this);
         });
     }
@@ -743,27 +932,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (importQuestionsBtn) {
         importQuestionsBtn.addEventListener('click', function() {
+            const qbModal = document.getElementById('qbModal');
+            if (!qbModal) {
+                console.error('Question bank modal not found');
+                return;
+            }
+
             try {
-                const questionBankModal = document.getElementById('questionBankModal');
-                if (!questionBankModal) {
-                    console.error('Question bank modal not found');
-                    return;
-                }
-                const modal = new bootstrap.Modal(questionBankModal, {
-                    backdrop: 'static',
-                    keyboard: false
+                const modal = new bootstrap.Modal(qbModal);
+
+                loadQuestionBank().then(() => {
+                    modal.show();
+                }).catch(error => {
+                    console.error('Error loading questions:', error);
                 });
-                loadCategories(); // Load categories first
-                loadQuestionBank(); // Then load questions
-                modal.show();
+
             } catch (error) {
                 console.error('Error showing modal:', error);
             }
         });
     }
 
-    if (searchQuestion) {
-        searchQuestion.addEventListener('input', debounce(function() {
+    if (qbSearchQuestion) {
+        qbSearchQuestion.addEventListener('input', debounce(function() {
             loadQuestionBank(this.value);
         }, 300));
     }
@@ -1014,17 +1205,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+
+        // Add listeners for editable fields
+        document.querySelectorAll('.editable-field').forEach(field => {
+            attachEditableFieldListeners(field);
+        });
+    }
+
+    // Update the event listeners for editable fields
+    function attachEditableFieldListeners(field) {
+        field.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentField = this;
+            positionToolbar(this);
+        });
+
+        field.addEventListener('focus', function(e) {
+            currentField = this;
+            positionToolbar(this);
+        });
+
+        // Only update position when content changes
+        field.addEventListener('input', function(e) {
+            if (currentField === this) {
+                positionToolbar(this);
+            }
+        });
+
+        // Handle selection changes
+        field.addEventListener('select', function(e) {
+            if (currentField === this) {
+                positionToolbar(this);
+            }
+        });
     }
 
     // Add these event listeners after your existing ones
     document.getElementById('import-questions-btn').addEventListener('click', function() {
         try {
-            const questionBankModal = document.getElementById('questionBankModal');
-            if (!questionBankModal) {
+            const qbModal = document.getElementById('qbModal');
+            if (!qbModal) {
                 console.error('Question bank modal not found');
                 return;
             }
-            const modal = new bootstrap.Modal(questionBankModal, {
+            const modal = new bootstrap.Modal(qbModal, {
                 backdrop: 'static',
                 keyboard: false
             });
@@ -1036,11 +1260,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('searchQuestion').addEventListener('input', debounce(function() {
-        loadQuestionBank(this.value);
-    }, 300));
+    const qbSearchInput = document.getElementById('qbSearchQuestion');
+    if (qbSearchInput) {
+        qbSearchInput.addEventListener('input', debounce(function() {
+            loadQuestionBank(this.value);
+        }, 300));
+    }
 
-    document.getElementById('importSelectedQuestions').addEventListener('click', importSelectedQuestions);
+    const qbImportBtn = document.getElementById('qbImportSelectedBtn');
+    if (qbImportBtn) {
+        qbImportBtn.addEventListener('click', importSelectedQuestions);
+    }
 
     // Add these functions (keep only one copy)
     function debounce(func, wait) {
@@ -1055,87 +1285,58 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function loadQuestionBank(search = '') {
-        const categorySelect = document.getElementById('categorySelect');
-        const questionList = document.getElementById('questionBankList');
-        const questionBankModal = document.getElementById('questionBankModal');
-        
-        // Check if required elements exist
-        if (!questionList || !questionBankModal) {
-            console.error('Required elements not found:', {
-                questionList: !!questionList,
-                questionBankModal: !!questionBankModal
-            });
-            return;
-        }
+    async function loadQuestionBank(search = '') {
+        try {
+            const questionsList = document.getElementById('qbQuestionsList');
+            if (!questionsList) {
+                console.error('Questions list container not found');
+                return;
+            }
 
-        const category = categorySelect ? categorySelect.value : '';
-        const url = `fetch_question_bank.php?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
-        
-        // Show loading state
-        questionList.innerHTML = `
-            <tr>
-                <td colspan="4" class="text-center py-4">
-                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    Loading questions...
-                </td>
-            </tr>
-        `;
+            questionsList.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
 
-        // Add loading class to modal
-        questionBankModal.classList.add('loading');
-        
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.questions || data.questions.length === 0) {
-                    questionList.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center py-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                No questions found in this category
-                            </td>
-                        </tr>`;
+            const response = await fetch(`fetch_question_bank.php${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            console.log('Received data:', data);
+
+            if (data.success && Array.isArray(data.questions)) {
+                if (data.questions.length === 0) {
+                    questionsList.innerHTML = '<tr><td colspan="4" class="text-center">No questions found</td></tr>';
                     return;
                 }
-                
-                questionList.innerHTML = data.questions.map(question => `
+
+                questionsList.innerHTML = data.questions.map(question => `
                     <tr>
-                        <td><input type="checkbox" value="${question.question_id}" data-question='${JSON.stringify(question)}'></td>
+                        <td style="width: 40px;">
+                            <input type="checkbox" 
+                                class="question-checkbox" 
+                                value="${question.question_id}"
+                                data-question='${JSON.stringify(question)}'>
+                        </td>
                         <td>${question.question_text}</td>
                         <td>${question.question_type}</td>
-                        <td>${question.points || 0}</td>
+                        <td>${question.category || 'Uncategorized'}</td>
                     </tr>
                 `).join('');
 
-                // Reattach event listeners for checkboxes
-                attachCheckboxListeners();
-            })
-            .catch(error => {
-                console.error('Error loading questions:', error);
-                if (questionList) {
-                    questionList.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center text-danger py-3">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                Error loading questions. Please try again.
-                            </td>
-                        </tr>`;
-                }
-            })
-            .finally(() => {
-                // Remove loading class if modal exists
-                if (questionBankModal) {
-                    questionBankModal.classList.remove('loading');
-                }
-            });
+                questionsList.querySelectorAll('.question-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', updateSelectionCounter);
+                });
+            } else {
+                throw new Error(data.error || 'Failed to load questions');
+            }
+        } catch (error) {
+            console.error('Error loading questions:', error);
+            questionsList.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger">
+                        Error loading questions. Please try again.
+                    </td>
+                </tr>
+            `;
+        }
     }
 
     // Add null check for checkbox listeners
@@ -1152,57 +1353,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSelectionCounter() {
-        const counter = document.getElementById('selectionCounter');
-        if (!counter) {
-            console.warn('Selection counter element not found');
-            return;
+        const selectedCount = document.querySelectorAll('#qbQuestionsList input[type="checkbox"]:checked').length;
+        const counterElement = document.getElementById('qbSelectionCounter');
+        if (counterElement) {
+            counterElement.textContent = `${selectedCount} questions selected`;
         }
-        
-        const count = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked').length;
-        counter.textContent = `${count} question${count !== 1 ? 's' : ''} selected`;
     }
 
     function importSelectedQuestions() {
-        const selectedQuestions = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked');
+        const selectedQuestions = Array.from(
+            document.querySelectorAll('#qbQuestionsList input[type="checkbox"]:checked')
+        ).map(checkbox => JSON.parse(checkbox.getAttribute('data-question')));
+
         if (selectedQuestions.length === 0) {
-            alert('Please select at least one question');
+            alert('Please select at least one question to import.');
             return;
         }
 
-        // Show importing progress
-        const importBtn = document.getElementById('importSelectedQuestions');
-        const originalText = importBtn.textContent;
-        importBtn.disabled = true;
-        importBtn.innerHTML = `
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Importing...
-        `;
+        // Add the questions to your exam
+        selectedQuestions.forEach(question => {
+            // Add your logic to add the question to the exam
+            console.log('Importing question:', question);
+        });
 
-        try {
-            // Your existing import code here
-            const sections = document.querySelectorAll('.section-block');
-            if (sections.length === 0) {
-                throw new Error('Please create a section first');
-            }
-            
-            // ... rest of your import code ...
-
-            bootstrap.Modal.getInstance(document.getElementById('questionBankModal')).hide();
-        } catch (error) {
-            alert(error.message);
-        } finally {
-            importBtn.disabled = false;
-            importBtn.textContent = originalText;
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('qbModal'));
+        if (modal) {
+            modal.hide();
         }
     }
 
     // Add these event listeners in your existing DOMContentLoaded function
-    document.querySelectorAll('input[name="importType"]').forEach(radio => {
+    document.querySelectorAll('input[name="qbImportType"]').forEach(radio => {
         radio.addEventListener('change', function() {
-            document.getElementById('manualSelectSection').style.display = 
+            document.getElementById('qbManualSelectSection').style.display = 
                 this.value === 'manual' ? 'block' : 'none';
-            document.getElementById('autoGenerateSection').style.display = 
+            document.getElementById('qbAutoGenerateSection').style.display = 
                 this.value === 'auto' ? 'block' : 'none';
         });
     });
+
+    // Add close modal handler
+    const qbModal = document.getElementById('qbModal');
+    if (qbModal) {
+        qbModal.addEventListener('hidden.bs.modal', function () {
+            // Clean up any necessary state
+            const questionsList = document.getElementById('qbQuestionsList');
+            if (questionsList) {
+                questionsList.innerHTML = '';
+            }
+            // Reset any form elements if needed
+            const searchInput = document.getElementById('qbSearchQuestion');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        });
+    }
 }); // Close the DOMContentLoaded event listener

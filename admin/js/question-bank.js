@@ -2,11 +2,11 @@
 let currentPage = 1;
 let questionBankModal;
 let searchInput;
-let categorySelect;
-let questionsList;
-let paginationContainer;
-let selectAllCheckbox;
-let importButton;
+const categorySelect = document.getElementById('qbCategorySelect');
+const questionsList = document.getElementById('qbQuestionsList');
+const paginationContainer = document.getElementById('qbPagination');
+const selectAllCheckbox = document.getElementById('qbSelectAll');
+const importButton = document.getElementById('qbImportSelectedBtn');
 
 // Add the debounce function at the top of the file
 function debounce(func, wait) {
@@ -26,95 +26,75 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeQuestionBank();
 });
 
-function initializeQuestionBank() {
-    // Get modal elements using the correct IDs from your HTML
-    const modalElement = document.getElementById('questionBankModal');
-    const searchInput = document.getElementById('searchQuestion');
-    const categorySelect = document.getElementById('categorySelect');
-    const questionsList = document.getElementById('questionBankList');
-    const paginationContainer = document.getElementById('questionsPagination');
-    const importButton = document.getElementById('importSelectedQuestions');
-    const selectAllCheckbox = document.getElementById('selectAll');
+async function loadQuestionBank(search = '') {
+    try {
+        const questionsList = document.getElementById('qbQuestionsList');
+        if (!questionsList) {
+            console.error('Questions list container not found');
+            return;
+        }
 
-    // Remove any existing backdrop when initializing
-    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-    
-    // Remove fade class from modal if it exists
-    modalElement.classList.remove('fade');
-    
-    // Initialize Bootstrap modal with specific options
-    const modal = new bootstrap.Modal(modalElement, {
-        backdrop: false,
-        keyboard: true,
-        focus: true
-    });
+        questionsList.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
 
-    // Add mutation observer to remove backdrop if it gets added
-    const observer = new MutationObserver((mutations) => {
-        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-    // Add modal hidden event listener for cleanup
-    modalElement.addEventListener('hidden.bs.modal', function () {
-        // Force remove any remaining backdrop
-        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        const response = await fetch(`fetch_question_bank.php${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+        if (!response.ok) throw new Error('Network response was not ok');
         
-        // Reset body styles
-        document.body.classList.remove('modal-open');
-        document.body.style.removeProperty('overflow');
-        document.body.style.removeProperty('padding-right');
-    });
+        const data = await response.json();
+        console.log('Received data:', data);
 
-    // Debug logging
-    console.log('Modal:', modalElement);
-    console.log('Search:', searchInput);
-    console.log('Category:', categorySelect);
-    console.log('List:', questionsList);
-    console.log('Pagination:', paginationContainer);
+        if (data.success && Array.isArray(data.questions)) {
+            if (data.questions.length === 0) {
+                questionsList.innerHTML = '<tr><td colspan="4" class="text-center">No questions found</td></tr>';
+                return;
+            }
 
-    // Initialize search functionality
+            questionsList.innerHTML = data.questions.map(question => `
+                <tr>
+                    <td style="width: 40px;">
+                        <input type="checkbox" 
+                            class="question-checkbox" 
+                            value="${question.question_id}"
+                            data-question='${JSON.stringify(question)}'>
+                    </td>
+                    <td>${question.question_text}</td>
+                    <td>${question.question_type}</td>
+                    <td>${question.category || 'Uncategorized'}</td>
+                </tr>
+            `).join('');
+
+            questionsList.querySelectorAll('.question-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectionCounter);
+            });
+        } else {
+            throw new Error(data.error || 'Failed to load questions');
+        }
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        questionsList.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-danger">
+                    Error loading questions. Please try again.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// Make sure initializeQuestionBank is called when needed
+function initializeQuestionBank() {
+    // Add event listeners for search
+    const searchInput = document.getElementById('qbSearchQuestion');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(function() {
-            loadQuestions(1);
+            loadQuestionBank(this.value);
         }, 300));
-    } else {
-        console.error('Search input not found');
     }
 
-    // Initialize category filter
-    if (categorySelect) {
-        categorySelect.addEventListener('change', function() {
-            loadQuestions(1);
-        });
-    } else {
-        console.error('Category select not found');
-    }
-
-    // Initialize import button with proper event handling
-    if (importButton) {
-        // Remove any existing event listeners
-        importButton.replaceWith(importButton.cloneNode(true));
-        
-        // Get the fresh reference
-        const newImportButton = document.getElementById('importSelectedQuestions');
-        
-        // Add the event listener
-        newImportButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            importSelectedQuestions();
-        });
-    }
-
-    // Initialize select all functionality
+    // Add event listener for select all checkbox
+    const selectAllCheckbox = document.getElementById('qbSelectAll');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
-            const checkboxes = questionsList.querySelectorAll('input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('#qbQuestionsList input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
@@ -122,8 +102,11 @@ function initializeQuestionBank() {
         });
     }
 
-    // Load initial questions
-    loadQuestions(1);
+    // Add event listener for import button
+    const importBtn = document.getElementById('qbImportSelectedBtn');
+    if (importBtn) {
+        importBtn.addEventListener('click', importSelectedQuestions);
+    }
 }
 
 // Function to load categories
@@ -175,37 +158,34 @@ async function loadCategories() {
 // Function to load questions
 async function loadQuestions(page = 1) {
     try {
-        const searchInput = document.getElementById('searchQuestion');
-        const categorySelect = document.getElementById('categorySelect');
-        const questionsList = document.getElementById('questionBankList');
+        const searchInput = document.getElementById('qbSearchQuestion');
+        const categorySelect = document.getElementById('qbCategorySelect');
+        const questionsList = document.getElementById('qbQuestionsList');
 
         if (!questionsList) {
             console.error('Questions list container not found');
             return;
         }
 
-        const searchTerm = searchInput ? encodeURIComponent(searchInput.value || '') : '';
-        const category = categorySelect ? encodeURIComponent(categorySelect.value || '') : '';
-        
-        console.log('Loading questions for page:', page);
-        
-        const response = await fetch(`fetch_questions.php?page=${page}&search=${searchTerm}&category=${category}`);
+        // Show loading state
+        questionsList.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
+
+        const searchTerm = searchInput ? searchInput.value : '';
+        const category = categorySelect ? categorySelect.value : '';
+
+        const response = await fetch(`fetch_question_bank.php?page=${page}&search=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}`);
         const data = await response.json();
 
-        if (data.success && Array.isArray(data.questions)) {
+        if (data.success) {
             renderQuestions(data.questions);
-            if (data.totalPages) {
-                renderPagination(data.totalPages, page);
-            }
         } else {
-            console.error('Failed to load questions:', data.error || 'Unknown error');
-            questionsList.innerHTML = '<tr><td colspan="4">Error loading questions</td></tr>';
+            questionsList.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading questions</td></tr>';
         }
     } catch (error) {
         console.error('Error loading questions:', error);
-        const questionsList = document.getElementById('questionBankList');
+        const questionsList = document.getElementById('qbQuestionsList');
         if (questionsList) {
-            questionsList.innerHTML = '<tr><td colspan="4">Error loading questions</td></tr>';
+            questionsList.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading questions</td></tr>';
         }
     }
 }
@@ -213,114 +193,92 @@ async function loadQuestions(page = 1) {
 // Function to render questions
 function renderQuestions(questions) {
     const questionsList = document.getElementById('questionBankList');
-    
-    if (!questionsList) {
-        console.error('Questions list element not found');
-        return;
-    }
+    if (!questionsList) return;
 
-    questionsList.innerHTML = '';
-
-    if (questions.length === 0) {
-        questionsList.innerHTML = '<tr><td colspan="4">No questions found</td></tr>';
-        return;
-    }
-
-    questions.forEach(question => {
-        const row = document.createElement('tr');
+    questionsList.innerHTML = questions.map(question => {
+        // Prepare the question data to be stored
         const questionData = {
             question_id: question.question_id,
             question_text: question.question_text,
             question_type: question.question_type,
             category: question.category,
-            options: question.options || question.choices || [],
-            points: question.points || 0
+            options: question.options || [], // This will now match the database structure
+            points: question.points || 0,
+            // Include any programming-specific data if needed
+            test_cases: question.test_cases || []
         };
 
-        row.innerHTML = `
-            <td>
-                <input type="checkbox" class="question-checkbox" 
-                    value="${question.question_id}" 
-                    data-question='${JSON.stringify(questionData)}'>
-            </td>
-            <td>${escapeHtml(question.question_text)}</td>
-            <td>${escapeHtml(question.question_type)}</td>
-            <td>${escapeHtml(question.category || 'N/A')}</td>
-        `;
-        questionsList.appendChild(row);
-    });
+        // Debug log
+        console.log('Processing question:', questionData);
 
-    updateSelectionCounter();
+        return `
+            <tr>
+                <td>
+                    <input type="checkbox" 
+                        class="question-checkbox" 
+                        value="${question.question_id}"
+                        data-question='${JSON.stringify(questionData)}'>
+                </td>
+                <td>
+                    ${escapeHtml(question.question_text)}
+                    ${question.question_type === 'multiple_choice' && question.options ? `
+                        <div class="options-preview" style="
+                            margin-top: 5px;
+                            font-size: 0.9em;
+                            color: #666;
+                        ">
+                            ${question.options.map(option => `
+                                <div class="option-preview" style="
+                                    padding: 2px 5px;
+                                    ${option.is_correct ? 'color: #28a745; font-weight: bold;' : ''}
+                                ">
+                                    ${option.is_correct ? '✓ ' : ''}${escapeHtml(option.option_text)}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </td>
+                <td>${question.question_type}</td>
+                <td>${question.category || 'Uncategorized'}</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Add event listener for checkboxes
+    questionsList.querySelectorAll('.question-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectionCounter);
+    });
 }
 
 // Function to import selected questions
 function importSelectedQuestions() {
-    const selectedCheckboxes = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked');
-    
-    if (selectedCheckboxes.length === 0) {
+    const selectedQuestions = Array.from(
+        document.querySelectorAll('#qbQuestionsList input[type="checkbox"]:checked')
+    ).map(checkbox => JSON.parse(checkbox.getAttribute('data-question')));
+
+    if (selectedQuestions.length === 0) {
         alert('Please select at least one question to import.');
         return;
     }
 
-    // Get the section container
-    const sectionId = document.querySelector('.section-block').getAttribute('data-section-id');
-    const questionsContainer = document.querySelector(`#question-container-${sectionId}`);
-
-    // Get existing question IDs
-    const existingQuestionIds = new Set(
-        Array.from(questionsContainer.querySelectorAll('input[name^="question_id"]'))
-            .map(input => input.value)
-    );
-
-    let addedCount = 0;
-
-    // Process each selected checkbox one at a time
-    selectedCheckboxes.forEach(checkbox => {
-        try {
-            const questionData = JSON.parse(checkbox.dataset.question);
-            
-            // Skip if question already exists
-            if (existingQuestionIds.has(questionData.question_id.toString())) {
-                console.log('Skipping duplicate question:', questionData.question_id);
-                return;
-            }
-
-            // Add the question
-            const added = addQuestionToExam(questionData);
-            if (added) {
-                addedCount++;
-                existingQuestionIds.add(questionData.question_id.toString());
-            }
-        } catch (e) {
-            console.error('Error processing question:', e);
-        }
+    selectedQuestions.forEach(question => {
+        console.log('Importing question:', question);
+        // Add logic to add the question to the exam
+        addQuestionToExam(question);
     });
 
-    // Show success message if any questions were added
-    if (addedCount > 0) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'alert alert-success';
-        messageDiv.style.position = 'fixed';
-        messageDiv.style.top = '20px';
-        messageDiv.style.right = '20px';
-        messageDiv.style.zIndex = '9999';
-        messageDiv.textContent = `${addedCount} question(s) imported successfully`;
-        document.body.appendChild(messageDiv);
-
-        setTimeout(() => messageDiv.remove(), 3000);
+    // Ensure the modal is closed properly
+    const modalElement = document.getElementById('qbModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+        modal.hide();
     }
 
-    // Clear checkboxes
-    selectedCheckboxes.forEach(checkbox => checkbox.checked = false);
-    
-    // Reset select all checkbox
-    const selectAllCheckbox = document.getElementById('selectAll');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.checked = false;
-    }
+    // Remove any remaining modal backdrop
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
 
-    // Update selection counter
-    updateSelectionCounter();
+    // Reset modal state
+    resetModalState();
 }
 
 // Helper function to safely get text content
@@ -329,15 +287,29 @@ function getTextContent(element, defaultValue = '') {
 }
 
 function addQuestionToExam(question) {
+    console.log('Adding question:', question);
+    console.log('Question type:', question.question_type);
+    console.log('Options:', question.options);
+
     const sectionId = document.querySelector('.section-block').getAttribute('data-section-id');
     const questionsContainer = document.querySelector(`#question-container-${sectionId}`);
     const questionIndex = questionsContainer.children.length;
 
-    // Create a new question block
     const questionBlock = document.createElement('div');
-    questionBlock.classList.add('question-block');
+    questionBlock.classList.add('qb-question-block');
     questionBlock.setAttribute('data-question-type', question.question_type);
     questionBlock.setAttribute('data-question-id', question.question_id);
+
+    // Apply styles directly to the question block
+    Object.assign(questionBlock.style, {
+        backgroundColor: '#ffffff',
+        border: '1px solid #e9ecef',
+        borderRadius: '8px',
+        padding: '15px',
+        marginBottom: '20px',
+        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease'
+    });
 
     // Set up the question structure with toolbar
     questionBlock.innerHTML = `
@@ -345,21 +317,70 @@ function addQuestionToExam(question) {
         <input type="hidden" name="question_id[${sectionId}][${questionIndex}]" value="${question.question_id}">
         <div style="display: flex; justify-content: space-between; align-items: start;">
             <div style="flex: 1; margin-right: 10px;">
-                <div class="toolbar" style="display: none; margin-bottom: 5px;">
-                    <button type="button" class="toolbar-btn" data-command="bold">
+                <div class="toolbar" style="
+                    display: none;
+                    margin-bottom: 5px;
+                    background: #fff;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 5px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                ">
+                    <button type="button" class="toolbar-btn" data-command="bold" style="
+                        background: none;
+                        border: 1px solid transparent;
+                        padding: 4px 8px;
+                        margin: 0 2px;
+                        cursor: pointer;
+                        border-radius: 3px;
+                        transition: all 0.2s ease;
+                    ">
                         <i class="fas fa-bold"></i>
                     </button>
-                    <button type="button" class="toolbar-btn" data-command="italic">
+                    <button type="button" class="toolbar-btn" data-command="italic" style="
+                        background: none;
+                        border: 1px solid transparent;
+                        padding: 4px 8px;
+                        margin: 0 2px;
+                        cursor: pointer;
+                        border-radius: 3px;
+                        transition: all 0.2s ease;
+                    ">
                         <i class="fas fa-italic"></i>
                     </button>
-                    <button type="button" class="toolbar-btn" data-command="underline">
+                    <button type="button" class="toolbar-btn" data-command="underline" style="
+                        background: none;
+                        border: 1px solid transparent;
+                        padding: 4px 8px;
+                        margin: 0 2px;
+                        cursor: pointer;
+                        border-radius: 3px;
+                        transition: all 0.2s ease;
+                    ">
                         <i class="fas fa-underline"></i>
                     </button>
-                    <span class="toolbar-separator">|</span>
-                    <button type="button" class="toolbar-btn" data-command="insertUnorderedList">
+                    <span style="margin: 0 5px; color: #ddd;">|</span>
+                    <button type="button" class="toolbar-btn" data-command="insertUnorderedList" style="
+                        background: none;
+                        border: 1px solid transparent;
+                        padding: 4px 8px;
+                        margin: 0 2px;
+                        cursor: pointer;
+                        border-radius: 3px;
+                        transition: all 0.2s ease;
+                    ">
                         <i class="fas fa-list-ul"></i>
                     </button>
-                    <button type="button" class="toolbar-btn" data-command="insertOrderedList">
+                    <button type="button" class="toolbar-btn" data-command="insertOrderedList" style="
+                        background: none;
+                        border: 1px solid transparent;
+                        padding: 4px 8px;
+                        margin: 0 2px;
+                        cursor: pointer;
+                        border-radius: 3px;
+                        transition: all 0.2s ease;
+                    ">
                         <i class="fas fa-list-ol"></i>
                     </button>
                 </div>
@@ -367,29 +388,84 @@ function addQuestionToExam(question) {
                     contenteditable="true" 
                     data-placeholder="Enter your question here"
                     data-input-name="question_text[${sectionId}][${questionIndex}]"
+                    style="
+                        flex: 1;
+                        min-height: 100px;
+                        padding: 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        margin-bottom: 10px;
+                        cursor: text;
+                        transition: border-color 0.2s ease;
+                        line-height: 1.5;
+                    "
                 >${question.question_text || ''}</div>
             </div>
             <div style="display: flex; align-items: start;">
                 <div style="min-width: 150px; margin-right: 10px;">
                     <select class="form-control question-type-select" 
-                        name="question_type[${sectionId}][${questionIndex}]" disabled>
+                        name="question_type[${sectionId}][${questionIndex}]" 
+                        disabled
+                        style="
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            background-color: #f8f9fa;
+                        ">
                         <option value="multiple_choice" selected>Multiple Choice</option>
                     </select>
                 </div>
-                <button type="button" class="btn btn-link text-danger delete-question-btn" style="padding: 5px;">
+                <button type="button" class="btn btn-link text-danger delete-question-btn" style="
+                    padding: 5px;
+                    background: none;
+                    border: none;
+                    color: #dc3545;
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                ">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
         </div>
-        <div class="question-options" style="margin-top: 10px;">
-            ${question.question_type === 'multiple_choice' ? createMultipleChoiceOptions(question, sectionId, questionIndex) : ''}
-        </div>
+        <div class="question-options" style="margin-top: 10px;"></div>
         <div style="margin-top: 10px;">
-            <input type="number" name="points[${sectionId}][${questionIndex}]" 
-                class="form-control" placeholder="Points" style="width: 100px;"
+            <input type="number" 
+                name="points[${sectionId}][${questionIndex}]" 
+                class="form-control" 
+                placeholder="Points" 
+                style="
+                    width: 100px;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    transition: border-color 0.2s ease;
+                "
                 value="${question.points || 0}">
         </div>
     `;
+
+    // Add hover effects for toolbar buttons
+    questionBlock.querySelectorAll('.toolbar-btn').forEach(button => {
+        button.addEventListener('mouseover', () => {
+            button.style.backgroundColor = '#f0f0f0';
+            button.style.borderColor = '#ddd';
+        });
+
+        button.addEventListener('mouseout', () => {
+            button.style.backgroundColor = 'transparent';
+            button.style.borderColor = 'transparent';
+        });
+    });
+
+    // Add hover effect for delete button
+    const deleteQuestionBtn = questionBlock.querySelector('.delete-question-btn');
+    deleteQuestionBtn.addEventListener('mouseover', () => {
+        deleteQuestionBtn.style.transform = 'scale(1.1)';
+    });
+    deleteQuestionBtn.addEventListener('mouseout', () => {
+        deleteQuestionBtn.style.transform = 'scale(1)';
+    });
 
     // Add toolbar functionality
     const questionField = questionBlock.querySelector('.question-field');
@@ -417,26 +493,64 @@ function addQuestionToExam(question) {
     });
 
     // Add delete question functionality
-    const deleteBtn = questionBlock.querySelector('.delete-question-btn');
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', function() {
+    if (deleteQuestionBtn) {
+        deleteQuestionBtn.addEventListener('click', function() {
             if (confirm('Are you sure you want to delete this question?')) {
                 questionBlock.remove();
             }
         });
     }
 
-    // Add event listeners for the options
+    // Update the options handling code
     if (question.question_type === 'multiple_choice') {
-        // Add event listener for the Add Option button
-        addOptionEventListener(questionBlock);
+        const optionsContainer = questionBlock.querySelector('.question-options');
         
-        // Add event listeners for existing delete option buttons
-        questionBlock.querySelectorAll('.delete-option-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.closest('.option-container').remove();
+        if (question.choices && Array.isArray(question.choices)) {
+            optionsContainer.innerHTML = `
+                <div class="multiple-choice-options" style="margin-top: 15px;">
+                    ${question.choices.map((option, index) => `
+                        <div class="option-container" style="margin-bottom: 10px;">
+                            <div class="input-group">
+                                <input type="text" 
+                                    class="form-control" 
+                                    name="options[${sectionId}][${questionIndex}][]" 
+                                    value="${option.choice_text || ''}"
+                                    readonly>
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <input type="radio" 
+                                            name="correct_option[${sectionId}][${questionIndex}]" 
+                                            value="${index}"
+                                            ${option.is_correct ? 'checked' : ''}>
+                                        <label style="margin-left: 5px;">Correct</label>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-link text-danger remove-option-btn">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <button type="button" class="btn btn-secondary add-option-btn">
+                        Add Option
+                    </button>
+                </div>
+            `;
+
+            // Add event listeners for the option buttons
+            optionsContainer.querySelectorAll('.remove-option-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.option-container').remove();
+                });
             });
-        });
+
+            const addOptionBtn = optionsContainer.querySelector('.add-option-btn');
+            if (addOptionBtn) {
+                addOptionBtn.addEventListener('click', () => {
+                    addMultipleChoiceOption(optionsContainer, sectionId, questionIndex);
+                });
+            }
+        }
     }
 
     questionsContainer.appendChild(questionBlock);
@@ -464,22 +578,22 @@ function createMultipleChoiceOptions(question, sectionId, questionIndex) {
         
         return `
             <div class="option-container">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">
+                <div class="qb-input-group">
+                    <div class="qb-input-group-prepend">
+                        <div class="qb-input-group-text">
                             <input type="radio" 
-                                name="correct_answer[${sectionId}][${questionIndex}]" 
+                                name="qb_correct_answer[${sectionId}][${questionIndex}]" 
                                 value="${idx}"
                                 ${isCorrect ? 'checked' : ''}>
                             <label>Correct</label>
                         </div>
                     </div>
                     <input type="text" 
-                        class="form-control" 
-                        name="options[${sectionId}][${questionIndex}][]" 
+                        class="qb-form-control" 
+                        name="qb_options[${sectionId}][${questionIndex}][]" 
                         value="${optionText}"
                         placeholder="Option ${idx + 1}">
-                    <button type="button" class="delete-option-btn">
+                    <button type="button" class="qb-delete-option-btn">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -508,20 +622,30 @@ function addOptionEventListener(questionBlock) {
             
             const newOptionHtml = `
                 <div class="option-container">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">
+                    <div class="qb-input-group">
+                        <div class="qb-input-group-prepend">
+                            <div class="qb-input-group-text">
                                 <input type="radio" 
-                                    name="correct_answer[${sectionId}][${questionIndex}]" 
+                                    name="qb_correct_option[${sectionId}][${questionIndex}]" 
                                     value="${newOptionIndex}">
                                 <label>Correct</label>
                             </div>
                         </div>
                         <input type="text" 
-                            class="form-control" 
-                            name="options[${sectionId}][${questionIndex}][]" 
-                            placeholder="Option ${newOptionIndex + 1}">
-                        <button type="button" class="delete-option-btn">
+                            class="qb-form-control" 
+                            name="qb_options[${sectionId}][${questionIndex}][]" 
+                            placeholder="Enter option text"
+                            style="
+                                border: 1px solid #dee2e6;
+                                border-radius: 4px 0 0 4px;
+                                border-right: none;
+                            ">
+                        <button type="button" class="qb-delete-option-btn" style="
+                            border: 1px solid #dee2e6;
+                            border-left: none;
+                            border-radius: 0 4px 4px 0;
+                            padding: 0.375rem 0.75rem;
+                        ">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -532,7 +656,7 @@ function addOptionEventListener(questionBlock) {
             addOptionBtn.insertAdjacentHTML('beforebegin', newOptionHtml);
             
             // Add event listener to the new delete button
-            const newDeleteBtn = addOptionBtn.previousElementSibling.querySelector('.delete-option-btn');
+            const newDeleteBtn = addOptionBtn.previousElementSibling.querySelector('.qb-delete-option-btn');
             if (newDeleteBtn) {
                 newDeleteBtn.addEventListener('click', function() {
                     this.closest('.option-container').remove();
@@ -546,20 +670,20 @@ function createNewOptionHtml(questionId, sectionId, questionIndex) {
     const optionContainer = document.createElement('div');
     optionContainer.className = 'option-container';
     optionContainer.innerHTML = `
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <div class="input-group-text">
+        <div class="qb-input-group">
+            <div class="qb-input-group-prepend">
+                <div class="qb-input-group-text">
                     <input type="radio" 
-                        name="correct_option[${sectionId}][${questionIndex}]" 
+                        name="qb_correct_option[${sectionId}][${questionIndex}]" 
                         value="">
                     <label>Correct</label>
                 </div>
             </div>
             <input type="text" 
-                class="form-control" 
-                name="options[${sectionId}][${questionIndex}][]" 
+                class="qb-form-control" 
+                name="qb_options[${sectionId}][${questionIndex}][]" 
                 placeholder="New Option">
-            <button type="button" class="delete-option">×</button>
+            <button type="button" class="qb-delete-option">×</button>
         </div>
     `;
     return optionContainer;
@@ -645,8 +769,8 @@ function escapeHtml(unsafe) {
 
 // Add selection counter update function
 function updateSelectionCounter() {
-    const selectedCount = document.querySelectorAll('#questionBankList input[type="checkbox"]:checked').length;
-    const counterElement = document.getElementById('selectionCounter');
+    const selectedCount = document.querySelectorAll('#qbQuestionsList input[type="checkbox"]:checked').length;
+    const counterElement = document.getElementById('qbSelectionCounter');
     if (counterElement) {
         counterElement.textContent = `${selectedCount} questions selected`;
     }

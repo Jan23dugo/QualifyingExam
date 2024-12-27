@@ -60,10 +60,9 @@ while ($row = $result->fetch_assoc()) {
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/styles.min.css">
-  <link rel="stylesheet" href="css/question-bank.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/question-bank.css" rel="stylesheet">
-  <link href="css/imported-questions.css" rel="stylesheet">
+  
+  
   <style>
 
     .section-block:hover {
@@ -548,57 +547,6 @@ while ($row = $result->fetch_assoc()) {
         color: white;
     }
 
-    .floating-toolbar {
-        position: absolute;
-        display: none;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        padding: 5px;
-        z-index: 1000;
-        margin-top: 5px;
-    }
-
-    .floating-toolbar.active {
-        display: flex !important;
-        align-items: center;
-    }
-
-    .floating-toolbar:before {
-        content: '';
-        position: absolute;
-        top: -6px;
-        left: 10px;
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-bottom: 5px solid #ddd;
-    }
-
-    .floating-toolbar:after {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: 10px;
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-bottom: 5px solid #fff;
-    }
-
-    .toolbar-btn {
-        padding: 4px 8px;
-        margin: 0 2px;
-        font-size: 14px;
-    }
-
-    .toolbar-separator {
-        margin: 0 4px;
-    }
-
     /* Make text fields appear as rich text areas */
     .section-block input[type="text"], 
     .section-block textarea {
@@ -951,6 +899,22 @@ while ($row = $result->fetch_assoc()) {
         background: #007bff;
         color: #fff;
         border-color: #007bff;
+    }
+
+    .form-scrollable {
+        position: relative;
+    }
+
+    .section-block {
+        position: relative;
+    }
+
+    .question-block {
+        position: relative;
+    }
+
+    .editable-field {
+        position: relative;
     }
   </style>
 
