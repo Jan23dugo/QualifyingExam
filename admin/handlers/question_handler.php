@@ -49,18 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             case 'programming':
                                 $sql = "INSERT INTO question_bank_programming (
-                                    question_id, programming_language, problem_description, 
-                                    input_format, output_format, constraints
-                                ) VALUES (?, ?, ?, ?, ?, ?)";
+                                    question_id, 
+                                    programming_language
+                                ) VALUES (?, ?)";
                                 
                                 $stmt = $conn->prepare($sql);
-                                $stmt->bind_param("isssss", 
+                                $stmt->bind_param("is", 
                                     $question_id,
-                                    $question['programming_language'],
-                                    $question['problem_description'],
-                                    $question['input_format'],
-                                    $question['output_format'],
-                                    $question['constraints']
+                                    $question['programming_language']
                                 );
                                 
                                 if (!$stmt->execute()) {
@@ -70,20 +66,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 // Add test cases if they exist
                                 if (isset($question['test_cases']) && !empty($question['test_cases'])) {
                                     $sql = "INSERT INTO question_bank_test_cases (
-                                        question_id, test_input, expected_output, explanation, is_hidden
+                                        question_id, 
+                                        test_input, 
+                                        expected_output, 
+                                        is_hidden,
+                                        description
                                     ) VALUES (?, ?, ?, ?, ?)";
                                     
                                     $stmt = $conn->prepare($sql);
                                     
                                     foreach ($question['test_cases'] as $test_case) {
-                                        $is_hidden = 0;
-                                        $stmt->bind_param("isssi", 
+                                        $stmt->bind_param("issis", 
                                             $question_id,
-                                            $test_case['input'],
-                                            $test_case['output'],
-                                            $test_case['explanation'],
-                                            $is_hidden
+                                            $test_case['test_input'],
+                                            $test_case['expected_output'],
+                                            $test_case['is_hidden'],
+                                            $test_case['description']
                                         );
+                                        
                                         if (!$stmt->execute()) {
                                             throw new Exception('Failed to add test case');
                                         }
@@ -160,6 +160,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ];
                             }
                             break;
+
+                        case 'programming':
+                            // Get programming language
+                            $sql = "SELECT programming_language FROM question_bank_programming WHERE question_id = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $question_id);
+                            $stmt->execute();
+                            $prog_result = $stmt->get_result();
+                            if ($prog_details = $prog_result->fetch_assoc()) {
+                                $question['programming_language'] = $prog_details['programming_language'];
+                            }
+                            
+                            // Get test cases
+                            $sql = "SELECT test_input, expected_output, is_hidden 
+                                   FROM question_bank_test_cases 
+                                   WHERE question_id = ? 
+                                   ORDER BY test_case_id";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $question_id);
+                            $stmt->execute();
+                            $test_cases_result = $stmt->get_result();
+                            
+                            $question['test_cases'] = [];
+                            while ($test_case = $test_cases_result->fetch_assoc()) {
+                                $question['test_cases'][] = [
+                                    'test_input' => $test_case['test_input'],
+                                    'expected_output' => $test_case['expected_output'],
+                                    'is_hidden' => (bool)$test_case['is_hidden']
+                                ];
+                            }
+                            break;
                     }
                     
                     echo json_encode(['status' => 'success', 'data' => $question]);
@@ -219,19 +250,14 @@ function handleAddQuestion() {
         // For programming questions
         if ($question_type === 'programming') {
             $sql = "INSERT INTO question_bank_programming (
-                question_id, programming_language, problem_description, 
-                input_format, output_format, constraints, solution_template
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                question_id, 
+                programming_language
+            ) VALUES (?, ?)";
             
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issssss", 
+            $stmt->bind_param("is", 
                 $question_id,
-                $_POST['programming_language'],
-                $_POST['problem_description'],
-                $_POST['input_format'],
-                $_POST['output_format'],
-                $_POST['constraints'],
-                $_POST['solution_template']
+                $_POST['programming_language']
             );
             
             if (!$stmt->execute()) {
@@ -240,39 +266,33 @@ function handleAddQuestion() {
             
             // Add test cases
             $sql = "INSERT INTO question_bank_test_cases (
-                question_id, test_input, expected_output, explanation, is_hidden
-            ) VALUES (?, ?, ?, ?, ?)";
+                question_id, 
+                test_input, 
+                expected_output, 
+                is_hidden
+            ) VALUES (?, ?, ?, ?)";
             
             $stmt = $conn->prepare($sql);
             
-            // Add sample test cases
-            foreach ($_POST['test_case_input'] as $index => $input) {
-                $is_hidden = 0;
-                $stmt->bind_param("isssi", 
-                    $question_id,
-                    $input,
-                    $_POST['test_case_output'][$index],
-                    $_POST['test_case_explanation'][$index],
-                    $is_hidden
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception('Failed to add test case');
-                }
-            }
-            
-            // Add hidden test cases
-            foreach ($_POST['hidden_test_input'] as $index => $input) {
-                $is_hidden = 1;
-                $explanation = '';
-                $stmt->bind_param("isssi", 
-                    $question_id,
-                    $input,
-                    $_POST['hidden_test_output'][$index],
-                    $explanation,
-                    $is_hidden
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception('Failed to add hidden test case');
+            // Process test cases
+            if (isset($_POST['test_case_input']) && is_array($_POST['test_case_input'])) {
+                foreach ($_POST['test_case_input'] as $index => $input) {
+                    if (empty($input) || !isset($_POST['test_case_output'][$index])) {
+                        continue;
+                    }
+
+                    $isHidden = isset($_POST['test_case_hidden'][$index]) ? 1 : 0;
+                    
+                    $stmt->bind_param("issi", 
+                        $question_id,
+                        $input,
+                        $_POST['test_case_output'][$index],
+                        $isHidden
+                    );
+                    
+                    if (!$stmt->execute()) {
+                        throw new Exception('Failed to add test case');
+                    }
                 }
             }
         }

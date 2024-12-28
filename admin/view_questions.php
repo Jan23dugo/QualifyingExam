@@ -4,7 +4,10 @@ include('../config/config.php');
 // Add this helper function
 function include_test_cases($question_id, $conn) {
     // Get visible test cases
-    $testCasesSql = "SELECT * FROM question_bank_test_cases WHERE question_id = ? AND is_hidden = 0";
+    $testCasesSql = "SELECT test_input, expected_output, is_hidden 
+                     FROM question_bank_test_cases 
+                     WHERE question_id = ? 
+                     ORDER BY id";
     $testCasesStmt = $conn->prepare($testCasesSql);
     $testCasesStmt->bind_param("i", $question_id);
     $testCasesStmt->execute();
@@ -16,23 +19,27 @@ function include_test_cases($question_id, $conn) {
     if ($testCasesResult->num_rows > 0) {
         echo '<div class="table-responsive">';
         echo '<table class="table table-bordered">';
-        echo '<thead><tr><th>Input</th><th>Expected Output</th><th>Explanation</th></tr></thead>';
+        echo '<thead><tr><th>Input</th><th>Expected Output</th><th>Status</th></tr></thead>';
         echo '<tbody>';
         while ($testCase = $testCasesResult->fetch_assoc()) {
-            echo '<tr>';
-            echo '<td><pre>' . htmlspecialchars($testCase['test_input']) . '</pre></td>';
-            echo '<td><pre>' . htmlspecialchars($testCase['expected_output']) . '</pre></td>';
-            echo '<td>' . htmlspecialchars($testCase['explanation']) . '</td>';
-            echo '</tr>';
+            if (!$testCase['is_hidden']) {
+                echo '<tr>';
+                echo '<td><pre>' . htmlspecialchars($testCase['test_input']) . '</pre></td>';
+                echo '<td><pre>' . htmlspecialchars($testCase['expected_output']) . '</pre></td>';
+                echo '<td>Visible</td>';
+                echo '</tr>';
+            }
         }
         echo '</tbody></table>';
         echo '</div>';
     } else {
-        echo '<p class="text-muted">No sample test cases available.</p>';
+        echo '<p class="text-muted">No test cases available.</p>';
     }
     
     // Get count of hidden test cases
-    $hiddenCasesSql = "SELECT COUNT(*) as count FROM question_bank_test_cases WHERE question_id = ? AND is_hidden = 1";
+    $hiddenCasesSql = "SELECT COUNT(*) as count 
+                       FROM question_bank_test_cases 
+                       WHERE question_id = ? AND is_hidden = 1";
     $hiddenCasesStmt = $conn->prepare($hiddenCasesSql);
     $hiddenCasesStmt->bind_param("i", $question_id);
     $hiddenCasesStmt->execute();
@@ -211,11 +218,8 @@ $category = $_GET['category'];
                     <div class="card shadow">
                         <div class="card-body">
                             <?php
-                            // Replace the existing SQL query with this one
-                            $sql = "SELECT DISTINCT qb.*,
-                                    qbp.programming_language, qbp.problem_description, 
-                                    qbp.input_format, qbp.output_format, qbp.constraints, 
-                                    qbp.solution_template
+                            // Replace the existing SQL query with this simplified version
+                            $sql = "SELECT DISTINCT qb.*, qbp.programming_language
                                     FROM question_bank qb
                                     LEFT JOIN question_bank_programming qbp ON qb.question_id = qbp.question_id
                                     WHERE qb.category = ?
@@ -297,16 +301,6 @@ $category = $_GET['category'];
                                                             ?>
                                                             <div class="programming-details mt-3">
                                                                 <p><strong>Language:</strong> <?php echo htmlspecialchars($row['programming_language']); ?></p>
-                                                                <p><strong>Problem Description:</strong><br><?php echo nl2br(htmlspecialchars($row['problem_description'])); ?></p>
-                                                                <p><strong>Input Format:</strong><br><?php echo nl2br(htmlspecialchars($row['input_format'])); ?></p>
-                                                                <p><strong>Output Format:</strong><br><?php echo nl2br(htmlspecialchars($row['output_format'])); ?></p>
-                                                                <p><strong>Constraints:</strong><br><?php echo nl2br(htmlspecialchars($row['constraints'])); ?></p>
-                                                                
-                                                                <!-- Solution Template -->
-                                                                <div class="mt-3">
-                                                                    <p><strong>Solution Template:</strong></p>
-                                                                    <pre class="bg-light p-3"><code><?php echo htmlspecialchars($row['solution_template']); ?></code></pre>
-                                                                </div>
                                                                 
                                                                 <!-- Test Cases -->
                                                                 <?php include_test_cases($row['question_id'], $conn); ?>

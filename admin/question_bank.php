@@ -497,28 +497,11 @@ include('../config/config.php');
                         <select class="form-control" name="programming_language" required>
                             <option value="python">Python</option>
                             <option value="java">Java</option>
-                            <option value="cpp">C++</option>
                             <option value="c">C</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Problem Description</label>
-                        <textarea class="form-control" name="problem_description" rows="4" placeholder="Detailed description of the programming problem" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Input Format</label>
-                        <textarea class="form-control" name="input_format" rows="2" placeholder="Describe the format of input" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Output Format</label>
-                        <textarea class="form-control" name="output_format" rows="2" placeholder="Describe the format of expected output" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Constraints</label>
-                        <textarea class="form-control" name="constraints" rows="2" placeholder="List any constraints (e.g., input size limits, value ranges)" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Sample Test Cases</label>
+                        <label class="form-label">Test Cases</label>
                         <div id="testCasesContainer">
                             <div class="test-case mb-3">
                                 <div class="card">
@@ -530,16 +513,21 @@ include('../config/config.php');
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
-                                            <label class="form-label">Sample Input</label>
-                                            <textarea class="form-control" name="test_case_input[]" rows="2" placeholder="Enter sample input" required></textarea>
+                                            <label class="form-label">Input</label>
+                                            <input type="text" class="form-control" 
+                                                name="test_case_input[]" 
+                                                placeholder="Test input" required>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Sample Output</label>
-                                            <textarea class="form-control" name="test_case_output[]" rows="2" placeholder="Enter expected output" required></textarea>
+                                            <label class="form-label">Expected Output</label>
+                                            <input type="text" class="form-control" 
+                                                name="test_case_output[]" 
+                                                placeholder="Expected output" required>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Explanation (Optional)</label>
-                                            <textarea class="form-control" name="test_case_explanation[]" rows="2" placeholder="Explain this test case"></textarea>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" 
+                                                name="test_case_hidden[]">
+                                            <label class="form-check-label">Hidden Test Case</label>
                                         </div>
                                     </div>
                                 </div>
@@ -547,38 +535,6 @@ include('../config/config.php');
                         </div>
                         <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addTestCaseBtn">
                             <i class="fas fa-plus"></i> Add Test Case
-                        </button>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Solution Template (Optional)</label>
-                        <textarea class="form-control" name="solution_template" rows="4" placeholder="Provide starter code or function template that students need to complete"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Hidden Test Cases</label>
-                        <div id="hiddenTestCasesContainer">
-                            <div class="test-case mb-3">
-                                <div class="card">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <span>Hidden Test Case #1</span>
-                                        <button type="button" class="btn btn-outline-danger btn-sm remove-hidden-test-case">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-2">
-                                            <label class="form-label">Input</label>
-                                            <textarea class="form-control" name="hidden_test_input[]" rows="2" placeholder="Enter input for hidden test" required></textarea>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Expected Output</label>
-                                            <textarea class="form-control" name="hidden_test_output[]" rows="2" placeholder="Enter expected output" required></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addHiddenTestCaseBtn">
-                            <i class="fas fa-plus"></i> Add Hidden Test Case
                         </button>
                     </div>`;
             }
@@ -621,27 +577,52 @@ include('../config/config.php');
         }
 
         function initializeProgrammingHandlers() {
+            let testCaseCount = 1;
+
             $('#addTestCaseBtn').click(function() {
+                testCaseCount++;
                 const newTestCase = `
                     <div class="test-case mb-3">
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Input</span>
-                            <textarea class="form-control" name="test_case_input[]" rows="2" placeholder="Enter input test case" required></textarea>
+                        <div class="card">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <span>Test Case #${testCaseCount}</span>
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <label class="form-label">Input</label>
+                                    <input type="text" class="form-control" 
+                                        name="test_case_input[]" 
+                                        placeholder="Test input" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Expected Output</label>
+                                    <input type="text" class="form-control" 
+                                        name="test_case_output[]" 
+                                        placeholder="Expected output" required>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" 
+                                        name="test_case_hidden[]">
+                                    <label class="form-check-label">Hidden Test Case</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Expected Output</span>
-                            <textarea class="form-control" name="test_case_output[]" rows="2" placeholder="Enter expected output" required></textarea>
-                        </div>
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
-                            <i class="fas fa-times"></i> Remove Test Case
-                        </button>
                     </div>`;
                 $('#testCasesContainer').append(newTestCase);
             });
 
+            // Handle remove test case button
             $(document).on('click', '.remove-test-case', function() {
                 if ($('#testCasesContainer .test-case').length > 1) {
                     $(this).closest('.test-case').remove();
+                    // Update test case numbers
+                    $('#testCasesContainer .test-case').each(function(index) {
+                        $(this).find('.card-header span').text(`Test Case #${index + 1}`);
+                    });
+                    testCaseCount = $('#testCasesContainer .test-case').length;
                 }
             });
         }
@@ -738,17 +719,12 @@ include('../config/config.php');
                     break;
                 case 'programming':
                     currentQuestion.programming_language = $('select[name="programming_language"]').val();
-                    currentQuestion.problem_description = $('textarea[name="problem_description"]').val();
-                    currentQuestion.input_format = $('textarea[name="input_format"]').val();
-                    currentQuestion.output_format = $('textarea[name="output_format"]').val();
-                    currentQuestion.constraints = $('textarea[name="constraints"]').val();
-                    // Collect test cases
                     currentQuestion.test_cases = [];
                     $('.test-case').each(function() {
                         currentQuestion.test_cases.push({
-                            input: $(this).find('textarea[name="test_case_input[]"]').val(),
-                            output: $(this).find('textarea[name="test_case_output[]"]').val(),
-                            explanation: $(this).find('textarea[name="test_case_explanation[]"]').val()
+                            test_input: $(this).find('input[name="test_case_input[]"]').val(),
+                            expected_output: $(this).find('input[name="test_case_output[]"]').val(),
+                            is_hidden: $(this).find('input[name="test_case_hidden[]"]').is(':checked')
                         });
                     });
                     break;
@@ -818,14 +794,11 @@ include('../config/config.php');
                     $('textarea[name="answer_guidelines"]').val('');
                     break;
                 case 'programming':
-                    $('textarea[name="problem_description"]').val('');
-                    $('textarea[name="input_format"]').val('');
-                    $('textarea[name="output_format"]').val('');
-                    $('textarea[name="constraints"]').val('');
+                    $('select[name="programming_language"]').val('');
                     // Clear test cases except the first one
                     const firstTestCase = $('.test-case:first');
                     $('#testCasesContainer').empty().append(firstTestCase.clone());
-                    firstTestCase.find('textarea').val('');
+                    firstTestCase.find('input').val('');
                     break;
             }
         }

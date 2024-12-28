@@ -244,25 +244,15 @@ try {
         elseif ($data['question_type'] === 'programming') {
             logDebug("Processing programming question for question", $questionId);
             
-            // Insert programming details
+            // Insert programming language
             $sql = "INSERT INTO question_bank_programming (
                 question_id, 
-                programming_language, 
-                problem_description, 
-                input_format, 
-                output_format, 
-                constraints,
-                solution_template
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                programming_language
+            ) VALUES (?, ?)";
             
             logDebug("Inserting programming details", [
                 'question_id' => $questionId,
-                'programming_language' => $data['choice1'], // programming language is in choice1
-                'problem_description' => $data['choice2'], // description is in choice2
-                'input_format' => $data['choice3'], // input format is in choice3
-                'output_format' => $data['choice4'], // output format is in choice4
-                'constraints' => $data['constraints'],
-                'solution_template' => $data['solution_template']
+                'programming_language' => $data['programming_language']
             ]);
             
             $stmt = $conn->prepare($sql);
@@ -270,14 +260,9 @@ try {
                 throw new Exception("Prepare failed for programming details: " . $conn->error);
             }
             
-            $stmt->bind_param("issssss", 
+            $stmt->bind_param("is", 
                 $questionId,
-                $data['choice1'], // programming language
-                $data['choice2'], // problem description
-                $data['choice3'], // input format
-                $data['choice4'], // output format
-                $data['constraints'],
-                $data['solution_template']
+                $data['programming_language']
             );
             
             if (!$stmt->execute()) {
@@ -289,78 +274,32 @@ try {
             $sql = "INSERT INTO question_bank_test_cases (
                 question_id, 
                 test_input, 
-                expected_output, 
-                explanation,
+                expected_output,
                 is_hidden
-            ) VALUES (?, ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?)";
             
             $stmt = $conn->prepare($sql);
             if (!$stmt) {
                 throw new Exception("Prepare failed for test cases: " . $conn->error);
             }
             
-            // Insert visible test cases
-            if (!empty($data['test_input1'])) {
-                $isHidden = 0;
-                $stmt->bind_param("isssi", 
-                    $questionId,
-                    $data['test_input1'],
-                    $data['test_output1'],
-                    $data['test_explanation1'],
-                    $isHidden
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception("Error inserting test case 1: " . $stmt->error);
+            // Process test cases from CSV
+            for ($i = 1; isset($data["test_input$i"]); $i++) {
+                if (!empty($data["test_input$i"]) && !empty($data["test_output$i"])) {
+                    $isHidden = isset($data["test_hidden$i"]) && $data["test_hidden$i"] == '1' ? 1 : 0;
+                    
+                    $stmt->bind_param("issi", 
+                        $questionId,
+                        $data["test_input$i"],
+                        $data["test_output$i"],
+                        $isHidden
+                    );
+                    
+                    if (!$stmt->execute()) {
+                        throw new Exception("Error inserting test case $i: " . $stmt->error);
+                    }
+                    logDebug("Test case $i inserted successfully");
                 }
-                logDebug("Test case 1 inserted successfully");
-            }
-            
-            if (!empty($data['test_input2'])) {
-                $isHidden = 0;
-                $stmt->bind_param("isssi", 
-                    $questionId,
-                    $data['test_input2'],
-                    $data['test_output2'],
-                    $data['test_explanation2'],
-                    $isHidden
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception("Error inserting test case 2: " . $stmt->error);
-                }
-                logDebug("Test case 2 inserted successfully");
-            }
-            
-            // Insert hidden test cases
-            if (!empty($data['hidden_test_input1'])) {
-                $isHidden = 1;
-                $explanation = ''; // Hidden test cases don't need explanations
-                $stmt->bind_param("isssi", 
-                    $questionId,
-                    $data['hidden_test_input1'],
-                    $data['hidden_test_output1'],
-                    $explanation,
-                    $isHidden
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception("Error inserting hidden test case 1: " . $stmt->error);
-                }
-                logDebug("Hidden test case 1 inserted successfully");
-            }
-            
-            if (!empty($data['hidden_test_input2'])) {
-                $isHidden = 1;
-                $explanation = ''; // Hidden test cases don't need explanations
-                $stmt->bind_param("isssi", 
-                    $questionId,
-                    $data['hidden_test_input2'],
-                    $data['hidden_test_output2'],
-                    $explanation,
-                    $isHidden
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception("Error inserting hidden test case 2: " . $stmt->error);
-                }
-                logDebug("Hidden test case 2 inserted successfully");
             }
         }
     }

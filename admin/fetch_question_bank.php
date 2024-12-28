@@ -7,42 +7,40 @@ try {
     $search = isset($_GET['search']) ? $_GET['search'] : '';
     $category = isset($_GET['category']) ? $_GET['category'] : '';
 
-    // Query to fetch questions with categories and related choices
+    // Query to fetch questions with categories, choices, and programming details
     $query = "
-        SELECT q.*, 
+        SELECT DISTINCT q.*, 
                q.category,
+               qbp.programming_language,
                GROUP_CONCAT(
-                   CONCAT(c.choice_text, ':', c.is_correct) 
+                   DISTINCT CONCAT(c.choice_text, ':', c.is_correct) 
                    ORDER BY c.choice_id 
                    SEPARATOR '||'
                ) as choices
         FROM question_bank q
         LEFT JOIN question_bank_choices c ON q.question_id = c.question_id
+        LEFT JOIN question_bank_programming qbp ON q.question_id = qbp.question_id
+        WHERE 1=1
     ";
 
     $params = [];
     $types = '';
-    $whereConditions = [];
 
     if (!empty($search)) {
-        $whereConditions[] = "q.question_text LIKE ?";
+        $query .= " AND q.question_text LIKE ?";
         $params[] = "%$search%";
         $types .= 's';
     }
 
     if (!empty($category)) {
-        $whereConditions[] = "q.category = ?";
+        $query .= " AND q.category = ?";
         $params[] = $category;
         $types .= 's';
     }
 
-    if (!empty($whereConditions)) {
-        $query .= " WHERE " . implode(' AND ', $whereConditions);
-    }
+    $query .= " GROUP BY q.question_id, q.category, q.question_type, q.question_text, qbp.programming_language";
 
-    $query .= " GROUP BY q.question_id";
-
-    // Prepare and execute the main query
+    // Execute the main query
     $stmt = $conn->prepare($query);
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
@@ -66,6 +64,31 @@ try {
             }
             $row['choices'] = $options;
         }
+
+        // Fetch test cases if it's a programming question
+        if ($row['question_type'] === 'programming') {
+            // Separate query for test cases
+            $testCaseQuery = "
+                SELECT test_input, expected_output, is_hidden 
+                FROM question_bank_test_cases 
+                WHERE question_id = ?
+                ORDER BY id";
+            
+            $tcStmt = $conn->prepare($testCaseQuery);
+            $tcStmt->bind_param('i', $row['question_id']);
+            $tcStmt->execute();
+            $testCasesResult = $tcStmt->get_result();
+            
+            $row['test_cases'] = [];
+            while ($testCase = $testCasesResult->fetch_assoc()) {
+                $row['test_cases'][] = [
+                    'test_input' => $testCase['test_input'],
+                    'expected_output' => $testCase['expected_output'],
+                    'is_hidden' => (bool)$testCase['is_hidden']
+                ];
+            }
+        }
+
         $questions[] = $row;
     }
 

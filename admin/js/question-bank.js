@@ -331,22 +331,27 @@ function importSelectedQuestions() {
 
     selectedQuestions.forEach(question => {
         console.log('Importing question:', question);
-        // Add logic to add the question to the exam
         addQuestionToExam(question);
     });
 
-    // Ensure the modal is closed properly
-    const modalElement = document.getElementById('qbModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-        modal.hide();
+    // Close modal using Bootstrap's hide method
+    const qbModal = document.getElementById('qbModal');
+    const bsModal = bootstrap.Modal.getInstance(qbModal);
+    if (bsModal) {
+        bsModal.hide();
     }
 
-    // Remove any remaining modal backdrop
-    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-
-    // Reset modal state
-    resetModalState();
+    // Add event listener for when modal is fully hidden
+    qbModal.addEventListener('hidden.bs.modal', function () {
+        // Remove backdrop and cleanup
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+        
+        // Reset form and other states
+        resetModalState();
+    }, { once: true }); // Use once: true to ensure the listener is removed after execution
 }
 
 // Helper function to safely get text content
@@ -357,7 +362,7 @@ function getTextContent(element, defaultValue = '') {
 function addQuestionToExam(question) {
     console.log('Adding question:', question);
     console.log('Question type:', question.question_type);
-    console.log('Options:', question.options);
+    console.log('Test cases:', question.test_cases);
 
     const sectionId = document.querySelector('.section-block').getAttribute('data-section-id');
     const questionsContainer = document.querySelector(`#question-container-${sectionId}`);
@@ -481,7 +486,9 @@ function addQuestionToExam(question) {
                             border-radius: 4px;
                             background-color: #f8f9fa;
                         ">
-                        <option value="multiple_choice" selected>Multiple Choice</option>
+                        <option value="multiple_choice" ${question.question_type === 'multiple_choice' ? 'selected' : ''}>Multiple Choice</option>
+                        <option value="true_false" ${question.question_type === 'true_false' ? 'selected' : ''}>True/False</option>
+                        <option value="programming" ${question.question_type === 'programming' ? 'selected' : ''}>Programming</option>
                     </select>
                 </div>
                 <button type="button" class="btn btn-link text-danger delete-question-btn" style="
@@ -570,7 +577,111 @@ function addQuestionToExam(question) {
     }
 
     // Update the options handling code
-    if (question.question_type === 'multiple_choice') {
+    if (question.question_type === 'true_false') {
+        const optionsContainer = questionBlock.querySelector('.question-options');
+        optionsContainer.innerHTML = `
+            <div class="true-false-options" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label>Correct Answer:</label>
+                    <select class="form-control" name="correct_answer[${sectionId}][${questionIndex}]" style="width: 200px;">
+                        <option value="true" ${question.correct_answer === 'true' ? 'selected' : ''}>True</option>
+                        <option value="false" ${question.correct_answer === 'false' ? 'selected' : ''}>False</option>
+                    </select>
+                </div>
+            </div>
+        `;
+    } else if (question.question_type === 'programming') {
+        const optionsContainer = questionBlock.querySelector('.question-options');
+        
+        optionsContainer.innerHTML = `
+            <div class="programming-options" style="margin-top: 15px;">
+                <select class="form-control mb-3" name="programming_language[${sectionId}][${questionIndex}]">
+                    <option value="python" ${question.programming_language === 'python' ? 'selected' : ''}>Python</option>
+                    <option value="java" ${question.programming_language === 'java' ? 'selected' : ''}>Java</option>
+                    <option value="c" ${question.programming_language === 'c' ? 'selected' : ''}>C</option>
+                </select>
+                <div class="test-cases">
+                    ${question.test_cases ? question.test_cases.map((test, index) => `
+                        <div class="test-case mb-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" 
+                                    name="test_case_input[${sectionId}][${questionIndex}][]" 
+                                    value="${test.test_input || ''}" 
+                                    readonly>
+                                <input type="text" class="form-control" 
+                                    name="test_case_output[${sectionId}][${questionIndex}][]" 
+                                    value="${test.expected_output || ''}" 
+                                    readonly>
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" 
+                                            name="test_case_hidden[${sectionId}][${questionIndex}][]" 
+                                            ${test.is_hidden ? 'checked' : ''}
+                                            disabled>
+                                        <label class="ms-2 mb-0">Hidden</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea class="form-control mt-1" 
+                                name="test_case_description[${sectionId}][${questionIndex}][]" 
+                                placeholder="Description (optional)"
+                                readonly>${test.description || ''}</textarea>
+                        </div>
+                    `).join('') : ''}
+                </div>
+                <button type="button" class="btn btn-secondary add-test-case-btn mt-2">
+                    <i class="fas fa-plus"></i> Add Test Case
+                </button>
+            </div>
+        `;
+
+        // Update the add test case functionality
+        const addTestCaseBtn = optionsContainer.querySelector('.add-test-case-btn');
+        if (addTestCaseBtn) {
+            addTestCaseBtn.addEventListener('click', () => {
+                const testCasesContainer = optionsContainer.querySelector('.test-cases');
+                const testCaseCount = testCasesContainer.children.length;
+                
+                const newTestCase = document.createElement('div');
+                newTestCase.className = 'test-case mb-2';
+                newTestCase.innerHTML = `
+                    <div class="input-group">
+                        <input type="text" class="form-control" 
+                            name="test_case_input[${sectionId}][${questionIndex}][]" 
+                            placeholder="Test input">
+                        <input type="text" class="form-control" 
+                            name="test_case_output[${sectionId}][${questionIndex}][]" 
+                            placeholder="Expected output">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <input type="checkbox" 
+                                    name="test_case_hidden[${sectionId}][${questionIndex}][]">
+                                <label class="ms-2 mb-0">Hidden</label>
+                            </div>
+                            <button type="button" class="btn btn-outline-danger remove-test-case-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea class="form-control mt-1" 
+                        name="test_case_description[${sectionId}][${questionIndex}][]" 
+                        placeholder="Description (optional)"></textarea>
+                `;
+                
+                testCasesContainer.appendChild(newTestCase);
+            });
+        }
+
+        // Add event listener for remove test case buttons
+        optionsContainer.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-test-case-btn')) {
+                const testCase = e.target.closest('.test-case');
+                if (testCase) {
+                    testCase.remove();
+                }
+            }
+        });
+    } else if (question.question_type === 'multiple_choice') {
         const optionsContainer = questionBlock.querySelector('.question-options');
         
         if (question.choices && Array.isArray(question.choices)) {
@@ -751,7 +862,9 @@ function createNewOptionHtml(questionId, sectionId, questionIndex) {
                 class="qb-form-control" 
                 name="qb_options[${sectionId}][${questionIndex}][]" 
                 placeholder="New Option">
-            <button type="button" class="qb-delete-option">×</button>
+            <button type="button" class="qb-delete-option">
+                ×
+            </button>
         </div>
     `;
     return optionContainer;
@@ -906,16 +1019,42 @@ function cleanupModalArtifacts() {
 }
 
 function resetModalState() {
+    // Clear question list
+    const questionsList = document.getElementById('qbQuestionsList');
     if (questionsList) {
         questionsList.innerHTML = '';
     }
-    if (categorySelect) {
-        categorySelect.innerHTML = '<option value="">All Categories</option>';
-    }
-    if (selectAllCheckbox) {
-        selectAllCheckbox.checked = false;
-    }
+
+    // Reset search input
+    const searchInput = document.getElementById('qbSearchQuestion');
     if (searchInput) {
         searchInput.value = '';
     }
-} 
+
+    // Reset select all checkbox
+    const selectAllCheckbox = document.getElementById('qbSelectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+    }
+
+    // Reset selection counter
+    const counterElement = document.getElementById('qbSelectionCounter');
+    if (counterElement) {
+        counterElement.textContent = '0 questions selected';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const qbModal = document.getElementById('qbModal');
+    if (qbModal) {
+        qbModal.addEventListener('hide.bs.modal', function() {
+            // Ensure backdrop is removed when modal starts hiding
+            setTimeout(() => {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.removeProperty('overflow');
+            }, 200); // Small delay to ensure modal hide animation completes
+        });
+    }
+}); 
