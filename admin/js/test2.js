@@ -1023,7 +1023,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: titleElement ? titleElement.innerHTML.trim() : '',
                 description: descriptionElement ? descriptionElement.innerHTML.trim() : '',
                 order: sectionIndex,
-                questions: []
+                questions: [],
+                imported_questions: []
             };
 
             // Get questions for this section
@@ -1108,6 +1109,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 section.questions.push(questionData);
+            });
+
+            // Process imported questions
+            sectionBlock.querySelectorAll('.qb-question-block').forEach((questionBlock, questionIndex) => {
+                const importedQuestion = extractQuestionData(questionBlock, questionIndex, true);
+                section.imported_questions.push(importedQuestion);
             });
 
             sections.push(section);
@@ -1433,4 +1440,124 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Add this helper function to validate question data
+    function validateQuestionData(question) {
+        if (!question.question_text || !question.question_type) {
+            console.error('Invalid question data:', question);
+            return false;
+        }
+        
+        if (question.question_type === 'programming') {
+            if (!question.test_cases || !Array.isArray(question.test_cases)) {
+                console.error('Programming question missing test cases:', question);
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    // Update the saveExam function to use the validation
+    function saveExam(event) {
+        event.preventDefault();
+        
+        const sections = [];
+        document.querySelectorAll('.section-block').forEach((sectionBlock, sectionIndex) => {
+            const section = {
+                section_id: sectionBlock.getAttribute('data-section-id'),
+                title: sectionBlock.querySelector('input[name^="section_title"]').value,
+                description: sectionBlock.querySelector('textarea[name^="section_description"]').value,
+                order: sectionIndex,
+                questions: [],
+                imported_questions: []
+            };
+
+            // Process regular questions
+            sectionBlock.querySelectorAll('.question-block').forEach((questionBlock, questionIndex) => {
+                const question = extractQuestionData(questionBlock, questionIndex, false);
+                if (validateQuestionData(question)) {
+                    section.questions.push(question);
+                }
+            });
+
+            // Process imported questions
+            sectionBlock.querySelectorAll('.qb-question-block').forEach((questionBlock, questionIndex) => {
+                const importedQuestion = extractQuestionData(questionBlock, questionIndex, true);
+                section.imported_questions.push(importedQuestion);
+            });
+
+            sections.push(section);
+        });
+
+        const examData = {
+            exam_id: document.querySelector('input[name="exam_id"]').value,
+            sections: sections
+        };
+
+        console.log('Saving exam data:', examData);
+
+        fetch('save_question.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(examData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Questions saved successfully!');
+                window.location.reload();
+            } else {
+                alert('Error saving questions: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error saving questions');
+        });
+    }
+
+    // Add event listener for the save button
+    document.querySelector('#save-form-btn').addEventListener('click', saveExam);
+
+    // Add this helper function at the top of your file
+    function extractQuestionData(questionBlock, questionIndex, isImported) {
+        const questionType = questionBlock.getAttribute('data-question-type');
+        
+        const question = {
+            question_type: questionType,
+            question_text: isImported ? 
+                questionBlock.querySelector('.question-field').textContent :
+                questionBlock.querySelector('textarea[name^="question_text"]').value,
+            points: questionBlock.querySelector('input[name^="points"]').value,
+            order: questionIndex,
+            is_imported: isImported
+        };
+
+        if (questionType === 'programming') {
+            question.programming_language = questionBlock.querySelector('select[name^="programming_language"]').value;
+            question.test_cases = [];
+            
+            questionBlock.querySelectorAll('.test-case').forEach(testCase => {
+                const testCaseData = {
+                    test_input: testCase.querySelector('input[name^="test_case_input"]').value,
+                    expected_output: testCase.querySelector('input[name^="test_case_output"]').value,
+                    is_hidden: testCase.querySelector('input[name^="test_case_hidden"]').checked
+                };
+
+                if (testCaseData.is_hidden) {
+                    const descriptionElem = testCase.querySelector('textarea[name^="test_case_description"]');
+                    if (descriptionElem) {
+                        testCaseData.description = descriptionElem.value;
+                    }
+                }
+
+                question.test_cases.push(testCaseData);
+            });
+        }
+
+        return question;
+    }
 }); // Close the DOMContentLoaded event listener

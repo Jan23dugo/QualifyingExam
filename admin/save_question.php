@@ -326,6 +326,72 @@ try {
                         }
                     }
                 }
+
+                // Handle imported questions
+                if (isset($section['imported_questions']) && is_array($section['imported_questions'])) {
+                    // Get the maximum current order for this section
+                    $stmt = $conn->prepare("SELECT MAX(question_order) as max_order FROM questions WHERE section_id = ?");
+                    $stmt->bind_param("i", $section['section_id']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+                    $startOrder = ($row['max_order'] !== null) ? $row['max_order'] + 1 : 0;
+
+                    foreach ($section['imported_questions'] as $index => $importedQuestion) {
+                        // Insert the imported question with updated order
+                        $stmt = $conn->prepare("INSERT INTO questions (
+                            exam_id, section_id, question_text, question_type, 
+                            points, question_order, programming_language
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                        
+                        $programming_language = isset($importedQuestion['programming_language']) ? 
+                            $importedQuestion['programming_language'] : null;
+                        
+                        $questionOrder = $startOrder + $index; // Calculate new order based on starting point
+                        
+                        $stmt->bind_param("iissiis", 
+                            $data['exam_id'],
+                            $section['section_id'],
+                            $importedQuestion['question_text'],
+                            $importedQuestion['question_type'],
+                            $importedQuestion['points'],
+                            $questionOrder, // Use the new order
+                            $programming_language
+                        );
+                        
+                        if (!$stmt->execute()) {
+                            throw new Exception('Failed to add imported question');
+                        }
+
+                        $new_question_id = $conn->insert_id;
+
+                        // Handle test cases for programming questions
+                        if ($importedQuestion['question_type'] === 'programming' && 
+                            isset($importedQuestion['test_cases'])) {
+                            
+                            $stmt = $conn->prepare("INSERT INTO test_cases (
+                                question_id, test_input, expected_output, is_hidden, description
+                            ) VALUES (?, ?, ?, ?, ?)");
+                            
+                            foreach ($importedQuestion['test_cases'] as $testCase) {
+                                $description = isset($testCase['description']) ? $testCase['description'] : '';
+                                $is_hidden = isset($testCase['is_hidden']) ? $testCase['is_hidden'] : 0;
+                                
+                                $stmt->bind_param("issis", 
+                                    $new_question_id,
+                                    $testCase['test_input'],
+                                    $testCase['expected_output'],
+                                    $is_hidden,
+                                    $description
+                                );
+                                
+                                if (!$stmt->execute()) {
+                                    throw new Exception('Failed to add test case');
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Don't delete sections that weren't in the current update
