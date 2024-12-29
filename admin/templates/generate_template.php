@@ -1,108 +1,103 @@
 <?php
-header('Content-Type: text/csv; charset=UTF-8');
-header('Content-Disposition: attachment; filename="question_template.csv"');
+// Set headers for CSV download
+header('Content-Type: text/csv');
+header('Content-Disposition: attachment; filename="question_bank_template.csv"');
 
-// Create output
+// Create output stream
 $output = fopen('php://output', 'w');
 
-// Write headers
-$headers = [
-    'question_type',           // multiple_choice, true_false, or programming
-    'question_text',           // The actual question
-    'choice1',                 // First choice (for multiple_choice) or programming_language (for programming)
-    'choice2',                 // Second choice (for multiple_choice) or problem_description
-    'choice3',                 // Third choice (for multiple_choice) or input_format
-    'choice4',                 // Fourth choice (for multiple_choice) or output_format
-    'correct_choice_number',   // 1-4 for multiple choice, 1 for True, 2 for False
-    'constraints',             // For programming questions
-    'solution_template',       // For programming questions
-    'test_input1',            // First test case input
-    'test_output1',           // First test case expected output
-    'test_explanation1',       // First test case explanation
-    'test_input2',            // Second test case input
-    'test_output2',           // Second test case expected output
-    'test_explanation2',       // Second test case explanation
-    'hidden_test_input1',     // First hidden test case input
-    'hidden_test_output1',    // First hidden test case expected output
-    'hidden_test_input2',     // Second hidden test case input
-    'hidden_test_output2'     // Second hidden test case expected output
-];
+// Write headers first
+fputcsv($output, [
+    'question_type',
+    'question_text',
+    'option1',
+    'option2',
+    'option3',
+    'option4',
+    'correct_answer',
+    'programming_language',
+    'test_input',
+    'expected_output',
+    'is_hidden',
+    'description'
+]);
 
-// Write headers without BOM
-fputcsv($output, $headers);
-
-// Write example rows
+// Example rows
 $examples = [
-    // Multiple choice example
+    // Multiple Choice Example
     [
-        'multiple_choice',     // Exact string match
+        'multiple_choice',
         'What is 2 + 2?',
-        'Three',
-        'Four',
-        'Five',
-        'Six',
-        '2',
-        '', // constraints
-        '', // solution_template
-        '',                    // test_input1
-        '',                    // test_output1
-        '',                    // test_explanation1
-        '',                    // test_input2
-        '',                    // test_output2
-        '',                    // test_explanation2
-        '',                    // hidden_test_input1
-        '',                    // hidden_test_output1
-        '',                    // hidden_test_input2
-        ''                     // hidden_test_output2
-    ],
-    // True/False example
-    [
-        'true_false',          // Exact string match
-        'The sky is blue.',
-        'True',
-        'False',
-        '',
-        '',
-        '1',
-        '', // constraints
-        '', // solution_template
-        '',                    // test_input1
-        '',                    // test_output1
-        '',                    // test_explanation1
-        '',                    // test_input2
-        '',                    // test_output2
-        '',                    // test_explanation2
-        '',                    // hidden_test_input1
-        '',                    // hidden_test_output1
-        '',                    // hidden_test_input2
-        ''                     // hidden_test_output2
-    ],
-    // Programming example
-    [
-        'programming',         // Exact string match
-        'Write a function that adds two numbers',
-        'python',
-        'Create a function called addNumbers that takes two parameters and returns their sum',
-        'Two integers a and b, one per line',
-        'Single integer - the sum of a and b',
-        '',
-        '-100 <= a,b <= 100',
-        'def addNumbers(a, b):\n    # Your code here\n    pass',
-        '5\n3',
-        '8',
-        '5 + 3 = 8',
-        '-2\n7',
+        '3',
+        '4',
         '5',
-        '-2 + 7 = 5',
-        '100\n-50',
-        '50',
-        '-100\n-100',
-        '-200'
+        '6',
+        '2', // This means option2 (4) is correct
+        '', // programming_language
+        '', // test_input
+        '', // expected_output
+        '', // is_hidden
+        ''  // description
+    ],
+    // True/False Example
+    [
+        'true_false',
+        'The Earth is flat.',
+        '', // option1
+        '', // option2
+        '', // option3
+        '', // option4
+        'False', // correct_answer must be 'True' or 'False'
+        '', // programming_language
+        '', // test_input
+        '', // expected_output
+        '', // is_hidden
+        ''  // description
+    ],
+    // Programming Example
+    [
+        'programming',
+        'Write a function that adds two numbers.',
+        '', // option1
+        '', // option2
+        '', // option3
+        '', // option4
+        '', // correct_answer
+        'python', // programming_language
+        '2 3', // test_input
+        '5',   // expected_output
+        '0',   // is_hidden (0 for visible, 1 for hidden)
+        'Basic addition test case' // description (optional)
     ]
 ];
 
-foreach ($examples as $example) {
-    fputcsv($output, $example);
+// Write example rows
+foreach ($examples as $row) {
+    fputcsv($output, $row);
+}
+
+// Write instructions at the bottom
+$instructions = [
+    ['# INSTRUCTIONS'],
+    ['# 1. Delete all rows starting with #'],
+    ['# 2. Keep the header row (first row)'],
+    ['# 3. For multiple choice:'],
+    ['#    - Fill in option1 through option4'],
+    ['#    - correct_answer should be 1-4 (indicating which option is correct)'],
+    ['# 4. For true/false:'],
+    ['#    - Leave options empty'],
+    ['#    - correct_answer must be exactly "True" or "False"'],
+    ['# 5. For programming:'],
+    ['#    - Fill in programming_language (python/java/c/cpp)'],
+    ['#    - test_input: Input for the test case'],
+    ['#    - expected_output: Expected output for the test case'],
+    ['#    - is_hidden: 0 for visible test case, 1 for hidden test case'],
+    ['#    - description: Optional description of the test case'],
+    ['# 6. Leave fields empty if not applicable to the question type']
+];
+
+foreach ($instructions as $instruction) {
+    fputcsv($output, $instruction);
 }
 
 fclose($output);

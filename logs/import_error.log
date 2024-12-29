@@ -24,3 +24,4 @@ Data: Array
 #1 {main}
 )
 
+2024-12-29 06:24:03 - Error: Invalid row 5: Invalid question type: '#'. Must be one of: multiple_choice, true_false, programming, essay

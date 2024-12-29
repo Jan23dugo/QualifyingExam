@@ -1,182 +1,220 @@
-/* Question Bank Styles */
-
-/* Badge Styles */
-.badge {
-    padding: 8px 12px;
-    font-weight: 500;
-}
-
-.badge-info {
-    background-color: #e3f2fd;
-    color: #0d47a1;
-}
-
-.badge-primary {
-    background-color: #e8eaf6;
-    color: #1a237e;
-}
-
-.badge-success {
-    background-color: #e8f5e9;
-    color: #1b5e20;
-}
-
-/* Card Styles */
+/* General Layout */
 .card {
     border: none;
-    margin-bottom: 30px;
-    background: #fff;
-}
-
-.card-header {
-    background: #fff !important;
-    border-bottom: 1px solid #eee;
-    padding: 1.5rem;
-}
-
-/* Table Styles */
-.table td, 
-.table th {
-    vertical-align: middle;
-}
-
-/* Button Styles */
-.btn-outline-primary, 
-.btn-outline-danger {
-    padding: .25rem .5rem;
-    margin: 0 2px;
-}
-
-/* Filter Section */
-.filter-section {
-    margin-bottom: 1.5rem;
-}
-
-/* Modal Styles */
-.modal-content {
-    border-radius: 0.5rem;
-}
-
-.option-wrapper .input-group {
-    margin-bottom: 0.5rem;
-}
-
-.option-wrapper .input-group-text {
-    background-color: #f8f9fa;
-}
-
-/* Form Controls */
-.form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-}
-
-/* Custom Container Padding */
-.content-wrapper {
-    padding: 20px;
-    margin-left: 250px; /* Adjust based on your sidebar width */
-}
-
-/* Add responsive adjustments */
-@media (max-width: 768px) {
-    .content-wrapper {
-        margin-left: 0;
-        padding: 15px;
-    }
-}
-
-/* Ensure table is responsive */
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Add some spacing to the content header */
-.content-header {
-    padding-bottom: 1rem;
-}
-
-/* Question Card Styles */
-.question-card {
-    background-color: #fff;
-    transition: all 0.2s ease;
-}
-
-.question-card:hover {
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
 }
 
-.question-content {
-    flex: 1;
-    padding-right: 1rem;
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid #e3e6f0;
+    padding: 1rem 1.25rem;
 }
 
-.question-actions {
-    display: flex;
-    gap: 0.5rem;
+/* Table Styles */
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 }
 
-/* Options List Styles */
-.options-list {
-    margin-top: 0.5rem;
-}
-
-.option {
-    padding: 0.3rem 0;
-}
-
-.option i {
-    margin-right: 0.5rem;
-}
-
-/* Badge Styles */
-.badge {
-    padding: 0.5em 0.8em;
-}
-
-/* Filter Section Styles */
-.filter-section {
-    background-color: #f8f9fc;
-    border-radius: 0.35rem;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+.clickable-row:hover {
+    color: white;
+    background-color: #0056b3;
 }
 
 /* Modal Styles */
-.modal-header {
-    background-color: #f8f9fc;
+.modal-dialog {
+    max-width: 500px;
 }
 
-.new-category-input {
+.modal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.modal .modal-header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 12px 12px 0 0;
+    padding: 1rem 1.5rem;
+}
+
+.modal .modal-title {
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.modal .modal-body {
+    padding: 1.5rem;
+    color: #4b5563;
+    font-size: 0.95rem;
+}
+
+.modal .modal-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+    background-color: #f8fafc;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Button Styles */
+.modal .btn {
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background-color: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #4b5563;
+}
+
+.btn-secondary:hover {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    border-color: #ef4444;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+.btn-primary {
+    background-color: #6200ea;
+    border-color: #6200ea;
+}
+
+.btn-primary:hover {
+    background-color: #5000c9;
+    border-color: #5000c9;
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.input-group {
+    margin-bottom: 0.5rem;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+
+/* Question Type Specific Styles */
+#newCategoryInput {
     display: none;
     margin-top: 0.5rem;
 }
 
-/* Add these styles for programming questions */
-.programming-details pre {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 1rem;
-    margin: 0;
+#newCategoryInput .input-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.programming-details .table pre {
-    background-color: transparent;
+#newCategoryInput input {
+    border-right: none;
+}
+
+/* Counter Badge */
+#questionsCounter {
+    background-color: #6200ea;
+    color: white;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    margin-left: 1rem;
+}
+
+/* Temporary Message Animation */
+#temporaryMessage {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Programming Question Styles */
+.test-case {
+    margin-bottom: 1rem;
+}
+
+.test-case .card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.test-case .card-header {
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+}
+
+/* Import Modal Styles */
+#importLoadingMessage {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+}
+
+#importQuestionModal .alert {
+    margin-bottom: 0;
+}
+
+#importQuestionModal .form-control:focus {
+    border-color: #6200ea;
+    box-shadow: 0 0 0 0.2rem rgba(98, 0, 234, 0.25);
+}
+
+#importQuestionModal .btn-outline-primary {
+    color: #6200ea;
+    border-color: #6200ea;
+}
+
+#importQuestionModal .btn-outline-primary:hover {
+    background-color: #6200ea;
+    color: white;
+}
+
+#importQuestionModal .text-muted {
+    font-size: 0.875rem;
+}
+
+/* Loading Spinner */
+.fa-spinner {
+    margin-right: 0.5rem;
+}
+
+/* Alert Styles */
+.alert {
     border: none;
-    padding: 0;
-    margin: 0;
-    white-space: pre-wrap;
+    border-radius: 8px;
 }
 
-.programming-details code {
-    font-family: 'Source Code Pro', monospace;
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
 }
 
-.programming-details .table {
-    font-size: 0.9rem;
-}
-
-.programming-details .table th {
-    background-color: #f8f9fa;
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
 } 

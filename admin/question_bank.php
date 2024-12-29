@@ -19,112 +19,6 @@ include('../config/config.php');
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.min.css">
     <link rel="stylesheet" href="assets/css/question-bank.css">
-    <style>
-    
-        .clickable-row {
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-    
-        .clickable-row:hover {
-            color: white;
-            background-color: #0056b3; /* Light gray hover effect */
-        }
-    
-        /* Common Modal Styles */
-        .modal-dialog {
-            max-width: 500px;
-        }
-        
-        .modal .modal-content {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .modal .modal-header {
-            background-color: #f8fafc;
-            border-bottom: 1px solid #e5e7eb;
-            border-radius: 12px 12px 0 0;
-            padding: 1rem 1.5rem;
-        }
-        
-        .modal .modal-title {
-            color: #1f2937;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        .modal .modal-body {
-            padding: 1.5rem;
-            color: #4b5563;
-            font-size: 0.95rem;
-        }
-        
-        .modal .modal-footer {
-            border-top: 1px solid #e5e7eb;
-            padding: 1rem 1.5rem;
-            background-color: #f8fafc;
-            border-radius: 0 0 12px 12px;
-        }
-        
-        .modal .btn {
-            padding: 0.5rem 1.25rem;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-        
-        .modal .btn-secondary {
-            background-color: #f3f4f6;
-            border-color: #e5e7eb;
-            color: #4b5563;
-        }
-        
-        .modal .btn-secondary:hover {
-            background-color: #e5e7eb;
-            border-color: #d1d5db;
-            color: #374151;
-        }
-        
-        .modal .btn-danger {
-            background-color: #ef4444;
-            border-color: #ef4444;
-        }
-        
-        .modal .btn-danger:hover {
-            background-color: #dc2626;
-            border-color: #dc2626;
-        }
-        
-        .modal .btn-primary {
-            background-color: #6200ea;
-            border-color: #6200ea;
-        }
-        
-        .modal .btn-primary:hover {
-            background-color: #5000c9;
-            border-color: #5000c9;
-        }
-        
-        /* Modal Icons */
-        .modal .modal-body i {
-            font-size: 24px;
-            margin-right: 1rem;
-        }
-        
-        .modal .warning-icon {
-            color: #f59e0b;
-        }
-        
-        .modal .delete-icon {
-            color: #ef4444;
-        }
-        
-        .modal .info-icon {
-            color: #6200ea;
-        }
-    </style>
 </head>
 <body id="page-top">
     <div id="wrapper">
@@ -178,7 +72,7 @@ include('../config/config.php');
 
                                     <!-- Questions Table -->
                                     <div class="table-responsive">
-                                        <table class="table table-hover">
+                                        <table class="table">
                                             <thead>
                                                 <tr>
                                                     <th>Category Name</th>
@@ -290,7 +184,7 @@ include('../config/config.php');
                             <select class="form-control" name="question_type" id="questionType" required>
                                 <option value="multiple_choice">Multiple Choice</option>
                                 <option value="true_false">True/False</option>
-                                <option value="essay">Essay</option>
+                                
                                 <option value="programming">Programming</option>
                             </select>
                         </div>
@@ -329,7 +223,7 @@ include('../config/config.php');
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="importForm">
+                    <form id="importForm" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Select Category</label>
                             <div class="input-group">
@@ -341,8 +235,7 @@ include('../config/config.php');
                                     $result = $conn->query($sql);
                                     if ($result->num_rows > 0) {
                                         while($row = $result->fetch_assoc()) {
-                                            echo "<option value='" . htmlspecialchars($row['category']) . "'>" . 
-                                                 htmlspecialchars($row['category']) . "</option>";
+                                            echo "<option value='" . htmlspecialchars($row['category']) . "'>" . htmlspecialchars($row['category']) . "</option>";
                                         }
                                     }
                                     ?>
@@ -497,11 +390,28 @@ include('../config/config.php');
                         <select class="form-control" name="programming_language" required>
                             <option value="python">Python</option>
                             <option value="java">Java</option>
+                            <option value="cpp">C++</option>
                             <option value="c">C</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Test Cases</label>
+                        <label class="form-label">Problem Description</label>
+                        <textarea class="form-control" name="problem_description" rows="4" placeholder="Detailed description of the programming problem" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Input Format</label>
+                        <textarea class="form-control" name="input_format" rows="2" placeholder="Describe the format of input" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Output Format</label>
+                        <textarea class="form-control" name="output_format" rows="2" placeholder="Describe the format of expected output" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Constraints</label>
+                        <textarea class="form-control" name="constraints" rows="2" placeholder="List any constraints (e.g., input size limits, value ranges)" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sample Test Cases</label>
                         <div id="testCasesContainer">
                             <div class="test-case mb-3">
                                 <div class="card">
@@ -513,21 +423,16 @@ include('../config/config.php');
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
-                                            <label class="form-label">Input</label>
-                                            <input type="text" class="form-control" 
-                                                name="test_case_input[]" 
-                                                placeholder="Test input" required>
+                                            <label class="form-label">Sample Input</label>
+                                            <textarea class="form-control" name="test_case_input[]" rows="2" placeholder="Enter sample input" required></textarea>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Expected Output</label>
-                                            <input type="text" class="form-control" 
-                                                name="test_case_output[]" 
-                                                placeholder="Expected output" required>
+                                            <label class="form-label">Sample Output</label>
+                                            <textarea class="form-control" name="test_case_output[]" rows="2" placeholder="Enter expected output" required></textarea>
                                         </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" 
-                                                name="test_case_hidden[]">
-                                            <label class="form-check-label">Hidden Test Case</label>
+                                        <div class="mb-2">
+                                            <label class="form-label">Explanation (Optional)</label>
+                                            <textarea class="form-control" name="test_case_explanation[]" rows="2" placeholder="Explain this test case"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -535,6 +440,38 @@ include('../config/config.php');
                         </div>
                         <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addTestCaseBtn">
                             <i class="fas fa-plus"></i> Add Test Case
+                        </button>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Solution Template (Optional)</label>
+                        <textarea class="form-control" name="solution_template" rows="4" placeholder="Provide starter code or function template that students need to complete"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hidden Test Cases</label>
+                        <div id="hiddenTestCasesContainer">
+                            <div class="test-case mb-3">
+                                <div class="card">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <span>Hidden Test Case #1</span>
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-hidden-test-case">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <label class="form-label">Input</label>
+                                            <textarea class="form-control" name="hidden_test_input[]" rows="2" placeholder="Enter input for hidden test" required></textarea>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Expected Output</label>
+                                            <textarea class="form-control" name="hidden_test_output[]" rows="2" placeholder="Enter expected output" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addHiddenTestCaseBtn">
+                            <i class="fas fa-plus"></i> Add Hidden Test Case
                         </button>
                     </div>`;
             }
@@ -577,52 +514,27 @@ include('../config/config.php');
         }
 
         function initializeProgrammingHandlers() {
-            let testCaseCount = 1;
-
             $('#addTestCaseBtn').click(function() {
-                testCaseCount++;
                 const newTestCase = `
                     <div class="test-case mb-3">
-                        <div class="card">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                <span>Test Case #${testCaseCount}</span>
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-2">
-                                    <label class="form-label">Input</label>
-                                    <input type="text" class="form-control" 
-                                        name="test_case_input[]" 
-                                        placeholder="Test input" required>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Expected Output</label>
-                                    <input type="text" class="form-control" 
-                                        name="test_case_output[]" 
-                                        placeholder="Expected output" required>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" 
-                                        name="test_case_hidden[]">
-                                    <label class="form-check-label">Hidden Test Case</label>
-                                </div>
-                            </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Input</span>
+                            <textarea class="form-control" name="test_case_input[]" rows="2" placeholder="Enter input test case" required></textarea>
                         </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Expected Output</span>
+                            <textarea class="form-control" name="test_case_output[]" rows="2" placeholder="Enter expected output" required></textarea>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
+                            <i class="fas fa-times"></i> Remove Test Case
+                        </button>
                     </div>`;
                 $('#testCasesContainer').append(newTestCase);
             });
 
-            // Handle remove test case button
             $(document).on('click', '.remove-test-case', function() {
                 if ($('#testCasesContainer .test-case').length > 1) {
                     $(this).closest('.test-case').remove();
-                    // Update test case numbers
-                    $('#testCasesContainer .test-case').each(function(index) {
-                        $(this).find('.card-header span').text(`Test Case #${index + 1}`);
-                    });
-                    testCaseCount = $('#testCasesContainer .test-case').length;
                 }
             });
         }
@@ -719,12 +631,17 @@ include('../config/config.php');
                     break;
                 case 'programming':
                     currentQuestion.programming_language = $('select[name="programming_language"]').val();
+                    currentQuestion.problem_description = $('textarea[name="problem_description"]').val();
+                    currentQuestion.input_format = $('textarea[name="input_format"]').val();
+                    currentQuestion.output_format = $('textarea[name="output_format"]').val();
+                    currentQuestion.constraints = $('textarea[name="constraints"]').val();
+                    // Collect test cases
                     currentQuestion.test_cases = [];
                     $('.test-case').each(function() {
                         currentQuestion.test_cases.push({
-                            test_input: $(this).find('input[name="test_case_input[]"]').val(),
-                            expected_output: $(this).find('input[name="test_case_output[]"]').val(),
-                            is_hidden: $(this).find('input[name="test_case_hidden[]"]').is(':checked')
+                            input: $(this).find('textarea[name="test_case_input[]"]').val(),
+                            output: $(this).find('textarea[name="test_case_output[]"]').val(),
+                            explanation: $(this).find('textarea[name="test_case_explanation[]"]').val()
                         });
                     });
                     break;
@@ -794,11 +711,14 @@ include('../config/config.php');
                     $('textarea[name="answer_guidelines"]').val('');
                     break;
                 case 'programming':
-                    $('select[name="programming_language"]').val('');
+                    $('textarea[name="problem_description"]').val('');
+                    $('textarea[name="input_format"]').val('');
+                    $('textarea[name="output_format"]').val('');
+                    $('textarea[name="constraints"]').val('');
                     // Clear test cases except the first one
                     const firstTestCase = $('.test-case:first');
                     $('#testCasesContainer').empty().append(firstTestCase.clone());
-                    firstTestCase.find('input').val('');
+                    firstTestCase.find('textarea').val('');
                     break;
             }
         }
@@ -852,103 +772,88 @@ include('../config/config.php');
         });
 
         // Update the import submit handler
-        $('#importSubmitBtn').click(function() {
-            const form = document.getElementById('importForm');
-            const formData = new FormData(form);
-            const submitBtn = $(this);
+        // Replace the existing import button handler
+$('#importSubmitBtn').click(function(e) {
+    e.preventDefault();
+    
+    const form = $('#importForm')[0];
+    const formData = new FormData(form);
+    const submitBtn = $(this);
+    const modalBody = $('#importQuestionModal .modal-body');
+    
+    // Validate file input
+    const fileInput = form.querySelector('input[type="file"]');
+    if (!fileInput.files.length) {
+        modalBody.append(
+            `<div class="alert alert-danger mt-3">
+                Please select a file to import.
+            </div>`
+        );
+        return;
+    }
+    
+    // Remove any existing messages
+    $('.alert').remove();
+    
+    // Disable submit button and show loading
+    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Importing...');
+
+    $.ajax({
+        url: 'handlers/import_questions.php',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            try {
+                const result = typeof response === 'string' ? JSON.parse(response) : response;
+                
+                if (result.status === 'success') {
+                    modalBody.append(
+                        `<div class="alert alert-success mt-3">
+                            ${result.message}
+                        </div>`
+                    );
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(result.message || 'Unknown error occurred');
+                }
+            } catch (error) {
+                modalBody.append(
+                    `<div class="alert alert-danger mt-3">
+                        ${error.message}
+                    </div>`
+                );
+                submitBtn.prop('disabled', false).html('Import');
+            }
+        },
+        error: function(xhr, status, error) {
+            let errorMessage = 'Error uploading file. Please try again.';
+            try {
+                const response = JSON.parse(xhr.responseText);
+                errorMessage = response.message || errorMessage;
+            } catch (e) {
+                console.error('Error parsing response:', e);
+            }
             
-            // Handle new category
-            const selectedCategory = $('#importCategorySelect').val();
-            if (selectedCategory === 'new') {
-                const newCategory = $('#newCategoryName').val().trim();
-                if (!newCategory) {
-                    alert('Please enter a category name');
-                    $('#newCategoryName').focus();
-                    return;
-                }
-                formData.set('category', newCategory);
-            } else if (!selectedCategory) {
-                alert('Please select a category');
-                $('#importCategorySelect').focus();
-                return;
-            }
+            modalBody.append(
+                `<div class="alert alert-danger mt-3">
+                    ${errorMessage}
+                </div>`
+            );
+            submitBtn.prop('disabled', false).html('Import');
+        }
+    });
+});
 
-            // Disable the submit button and show loading state
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Importing...');
-
-            // Show loading message
-            const modalBody = $('#importQuestionModal .modal-body');
-            if ($('#importLoadingMessage').length === 0) {
-                modalBody.append('<div id="importLoadingMessage" class="alert alert-info mt-3" style="display: none;"></div>');
-            }
-            $('#importLoadingMessage').html('Importing questions...').fadeIn();
-
-            // Log the FormData contents for debugging
-            console.log('Category being sent:', formData.get('category'));
-            console.log('File being sent:', formData.get('question_file'));
-
-            $.ajax({
-                url: 'handlers/import_questions.php',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    console.log('Server response:', response);
-                    
-                    try {
-                        const result = typeof response === 'string' ? JSON.parse(response) : response;
-                        
-                        if (result.status === 'success') {
-                            $('#importLoadingMessage')
-                                .removeClass('alert-info alert-danger')
-                                .addClass('alert-success')
-                                .html(`Success! ${result.total_imported} questions imported.`);
-                            
-                            setTimeout(function() {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            $('#importLoadingMessage')
-                                .removeClass('alert-info alert-success')
-                                .addClass('alert-danger')
-                                .html('Error: ' + (result.message || 'Unknown error occurred'));
-                            
-                            submitBtn.prop('disabled', false).html('Import');
-                        }
-                    } catch (e) {
-                        console.error('Parse error:', e);
-                        console.log('Raw response:', response);
-                        
-                        $('#importLoadingMessage')
-                            .removeClass('alert-info alert-success')
-                            .addClass('alert-danger')
-                            .html('Error processing the import response');
-                        
-                        submitBtn.prop('disabled', false).html('Import');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Ajax error:', {xhr, status, error});
-                    
-                    $('#importLoadingMessage')
-                        .removeClass('alert-info alert-success')
-                        .addClass('alert-danger')
-                        .html('Error uploading file: ' + error);
-                    
-                    submitBtn.prop('disabled', false).html('Import');
-                }
-            });
-        });
-
-        // Reset form when modal is closed
+        // Reset modal when closed
         $('#importQuestionModal').on('hidden.bs.modal', function() {
-            $('#importForm')[0].reset();
+            const form = $('#importForm')[0];
+            form.reset();
+            $('.alert').remove();
             $('#importSubmitBtn').prop('disabled', false).html('Import');
-            $('#importLoadingMessage').remove();
-            $('#importNewCategoryInput').hide();
-            $('#newCategoryName').prop('required', false).val('');
-            $('#importCategorySelect').prop('required', true);
         });
 
         // Show the confirmation modal and set category data

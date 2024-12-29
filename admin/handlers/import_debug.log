@@ -1,0 +1,1175 @@
+[2024-12-29 07:30:41] Starting import process
+-------------------
+[2024-12-29 07:30:41] Checking file upload
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(4).csv
+            [full_path] => question_bank_template(4).csv
+            [type] => application/vnd.ms-excel
+            [tmp_name] => C:\Windows\Temp\phpB4F8.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:30:41] Checking category
+Data: Array
+(
+    [category] => Import
+)
+
+-------------------
+[2024-12-29 07:30:41] Opening CSV file
+-------------------
+[2024-12-29 07:30:41] Started database transaction
+-------------------
+[2024-12-29 07:30:41] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:30:41] Processing row 2
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => 3
+    [3] => 4
+    [4] => 5
+    [5] => 6
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Starting import process
+-------------------
+[2024-12-29 07:30:41] Mapped data for row 2
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [option1] => 3
+    [option2] => 4
+    [option3] => 5
+    [option4] => 6
+    [correct_answer] => 2
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Checking file upload
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(4).csv
+            [full_path] => question_bank_template(4).csv
+            [type] => application/vnd.ms-excel
+            [tmp_name] => C:\Windows\Temp\phpB4F9.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:30:41] Inserting base question
+-------------------
+[2024-12-29 07:30:41] Checking category
+Data: Array
+(
+    [category] => Import
+)
+
+-------------------
+[2024-12-29 07:30:41] Opening CSV file
+-------------------
+[2024-12-29 07:30:41] Started database transaction
+-------------------
+[2024-12-29 07:30:41] Inserted question with ID: 137
+-------------------
+[2024-12-29 07:30:41] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:30:41] Processing row 2
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => 3
+    [3] => 4
+    [4] => 5
+    [5] => 6
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Processing question type: multiple_choice
+-------------------
+[2024-12-29 07:30:41] Mapped data for row 2
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [option1] => 3
+    [option2] => 4
+    [option3] => 5
+    [option4] => 6
+    [correct_answer] => 2
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Processing multiple choice options
+-------------------
+[2024-12-29 07:30:41] Inserting base question
+-------------------
+[2024-12-29 07:30:41] Inserted option 1: 3 (correct: 0)
+-------------------
+[2024-12-29 07:30:41] Inserted option 2: 4 (correct: 1)
+-------------------
+[2024-12-29 07:30:41] Inserted question with ID: 138
+-------------------
+[2024-12-29 07:30:41] Processing question type: multiple_choice
+-------------------
+[2024-12-29 07:30:41] Inserted option 3: 5 (correct: 0)
+-------------------
+[2024-12-29 07:30:41] Processing multiple choice options
+-------------------
+[2024-12-29 07:30:41] Inserted option 4: 6 (correct: 0)
+-------------------
+[2024-12-29 07:30:41] Inserted option 1: 3 (correct: 0)
+-------------------
+[2024-12-29 07:30:41] Successfully imported question 2
+-------------------
+[2024-12-29 07:30:41] Processing row 3
+Data: Array
+(
+    [0] => true_false
+    [1] => The Earth is flat.
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => FALSE
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Inserted option 2: 4 (correct: 1)
+-------------------
+[2024-12-29 07:30:41] Mapped data for row 3
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => FALSE
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Inserting base question
+-------------------
+[2024-12-29 07:30:41] Inserted option 3: 5 (correct: 0)
+-------------------
+[2024-12-29 07:30:41] Inserted question with ID: 139
+-------------------
+[2024-12-29 07:30:41] Inserted option 4: 6 (correct: 0)
+-------------------
+[2024-12-29 07:30:41] Successfully imported question 2
+-------------------
+---
+[2024-12-29 07:30:41] Processing row 3
+Data: Array
+(
+    [0] => true_false
+    [1] => The Earth is flat.
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => FALSE
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Processing true/false answer
+-------------------
+[2024-12-29 07:30:41] Mapped data for row 3
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => FALSE
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:30:41] Inserting base question
+-------------------
+[2024-12-29 07:30:41] Inserted question with ID: 140
+-------------------
+[2024-12-29 07:30:41] Processing question type: true_false
+-------------------
+[2024-12-29 07:30:41] Processing true/false answer
+-------------------
+[2024-12-29 07:32:11] Starting import process
+-------------------
+[2024-12-29 07:32:11] Checking file upload
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(4).csv
+            [full_path] => question_bank_template(4).csv
+            [type] => application/vnd.ms-excel
+            [tmp_name] => C:\Windows\Temp\php11BF.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:32:11] Checking category
+Data: Array
+(
+    [category] => Import
+)
+
+-------------------
+[2024-12-29 07:32:11] Opening CSV file
+-------------------
+[2024-12-29 07:32:11] Started database transaction
+-------------------
+[2024-12-29 07:32:11] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:32:11] Processing row 2
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => 3
+    [3] => 4
+    [4] => 5
+    [5] => 6
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Mapped data for row 2
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [option1] => 3
+    [option2] => 4
+    [option3] => 5
+    [option4] => 6
+    [correct_answer] => 2
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Inserting base question
+-------------------
+[2024-12-29 07:32:11] Starting import process
+-------------------
+[2024-12-29 07:32:11] Checking file upload
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(4).csv
+            [full_path] => question_bank_template(4).csv
+            [type] => application/vnd.ms-excel
+            [tmp_name] => C:\Windows\Temp\php11BA.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:32:11] Checking category
+Data: Array
+(
+    [category] => Import
+)
+
+-------------------
+[2024-12-29 07:32:11] Inserted question with ID: 141
+-------------------
+[2024-12-29 07:32:11] Opening CSV file
+-------------------
+[2024-12-29 07:32:11] Processing question type: multiple_choice
+-------------------
+[2024-12-29 07:32:11] Processing multiple choice options
+-------------------
+[2024-12-29 07:32:11] Started database transaction
+-------------------
+[2024-12-29 07:32:11] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:32:11] Inserted option 1: 3 (correct: 0)
+-------------------
+[2024-12-29 07:32:11] Processing row 2
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => What is 2 + 2?
+    [2] => 3
+    [3] => 4
+    [4] => 5
+    [5] => 6
+    [6] => 2
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Mapped data for row 2
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [option1] => 3
+    [option2] => 4
+    [option3] => 5
+    [option4] => 6
+    [correct_answer] => 2
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Inserted option 2: 4 (correct: 1)
+-------------------
+[2024-12-29 07:32:11] Inserting base question
+-------------------
+[2024-12-29 07:32:11] Inserted option 3: 5 (correct: 0)
+-------------------
+[2024-12-29 07:32:11] Inserted question with ID: 142
+-------------------
+[2024-12-29 07:32:11] Inserted option 4: 6 (correct: 0)
+-------------------
+[2024-12-29 07:32:11] Processing question type: multiple_choice
+-------------------
+[2024-12-29 07:32:11] Successfully imported question 2
+-------------------
+[2024-12-29 07:32:11] Processing multiple choice options
+-------------------
+[2024-12-29 07:32:11] Processing row 3
+Data: Array
+(
+    [0] => true_false
+    [1] => The Earth is flat.
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => FALSE
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Mapped data for row 3
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => FALSE
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Inserted option 1: 3 (correct: 0)
+-------------------
+[2024-12-29 07:32:11] Inserting base question
+-------------------
+[2024-12-29 07:32:11] Inserted option 2: 4 (correct: 1)
+-------------------
+[2024-12-29 07:32:11] Inserted question with ID: 143
+-------------------
+[2024-12-29 07:32:11] Processing question type: true_false
+-------------------
+[2024-12-29 07:32:11] Inserted option 3: 5 (correct: 0)
+-------------------
+[2024-12-29 07:32:11] Processing true/false answer
+-------------------
+[2024-12-29 07:32:11] Inserted option 4: 6 (correct: 0)
+-------------------
+[2024-12-29 07:32:11] Successfully imported question 2
+-------------------
+[2024-12-29 07:32:11] Processing row 3
+Data: Array
+(
+    [0] => true_false
+    [1] => The Earth is flat.
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => FALSE
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Mapped data for row 3
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => FALSE
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+)
+
+-------------------
+[2024-12-29 07:32:11] Inserting base question
+-------------------
+[2024-12-29 07:32:11] Inserted question with ID: 144
+-------------------
+[2024-12-29 07:32:11] Processing question type: true_false
+-------------------
+[2024-12-29 07:32:11] Processing true/false answer
+-------------------
+[2024-12-29 07:40:57] Starting import process
+-------------------
+[2024-12-29 07:40:57] File upload details
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(5).csv
+            [full_path] => question_bank_template(5).csv
+            [type] => application/vnd.ms-excel
+            [tmp_name] => C:\Windows\Temp\php1AB2.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:40:57] Selected category
+Data: Import
+-------------------
+[2024-12-29 07:40:57] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:40:57] Started database transaction
+-------------------
+[2024-12-29 07:40:57] Processing row
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => 3
+    [choice2] => 4
+    [choice3] => 5
+    [choice4] => 6
+    [correct_choice_number] => 2
+)
+
+-------------------
+[2024-12-29 07:40:57] Question inserted with ID
+Data: 145
+-------------------
+[2024-12-29 07:40:57] Processing multiple choice options for question
+Data: 145
+-------------------
+[2024-12-29 07:40:57] Starting import process
+-------------------
+[2024-12-29 07:40:57] File upload details
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(5).csv
+            [full_path] => question_bank_template(5).csv
+            [type] => application/vnd.ms-excel
+            [tmp_name] => C:\Windows\Temp\php1AAD.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:40:57] Selected category
+Data: Import
+-------------------
+[2024-12-29 07:40:57] Inserting choice 1
+Data: Array
+(
+    [question_id] => 145
+    [choice_text] => 3
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:40:57] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:40:57] Choice 1 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Started database transaction
+-------------------
+[2024-12-29 07:40:57] Inserting choice 2
+Data: Array
+(
+    [question_id] => 145
+    [choice_text] => 4
+    [is_correct] => 1
+)
+
+-------------------
+[2024-12-29 07:40:57] Processing row
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => 3
+    [choice2] => 4
+    [choice3] => 5
+    [choice4] => 6
+    [correct_choice_number] => 2
+)
+
+-------------------
+[2024-12-29 07:40:57] Choice 2 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Inserting choice 3
+Data: Array
+(
+    [question_id] => 145
+    [choice_text] => 5
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:40:57] Choice 3 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Question inserted with ID
+Data: 146
+-------------------
+[2024-12-29 07:40:57] Processing multiple choice options for question
+Data: 146
+-------------------
+ 6
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:40:57] Choice 4 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Processing row
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [choice1] => 
+    [choice2] => 
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => FALSE
+)
+
+-------------------
+[2024-12-29 07:40:57] Inserting choice 1
+Data: Array
+(
+    [question_id] => 146
+    [choice_text] => 3
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:40:57] Question inserted with ID
+Data: 147
+-------------------
+[2024-12-29 07:40:57] Choice 1 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Processing true/false options for question
+Data: 147
+-------------------
+[2024-12-29 07:40:57] Inserting choice 2
+Data: Array
+(
+    [question_id] => 146
+    [choice_text] => 4
+    [is_correct] => 1
+)
+
+-------------------
+-
+[2024-12-29 07:40:57] Choice 2 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Inserting choice 3
+Data: Array
+(
+    [question_id] => 146
+    [choice_text] => 5
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:40:57] Choice 3 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Inserting choice 4
+Data: Array
+(
+    [question_id] => 146
+    [choice_text] => 6
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:40:57] Choice 4 inserted successfully
+-------------------
+[2024-12-29 07:40:57] Processing row
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [choice1] => 
+    [choice2] => 
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => FALSE
+)
+
+-------------------
+[2024-12-29 07:40:57] Question inserted with ID
+Data: 148
+-------------------
+[2024-12-29 07:40:57] Processing true/false options for question
+Data: 148
+-------------------
+[2024-12-29 07:40:57] Inserting true/false choices
+Data: Array
+(
+    [question_id] => 148
+    [isTrue] => 0
+    [isFalse] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Starting import process
+-------------------
+[2024-12-29 07:41:21] File upload details
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(5).csv
+            [full_path] => question_bank_template(5).csv
+            [type] => text/csv
+            [tmp_name] => C:\Windows\Temp\php774B.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:41:21] Selected category
+Data: Import
+-------------------
+[2024-12-29 07:41:21] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:41:21] Started database transaction
+-------------------
+[2024-12-29 07:41:21] Processing row
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => 3
+    [choice2] => 4
+    [choice3] => 5
+    [choice4] => 6
+    [correct_choice_number] => 2
+)
+
+-------------------
+[2024-12-29 07:41:21] Question inserted with ID
+Data: 149
+-------------------
+[2024-12-29 07:41:21] Processing multiple choice options for question
+Data: 149
+-------------------
+[2024-12-29 07:41:21] Inserting choice 1
+Data: Array
+(
+    [question_id] => 149
+    [choice_text] => 3
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 1 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Inserting choice 2
+Data: Array
+(
+    [question_id] => 149
+    [choice_text] => 4
+    [is_correct] => 1
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 2 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Inserting choice 3
+Data: Array
+(
+    [question_id] => 149
+    [choice_text] => 5
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 3 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Inserting choice 4
+Data: Array
+(
+    [question_id] => 149
+    [choice_text] => 6
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 4 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Processing row
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [choice1] => 
+    [choice2] => 
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => FALSE
+)
+
+-------------------
+[2024-12-29 07:41:21] Question inserted with ID
+Data: 150
+-------------------
+[2024-12-29 07:41:21] Processing true/false options for question
+Data: 150
+-------------------
+[2024-12-29 07:41:21] Inserting true/false choices
+Data: Array
+(
+    [question_id] => 150
+    [isTrue] => 0
+    [isFalse] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Starting import process
+-------------------
+[2024-12-29 07:41:21] File upload details
+Data: Array
+(
+    [question_file] => Array
+        (
+            [name] => question_bank_template(5).csv
+            [full_path] => question_bank_template(5).csv
+            [type] => text/csv
+            [tmp_name] => C:\Windows\Temp\php7755.tmp
+            [error] => 0
+            [size] => 509
+        )
+
+)
+
+-------------------
+[2024-12-29 07:41:21] Selected category
+Data: Import
+-------------------
+[2024-12-29 07:41:21] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:41:21] Started database transaction
+-------------------
+[2024-12-29 07:41:21] Processing row
+Data: Array
+(
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [choice1] => 3
+    [choice2] => 4
+    [choice3] => 5
+    [choice4] => 6
+    [correct_choice_number] => 2
+)
+
+-------------------
+[2024-12-29 07:41:21] Question inserted with ID
+Data: 151
+-------------------
+[2024-12-29 07:41:21] Processing multiple choice options for question
+Data: 151
+-------------------
+[2024-12-29 07:41:21] Inserting choice 1
+Data: Array
+(
+    [question_id] => 151
+    [choice_text] => 3
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 1 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Inserting choice 2
+Data: Array
+(
+    [question_id] => 151
+    [choice_text] => 4
+    [is_correct] => 1
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 2 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Inserting choice 3
+Data: Array
+(
+    [question_id] => 151
+    [choice_text] => 5
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 3 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Inserting choice 4
+Data: Array
+(
+    [question_id] => 151
+    [choice_text] => 6
+    [is_correct] => 0
+)
+
+-------------------
+[2024-12-29 07:41:21] Choice 4 inserted successfully
+-------------------
+[2024-12-29 07:41:21] Processing row
+Data: Array
+(
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [choice1] => 
+    [choice2] => 
+    [choice3] => 
+    [choice4] => 
+    [correct_choice_number] => FALSE
+)
+
+-------------------
+[2024-12-29 07:41:21] Question inserted with ID
+Data: 152
+-------------------
+[2024-12-29 07:41:21] Processing true/false options for question
+Data: 152
+-------------------
+[2024-12-29 07:41:21] Inserting true/false choices
+Data: Array
+(
+    [question_id] => 152
+    [isTrue] => 0
+    [isFalse] => 0
+)
+
+-------------------
+[2024-12-29 07:49:37] Starting import process
+-------------------
+[2024-12-29 07:49:37] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 07:49:37] Starting import process
+-------------------
+[2024-12-29 07:49:37] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 08:53:27] Starting import process
+-------------------
+[2024-12-29 08:53:27] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------
+[2024-12-29 09:37:24] Starting import process
+-------------------
+[2024-12-29 09:37:24] CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => question_text
+    [2] => option1
+    [3] => option2
+    [4] => option3
+    [5] => option4
+    [6] => correct_answer
+    [7] => programming_language
+    [8] => test_input
+    [9] => expected_output
+    [10] => is_hidden
+    [11] => description
+)
+
+-------------------

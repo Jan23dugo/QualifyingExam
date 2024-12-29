@@ -2825,3 +2825,852 @@ Data: Array
 )
 
 2024-11-30 09:49:07 - Debug: Transaction committed successfully
+2024-12-29 06:24:03 - Debug: Starting import process
+2024-12-29 06:24:03 - Debug: File upload details
+Data: Array
+(
+    [name] => question_bank_template(1).csv
+    [full_path] => question_bank_template(1).csv
+    [type] => application/vnd.ms-excel
+    [tmp_name] => C:\Windows\Temp\phpB287.tmp
+    [error] => 0
+    [size] => 827
+)
+
+2024-12-29 06:24:03 - Debug: Selected category
+Data: Import
+2024-12-29 06:24:03 - Debug: CSV Headers
+Data: Array
+(
+    [0] => question_type
+    [1] => category
+    [2] => question_text
+    [3] => programming_language
+    [4] => test_input
+    [5] => expected_output
+    [6] => is_hidden
+    [7] => description
+    [8] => option1
+    [9] => option2
+    [10] => option3
+    [11] => option4
+    [12] => correct_answer
+)
+
+2024-12-29 06:24:03 - Debug: Reading row 1
+Data: Array
+(
+    [0] => multiple_choice
+    [1] => Math
+    [2] => What is 2 + 2?
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 3
+    [9] => 4
+    [10] => 5
+    [11] => 6
+    [12] => 2
+)
+
+2024-12-29 06:24:03 - Debug: Reading row 2
+Data: Array
+(
+    [0] => true_false
+    [1] => Science
+    [2] => The Earth is flat.
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => FALSE
+)
+
+2024-12-29 06:24:03 - Debug: Reading row 3
+Data: Array
+(
+    [0] => programming
+    [1] => Python
+    [2] => Write a function that adds two numbers.
+    [3] => python
+    [4] => 2 3
+    [5] => 5
+    [6] => 0
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Reading row 4
+Data: Array
+(
+    [0] => programming
+    [1] => Python
+    [2] => Write a function that adds two numbers.
+    [3] => python
+    [4] => 10 20
+    [5] => 30
+    [6] => 1
+    [7] => Tests larger numbers
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Reading row 5
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 5
+2024-12-29 06:24:03 - Debug: Reading row 6
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 6
+2024-12-29 06:24:03 - Debug: Reading row 7
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 7
+2024-12-29 06:24:03 - Debug: Reading row 8
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 8
+2024-12-29 06:24:03 - Debug: Reading row 9
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 9
+2024-12-29 06:24:03 - Debug: Reading row 10
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 10
+2024-12-29 06:24:03 - Debug: Reading row 11
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 11
+2024-12-29 06:24:03 - Debug: Reading row 12
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 12
+2024-12-29 06:24:03 - Debug: Reading row 13
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 13
+2024-12-29 06:24:03 - Debug: Reading row 14
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 14
+2024-12-29 06:24:03 - Debug: Reading row 15
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 15
+2024-12-29 06:24:03 - Debug: Reading row 16
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 16
+2024-12-29 06:24:03 - Debug: Reading row 17
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 17
+2024-12-29 06:24:03 - Debug: Reading row 18
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 18
+2024-12-29 06:24:03 - Debug: Reading row 19
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 19
+2024-12-29 06:24:03 - Debug: Reading row 20
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 20
+2024-12-29 06:24:03 - Debug: Reading row 21
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 21
+2024-12-29 06:24:03 - Debug: Reading row 22
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 22
+2024-12-29 06:24:03 - Debug: Reading row 23
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 23
+2024-12-29 06:24:03 - Debug: Reading row 24
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 24
+2024-12-29 06:24:03 - Debug: Reading row 25
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 25
+2024-12-29 06:24:03 - Debug: Reading row 26
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 26
+2024-12-29 06:24:03 - Debug: Reading row 27
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 27
+2024-12-29 06:24:03 - Debug: Reading row 28
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 28
+2024-12-29 06:24:03 - Debug: Reading row 29
+Data: Array
+(
+    [0] => 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping empty row
+Data: 29
+2024-12-29 06:24:03 - Debug: Reading row 30
+Data: Array
+(
+    [0] => # 
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Reading row 31
+Data: Array
+(
+    [0] =>  
+    [1] => 
+    [2] => 
+    [3] => 
+    [4] => 
+    [5] => 
+    [6] => 
+    [7] => 
+    [8] => 
+    [9] => 
+    [10] => 
+    [11] => 
+    [12] => 
+)
+
+2024-12-29 06:24:03 - Debug: Skipping row with empty question type
+Data: 31
+2024-12-29 06:24:03 - Debug: Total valid rows found
+Data: 5
+2024-12-29 06:24:03 - Debug: Started database transaction
+2024-12-29 06:24:03 - Debug: Processing row 1
+Data: Array
+(
+    [question_type] => multiple_choice
+    [category] => Math
+    [question_text] => What is 2 + 2?
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+    [option1] => 3
+    [option2] => 4
+    [option3] => 5
+    [option4] => 6
+    [correct_answer] => 2
+)
+
+2024-12-29 06:24:03 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 1
+    [question_type] => multiple_choice
+    [question_text] => What is 2 + 2?
+    [category] => Import
+    [data_length] => Array
+        (
+            [question_type_length] => 15
+            [question_text_length] => 14
+            [category_length] => 6
+        )
+
+)
+
+2024-12-29 06:24:03 - Debug: Question inserted with ID
+Data: 73
+2024-12-29 06:24:03 - Debug: Processing multiple choice options for question
+Data: 73
+2024-12-29 06:24:03 - Debug: Processing row 2
+Data: Array
+(
+    [question_type] => true_false
+    [category] => Science
+    [question_text] => The Earth is flat.
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => FALSE
+)
+
+2024-12-29 06:24:03 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 2
+    [question_type] => true_false
+    [question_text] => The Earth is flat.
+    [category] => Import
+    [data_length] => Array
+        (
+            [question_type_length] => 10
+            [question_text_length] => 18
+            [category_length] => 6
+        )
+
+)
+
+2024-12-29 06:24:03 - Debug: Question inserted with ID
+Data: 74
+2024-12-29 06:24:03 - Debug: Processing true/false options for question
+Data: 74
+2024-12-29 06:24:03 - Debug: Inserting true/false choices
+Data: Array
+(
+    [question_id] => 74
+    [isTrue] => 0
+    [isFalse] => 0
+)
+
+2024-12-29 06:24:03 - Debug: True/false choices inserted successfully
+2024-12-29 06:24:03 - Debug: Processing row 3
+Data: Array
+(
+    [question_type] => programming
+    [category] => Python
+    [question_text] => Write a function that adds two numbers.
+    [programming_language] => python
+    [test_input] => 2 3
+    [expected_output] => 5
+    [is_hidden] => 0
+    [description] => 
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => 
+)
+
+2024-12-29 06:24:03 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 3
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers.
+    [category] => Import
+    [data_length] => Array
+        (
+            [question_type_length] => 11
+            [question_text_length] => 39
+            [category_length] => 6
+        )
+
+)
+
+2024-12-29 06:24:03 - Debug: Question inserted with ID
+Data: 75
+2024-12-29 06:24:03 - Debug: Processing programming question for question
+Data: 75
+2024-12-29 06:24:03 - Debug: Inserting programming details
+Data: Array
+(
+    [question_id] => 75
+    [programming_language] => python
+)
+
+2024-12-29 06:24:03 - Debug: Programming details inserted successfully
+2024-12-29 06:24:03 - Debug: Processing row 4
+Data: Array
+(
+    [question_type] => programming
+    [category] => Python
+    [question_text] => Write a function that adds two numbers.
+    [programming_language] => python
+    [test_input] => 10 20
+    [expected_output] => 30
+    [is_hidden] => 1
+    [description] => Tests larger numbers
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => 
+)
+
+2024-12-29 06:24:03 - Debug: Inserting question with data
+Data: Array
+(
+    [row_number] => 4
+    [question_type] => programming
+    [question_text] => Write a function that adds two numbers.
+    [category] => Import
+    [data_length] => Array
+        (
+            [question_type_length] => 11
+            [question_text_length] => 39
+            [category_length] => 6
+        )
+
+)
+
+2024-12-29 06:24:03 - Debug: Question inserted with ID
+Data: 76
+2024-12-29 06:24:03 - Debug: Processing programming question for question
+Data: 76
+2024-12-29 06:24:03 - Debug: Inserting programming details
+Data: Array
+(
+    [question_id] => 76
+    [programming_language] => python
+)
+
+2024-12-29 06:24:03 - Debug: Programming details inserted successfully
+2024-12-29 06:24:03 - Debug: Processing row 5
+Data: Array
+(
+    [question_type] => # 
+    [category] => 
+    [question_text] => 
+    [programming_language] => 
+    [test_input] => 
+    [expected_output] => 
+    [is_hidden] => 
+    [description] => 
+    [option1] => 
+    [option2] => 
+    [option3] => 
+    [option4] => 
+    [correct_answer] => 
+)
+
+2024-12-29 06:24:03 - Debug: Import summary
+Data: Array
+(
+    [total_questions] => 5
+    [last_question_id] => 76
+    [transaction_status] => ready to commit
+)
+
+2024-12-29 06:24:03 - Debug: Transaction committed successfully

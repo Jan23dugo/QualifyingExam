@@ -1,355 +1,211 @@
 <?php
 include('../../config/config.php');
 
-// Enable error reporting
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// Set proper headers for JSON response
+header('Content-Type: application/json');
 
-// Create logs directory if it doesn't exist
-if (!file_exists("../../logs")) {
-    mkdir("../../logs", 0777, true);
+// Debug log function
+function debug_log($message, $data = null) {
+    error_log("Import Debug - " . $message . ": " . print_r($data, true));
 }
 
-function logError($message, $data = null) {
-    $logFile = "../../logs/import_error.log";
-    $logMessage = date('Y-m-d H:i:s') . " - Error: " . $message;
-    if ($data !== null) {
-        $logMessage .= "\nData: " . print_r($data, true);
-    }
-    $logMessage .= "\n";
-    error_log($logMessage, 3, $logFile);
-    echo "Error: " . $message;
-}
-
-function logDebug($message, $data = null) {
-    $logFile = "../../logs/import_debug.log";
-    $logMessage = date('Y-m-d H:i:s') . " - Debug: " . $message;
-    if ($data !== null) {
-        $logMessage .= "\nData: " . print_r($data, true);
-    }
-    $logMessage .= "\n";
-    error_log($logMessage, 3, $logFile);
-}
-
-// At the start of the file, after the existing error reporting setup
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
-// Add this function at the top of your file
-function validateQuestionType($type) {
-    $valid_types = ['multiple_choice', 'true_false', 'programming', 'essay'];
-    $type = trim(strtolower($type));
-    
-    if (!in_array($type, $valid_types)) {
-        throw new Exception("Invalid question type: '$type'. Must be one of: " . implode(', ', $valid_types));
-    }
-    
-    return $type;
-}
-
-try {
-    // Log the start of import process
-    logDebug("Starting import process");
-    
-    // Check if file was uploaded
-    if (!isset($_FILES['question_file'])) {
-        throw new Exception('No file uploaded');
-    }
-
-    // Log file details
-    logDebug("File upload details", $_FILES['question_file']);
-
-    // Get the uploaded file
-    $file = $_FILES['question_file'];
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        throw new Exception('File upload error: ' . $file['error']);
-    }
-
-    // Get category and log it
-    $category = $_POST['category'] ?? '';
-    logDebug("Selected category", $category);
-    if (empty($category)) {
-        throw new Exception('Category is required');
-    }
-
-    // Read CSV file
-    $handle = fopen($file['tmp_name'], 'r');
-    if ($handle === false) {
-        throw new Exception('Could not open file');
-    }
-
-    // Read headers
-    $headers = fgetcsv($handle);
-    logDebug("CSV Headers", $headers);
-    if ($headers === false) {
-        throw new Exception('Could not read CSV headers');
-    }
-
-    // Store CSV data
-    $csvData = [];
-    $rowNumber = 0;
-    while (($row = fgetcsv($handle)) !== false) {
-        $rowNumber++;
-        logDebug("Reading row $rowNumber", $row);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        debug_log("Starting import process");
         
-        // Skip completely empty rows
-        if (empty(array_filter($row))) {
-            logDebug("Skipping empty row", $rowNumber);
-            continue;
+        if (!isset($_FILES['question_file'])) {
+            debug_log("No file uploaded");
+            throw new Exception('No file uploaded');
+        }
+
+        $file = $_FILES['question_file']['tmp_name'];
+        $category = $_POST['category'];
+        
+        debug_log("File info", $_FILES['question_file']);
+        debug_log("Category", $category);
+        
+        if (!$file || !is_uploaded_file($file)) {
+            debug_log("Invalid file upload");
+            throw new Exception('Invalid file upload');
         }
         
-        // Skip rows where first column (question_type) is empty
-        if (empty(trim($row[0]))) {
-            logDebug("Skipping row with empty question type", $rowNumber);
-            continue;
-        }
-        
-        $csvData[] = $row;
-    }
-    fclose($handle);
+        if (($handle = fopen($file, "r")) !== FALSE) {
+            // Skip header row
+            $headers = fgetcsv($handle);
+            debug_log("CSV Headers", $headers);
+            
+            $totalImported = 0;
+            $conn->begin_transaction();
+            
+            while (($data = fgetcsv($handle)) !== FALSE) {
+                debug_log("Processing row", $data);
+                
+                // Skip empty rows
+                if (empty(trim($data[0])) || empty(trim($data[1]))) {
+                    debug_log("Skipping empty row");
+                    continue;
+                }
+                
+                $questionType = strtolower(trim($data[0]));
+                $questionText = trim($data[1]);
+                
+                debug_log("Question type", $questionType);
+                debug_log("Question text", $questionText);
 
-    if (empty($csvData)) {
-        throw new Exception('No valid data rows found in CSV file');
-    }
-
-    logDebug("Total valid rows found", count($csvData));
-
-    // Start transaction
-    $conn->begin_transaction();
-    logDebug("Started database transaction");
-
-    foreach ($csvData as $rowIndex => $row) {
-        // Skip empty rows
-        if (empty(array_filter($row))) {
-            continue;
-        }
-
-        // Ensure row has same number of elements as headers
-        while (count($row) < count($headers)) {
-            $row[] = ''; // Pad with empty strings if necessary
-        }
-        
-        // Combine headers with data
-        $data = array_combine($headers, $row);
-        logDebug("Processing row " . ($rowIndex + 1), $data);
-
-        // Validate and clean question type
-        try {
-            $data['question_type'] = validateQuestionType($data['question_type']);
-        } catch (Exception $e) {
-            logError("Invalid row " . ($rowIndex + 1) . ": " . $e->getMessage());
-            continue; // Skip this row
-        }
-
-        // Skip rows with empty question type (likely blank rows)
-        if (empty(trim($data['question_type']))) {
-            logDebug("Skipping empty row", $rowIndex + 1);
-            continue;
-        }
-
-        // Validate required fields
-        if (empty($data['question_type'])) {
-            throw new Exception("Row " . ($rowIndex + 1) . ": question_type is required");
-        }
-        if (empty($data['question_text'])) {
-            throw new Exception("Row " . ($rowIndex + 1) . ": question_text is required");
-        }
-
-        // Insert question
-        $sql = "INSERT INTO question_bank (category, question_type, question_text) VALUES (?, ?, ?)";
-        logDebug("Inserting question with data", [
-            'row_number' => $rowIndex + 1,
-            'question_type' => $data['question_type'],
-            'question_text' => $data['question_text'],
-            'category' => $category,
-            'data_length' => [
-                'question_type_length' => strlen($data['question_type']),
-                'question_text_length' => strlen($data['question_text']),
-                'category_length' => strlen($category)
-            ]
-        ]);
-        
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception("Prepare failed: " . $conn->error);
-        }
-
-        $stmt->bind_param("sss", $category, $data['question_type'], $data['question_text']);
-        if (!$stmt->execute()) {
-            throw new Exception("Error inserting question at row " . ($rowIndex + 1) . ": " . $stmt->error);
-        }
-
-        $questionId = $conn->insert_id;
-        logDebug("Question inserted with ID", $questionId);
-
-        // Insert choices
-        if ($data['question_type'] === 'multiple_choice') {
-            logDebug("Processing multiple choice options for question", $questionId);
-            // Insert multiple choice options
-            for ($i = 1; $i <= 4; $i++) {
-                if (!empty($data["choice$i"])) {
-                    $isCorrect = ($i == $data['correct_choice_number']) ? 1 : 0;
-                    $sql = "INSERT INTO question_bank_choices (question_id, choice_text, is_correct) 
-                            VALUES (?, ?, ?)";
-                    
-                    logDebug("Inserting choice $i", [
-                        'question_id' => $questionId,
-                        'choice_text' => $data["choice$i"],
-                        'is_correct' => $isCorrect
-                    ]);
-                    
-                    $stmt = $conn->prepare($sql);
-                    if (!$stmt) {
-                        throw new Exception("Prepare failed for choice insert: " . $conn->error);
-                    }
-                    
-                    $stmt->bind_param("isi", $questionId, $data["choice$i"], $isCorrect);
-                    if (!$stmt->execute()) {
-                        throw new Exception("Error inserting choice $i: " . $stmt->error);
-                    }
-                    logDebug("Choice $i inserted successfully");
+                // First insert into question_bank
+                switch ($questionType) {
+                    case 'multiple_choice':
+                        // Insert the question
+                        $sql = "INSERT INTO question_bank (category, question_type, question_text, correct_answer) 
+                                VALUES (?, ?, ?, ?)";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("ssss", 
+                            $category,
+                            $questionType,
+                            $questionText,
+                            $data[6]
+                        );
+                        
+                        if ($stmt->execute()) {
+                            debug_log("Question inserted successfully", $conn->insert_id);
+                            $totalImported++;
+                        } else {
+                            debug_log("Error inserting question", $conn->error);
+                        }
+                        break;
+                        
+                    case 'true_false':
+                        // Insert the question
+                        $sql = "INSERT INTO question_bank (category, question_type, question_text, correct_answer) 
+                                VALUES (?, ?, ?, ?)";
+                        $stmt = $conn->prepare($sql);
+                        $correctAnswer = trim($data[6]); // Should be 'True' or 'False'
+                        $stmt->bind_param("ssss", 
+                            $category,
+                            $questionType,
+                            $questionText,
+                            $correctAnswer
+                        );
+                        
+                        if ($stmt->execute()) {
+                            $questionId = $conn->insert_id;
+                            
+                            // Insert True and False as choices
+                            $choiceSql = "INSERT INTO question_bank_choices (question_id, choice_text, is_correct) VALUES (?, ?, ?)";
+                            $choiceStmt = $conn->prepare($choiceSql);
+                            
+                            // Insert True choice
+                            $trueChoice = 'True';
+                            $isCorrectTrue = (strtolower($correctAnswer) === strtolower('True')) ? 1 : 0;
+                            $choiceStmt->bind_param("isi", $questionId, $trueChoice, $isCorrectTrue);
+                            $choiceStmt->execute();
+                            
+                            // Insert False choice
+                            $falseChoice = 'False';
+                            $isCorrectFalse = (strtolower($correctAnswer) === strtolower('False')) ? 1 : 0;
+                            $choiceStmt->bind_param("isi", $questionId, $falseChoice, $isCorrectFalse);
+                            $choiceStmt->execute();
+                            
+                            $totalImported++;
+                        }
+                        break;
+                        
+                    case 'programming':
+                        // Insert the question
+                        $sql = "INSERT INTO question_bank (category, question_type, question_text) 
+                                VALUES (?, ?, ?)";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("sss", 
+                            $category,
+                            $questionType,
+                            $questionText
+                        );
+                        
+                        if ($stmt->execute()) {
+                            $questionId = $conn->insert_id;
+                            
+                            // Insert programming language
+                            if (!empty(trim($data[7]))) {
+                                $progSql = "INSERT INTO question_bank_programming (question_id, programming_language) 
+                                          VALUES (?, ?)";
+                                $progStmt = $conn->prepare($progSql);
+                                $progStmt->bind_param("is", 
+                                    $questionId,
+                                    trim($data[7])
+                                );
+                                $progStmt->execute();
+                                
+                                // Insert test case
+                                if (!empty(trim($data[8])) && !empty(trim($data[9]))) {
+                                    $testSql = "INSERT INTO question_bank_test_cases 
+                                              (question_id, test_input, expected_output, is_hidden, description) 
+                                              VALUES (?, ?, ?, ?, ?)";
+                                    $testStmt = $conn->prepare($testSql);
+                                    $isHidden = !empty(trim($data[10])) ? trim($data[10]) : '0';
+                                    $description = !empty(trim($data[11])) ? trim($data[11]) : '';
+                                    $testStmt->bind_param("issss", 
+                                        $questionId,
+                                        trim($data[8]),
+                                        trim($data[9]),
+                                        $isHidden,
+                                        $description
+                                    );
+                                    $testStmt->execute();
+                                }
+                            }
+                            $totalImported++;
+                        }
+                        break;
                 }
             }
-        } 
-        elseif ($data['question_type'] === 'true_false') {
-            logDebug("Processing true/false options for question", $questionId);
-            // Insert True/False options
-            $sql = "INSERT INTO question_bank_choices (question_id, choice_text, is_correct) VALUES 
-                   (?, 'True', ?), 
-                   (?, 'False', ?)";
             
-            $isTrue = ($data['correct_choice_number'] == 1) ? 1 : 0;
-            $isFalse = ($data['correct_choice_number'] == 2) ? 1 : 0;
+            $conn->commit();
+            fclose($handle);
             
-            logDebug("Inserting true/false choices", [
-                'question_id' => $questionId,
-                'isTrue' => $isTrue,
-                'isFalse' => $isFalse
-            ]);
+            debug_log("Import completed", ["total_imported" => $totalImported]);
             
-            $stmt = $conn->prepare($sql);
-            if (!$stmt) {
-                throw new Exception("Prepare failed for true/false insert: " . $conn->error);
-            }
+            // Clean the response data
+            $response = [
+                'status' => 'success',
+                'total_imported' => (int)$totalImported,
+                'message' => $totalImported . ' questions imported successfully'
+            ];
             
-            $stmt->bind_param("iiii", 
-                $questionId, $isTrue,
-                $questionId, $isFalse
-            );
+            debug_log("Sending response", $response);
             
-            if (!$stmt->execute()) {
-                throw new Exception("Error inserting true/false choices: " . $stmt->error);
-            }
-            logDebug("True/false choices inserted successfully");
+            // Make sure there's no output before this
+            ob_clean(); // Clear any previous output
+            
+            // Send JSON response
+            echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
         }
-        elseif ($data['question_type'] === 'programming') {
-            logDebug("Processing programming question for question", $questionId);
-            
-            // Insert programming language
-            $sql = "INSERT INTO question_bank_programming (
-                question_id, 
-                programming_language
-            ) VALUES (?, ?)";
-            
-            logDebug("Inserting programming details", [
-                'question_id' => $questionId,
-                'programming_language' => $data['programming_language']
-            ]);
-            
-            $stmt = $conn->prepare($sql);
-            if (!$stmt) {
-                throw new Exception("Prepare failed for programming details: " . $conn->error);
-            }
-            
-            $stmt->bind_param("is", 
-                $questionId,
-                $data['programming_language']
-            );
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Error inserting programming details: " . $stmt->error);
-            }
-            logDebug("Programming details inserted successfully");
-            
-            // Insert test cases
-            $sql = "INSERT INTO question_bank_test_cases (
-                question_id, 
-                test_input, 
-                expected_output,
-                is_hidden
-            ) VALUES (?, ?, ?, ?)";
-            
-            $stmt = $conn->prepare($sql);
-            if (!$stmt) {
-                throw new Exception("Prepare failed for test cases: " . $conn->error);
-            }
-            
-            // Process test cases from CSV
-            for ($i = 1; isset($data["test_input$i"]); $i++) {
-                if (!empty($data["test_input$i"]) && !empty($data["test_output$i"])) {
-                    $isHidden = isset($data["test_hidden$i"]) && $data["test_hidden$i"] == '1' ? 1 : 0;
-                    
-                    $stmt->bind_param("issi", 
-                        $questionId,
-                        $data["test_input$i"],
-                        $data["test_output$i"],
-                        $isHidden
-                    );
-                    
-                    if (!$stmt->execute()) {
-                        throw new Exception("Error inserting test case $i: " . $stmt->error);
-                    }
-                    logDebug("Test case $i inserted successfully");
-                }
-            }
+    } catch (Exception $e) {
+        if (isset($conn)) {
+            $conn->rollback();
         }
+        
+        debug_log("Error occurred", $e->getMessage());
+        
+        // Clean output and send error response
+        ob_clean();
+        http_response_code(400);
+        echo json_encode([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
     }
-
-    // Add right before the commit
-    logDebug("Import summary", [
-        'total_questions' => count($csvData),
-        'last_question_id' => $questionId ?? 'none',
-        'transaction_status' => 'ready to commit'
-    ]);
-    
-    // Commit transaction
-    $conn->commit();
-    logDebug("Transaction committed successfully");
-
-    // Clear any output buffers and send clean response
-    while (ob_get_level()) {
-        ob_end_clean();
-    }
-
-    // Send JSON response
-    header('Content-Type: application/json');
-    header('Cache-Control: no-cache, must-revalidate');
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Questions imported successfully',
-        'total_imported' => count($csvData)
-    ]);
-    exit();
-
-} catch (Exception $e) {
-    if (isset($conn) && $conn->ping()) {
-        $conn->rollback();
-    }
-    
-    logError("Failed to complete import", [
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
-    ]);
-
-    // Clear any output buffers
-    while (ob_get_level()) {
-        ob_end_clean();
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
-    exit();
 }
+
+// Invalid request method response
+debug_log("Invalid request method", $_SERVER['REQUEST_METHOD']);
+ob_clean();
+http_response_code(400);
+echo json_encode([
+    'status' => 'error',
+    'message' => 'Invalid request method or missing data'
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+exit;
+?>
   

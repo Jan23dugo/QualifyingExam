@@ -1,6 +1,6 @@
 <?php
 include('../config/config.php');
-
+//this  fileis  forviewingquestions
 // Add this helper function
 function include_test_cases($question_id, $conn) {
     // Get visible test cases
@@ -441,35 +441,186 @@ $category = $_GET['category'];
             $('#editAnswerSection').empty();
 
             // Populate type-specific fields
-            if (question.question_type === 'multiple_choice') {
-                let html = `
-                    <div class="mb-3">
-                        <label class="form-label">Options</label>
-                        <div id="editOptionsContainer">`;
-                
-                question.choices.forEach((choice, index) => {
-                    html += `
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control" name="options[]" 
-                                value="${escapeHtml(choice.choice_text)}"
-                                required>
-                            <div class="input-group-text">
-                                <input type="radio" name="correct_answer" value="${index}" 
-                                    ${choice.is_correct == 1 ? 'checked' : ''}>
-                                <label class="ms-2 mb-0">Correct</label>
+            switch (question.question_type) {
+                case 'multiple_choice':
+                    let mcHtml = `
+                        <div class="mb-3">
+                            <label class="form-label">Options</label>
+                            <div id="editOptionsContainer">`;
+                    
+                    // Add existing options
+                    if (question.choices && question.choices.length > 0) {
+                        question.choices.forEach((choice, index) => {
+                            mcHtml += `
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" 
+                                        name="options[]" 
+                                        value="${escapeHtml(choice.text)}"
+                                        required>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="radio" 
+                                                name="correct_answer" 
+                                                value="${index}"
+                                                ${choice.is_correct ? 'checked' : ''}>
+                                            <label class="ms-2 mb-0">Correct</label>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger remove-option">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>`;
+                        });
+                    }
+
+                    mcHtml += `</div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="editAddOptionBtn">
+                            <i class="fas fa-plus"></i> Add Option
+                        </button>
+                    </div>`;
+
+                    $('#editAnswerSection').html(mcHtml);
+
+                    // Add event listener for add option button
+                    $('#editAddOptionBtn').click(function() {
+                        const optionCount = $('#editOptionsContainer .input-group').length;
+                        const newOption = `
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" 
+                                    name="options[]" 
+                                    placeholder="Option ${optionCount + 1}" 
+                                    required>
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <input type="radio" 
+                                            name="correct_answer" 
+                                            value="${optionCount}">
+                                        <label class="ms-2 mb-0">Correct</label>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger remove-option">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>`;
+                        $('#editOptionsContainer').append(newOption);
+                    });
+                    break;
+
+                case 'true_false':
+                    let tfHtml = `
+                        <div class="mb-3">
+                            <label class="form-label">Correct Answer</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="correct_answer" value="True" id="editBtnTrue" 
+                                    ${question.correct_answer === 'True' ? 'checked' : ''}>
+                                <label class="btn btn-outline-primary" for="editBtnTrue">True</label>
+                                
+                                <input type="radio" class="btn-check" name="correct_answer" value="False" id="editBtnFalse"
+                                    ${question.correct_answer === 'False' ? 'checked' : ''}>
+                                <label class="btn btn-outline-primary" for="editBtnFalse">False</label>
                             </div>
-                            <button type="button" class="btn btn-outline-danger remove-option">
-                                <i class="fas fa-times"></i>
+                        </div>`;
+                    $('#editAnswerSection').html(tfHtml);
+                    break;
+
+                case 'programming':
+                    let progHtml = `
+                        <div class="mb-3">
+                            <label class="form-label">Programming Language</label>
+                            <select class="form-control" name="programming_language" required>
+                                <option value="python" ${question.programming_language === 'python' ? 'selected' : ''}>Python</option>
+                                <option value="java" ${question.programming_language === 'java' ? 'selected' : ''}>Java</option>
+                                <option value="c" ${question.programming_language === 'c' ? 'selected' : ''}>C</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Test Cases</label>
+                            <div id="editTestCasesContainer">`;
+
+                    // Add existing test cases
+                    if (question.test_cases && question.test_cases.length > 0) {
+                        question.test_cases.forEach((testCase, index) => {
+                            progHtml += `
+                                <div class="test-case mb-3">
+                                    <div class="card">
+                                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                            <span>Test Case #${index + 1}</span>
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                <label class="form-label">Input</label>
+                                                <input type="text" class="form-control" 
+                                                    name="test_case_input[]" 
+                                                    value="${escapeHtml(testCase.test_input)}" 
+                                                    required>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label">Expected Output</label>
+                                                <input type="text" class="form-control" 
+                                                    name="test_case_output[]" 
+                                                    value="${escapeHtml(testCase.expected_output)}"
+                                                    required>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" 
+                                                    name="test_case_hidden[]"
+                                                    ${testCase.is_hidden ? 'checked' : ''}>
+                                                <label class="form-check-label">Hidden Test Case</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                    }
+
+                    progHtml += `
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="editAddTestCaseBtn">
+                                <i class="fas fa-plus"></i> Add Test Case
                             </button>
                         </div>`;
-                });
 
-                html += `</div>
-                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="editAddOptionBtn">
-                        <i class="fas fa-plus"></i> Add Option
-                    </button>
-                    </div>`;
-                $('#editAnswerSection').html(html);
+                    $('#editAnswerSection').html(progHtml);
+
+                    // Add handler for adding new test cases
+                    $('#editAddTestCaseBtn').click(function() {
+                        const testCaseCount = $('#editTestCasesContainer .test-case').length + 1;
+                        const newTestCase = `
+                            <div class="test-case mb-3">
+                                <div class="card">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <span>Test Case #${testCaseCount}</span>
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <label class="form-label">Input</label>
+                                            <input type="text" class="form-control" 
+                                                name="test_case_input[]" 
+                                                placeholder="Test input" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Expected Output</label>
+                                            <input type="text" class="form-control" 
+                                                name="test_case_output[]" 
+                                                placeholder="Expected output" required>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" 
+                                                name="test_case_hidden[]">
+                                            <label class="form-check-label">Hidden Test Case</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        $('#editTestCasesContainer').append(newTestCase);
+                    });
+                    break;
             }
 
             // Initialize handlers for the edit form
@@ -515,22 +666,49 @@ $category = $_GET['category'];
                 .replace(/'/g, "&#039;");
         }
 
-        // Handle edit form submission
+        // Update the form submission handler
         $('#editQuestionForm').on('submit', function(e) {
             e.preventDefault();
             
-            // Gather form data manually
+            const questionType = $('#editQuestionType').val();
+            
+            // Base form data
             const formData = {
                 question_id: $('#editQuestionId').val(),
                 question_text: $('#editQuestionText').val(),
-                options: [],
-                correct_answer: $('input[name="correct_answer"]:checked').val()
+                question_type: questionType
             };
             
-            // Gather all options
-            $('input[name="options[]"]').each(function() {
-                formData.options.push($(this).val());
-            });
+            // Add type-specific data
+            switch (questionType) {
+                case 'multiple_choice':
+                    formData.options = [];
+                    formData.correct_answer = $('input[name="correct_answer"]:checked').val();
+                    $('input[name="options[]"]').each(function() {
+                        formData.options.push($(this).val());
+                    });
+                    break;
+                    
+                case 'true_false':
+                    formData.correct_answer = $('input[name="correct_answer"]:checked').val();
+                    break;
+                    
+                case 'programming':
+                    formData.programming_language = $('select[name="programming_language"]').val();
+                    formData.test_cases = [];
+                    
+                    $('.test-case').each(function() {
+                        formData.test_cases.push({
+                            test_input: $(this).find('input[name="test_case_input[]"]').val(),
+                            expected_output: $(this).find('input[name="test_case_output[]"]').val(),
+                            is_hidden: $(this).find('input[name="test_case_hidden[]"]').is(':checked'),
+                            description: $(this).find('textarea[name="test_case_description[]"]')?.val() || ''
+                        });
+                    });
+                    break;
+            }
+            
+            console.log('Sending data:', formData); // Debug log
             
             fetch('update_question.php', {
                 method: 'POST',
@@ -539,24 +717,20 @@ $category = $_GET['category'];
                 },
                 body: JSON.stringify(formData)
             })
-                .then(response => response.json())
-                .then(result => {
-                    try {
-                        if (result.success) {
-                            $('#editQuestionModal').modal('hide');
-                            location.reload();
-                        } else {
-                            alert('Error: ' + result.message);
-                        }
-                    } catch (e) {
-                        console.error(e);
-                        alert('Error processing the request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating question');
-                });
+            .then(response => response.json())
+            .then(result => {
+                console.log('Server response:', result); // Debug log
+                if (result.success) {
+                    alert('Question updated successfully!');
+                    location.reload();
+                } else {
+                    alert('Error updating question: ' + (result.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating question: ' + error.message);
+            });
         });
     });
     </script>
