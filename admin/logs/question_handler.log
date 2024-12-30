@@ -1,0 +1,3 @@
+2024-12-30 06:46:56 - Error: Column 'category' cannot be null - Data: {"post_data":{"action":"add","new_category":"","question_type":"multiple_choice","question_text":"asfasfsa","options":["asdfasf","fasfs","asfasf"],"correct_answer":"2"},"sql_error":""}
+2024-12-30 06:47:02 - Error: Column 'category' cannot be null - Data: {"post_data":{"action":"add","new_category":"","question_type":"true_false","question_text":"asfasfsa","correct_answer":"True"},"sql_error":""}
+2024-12-30 06:51:24 - Error: All fields are required - Data: {"post_data":{"action":"add","new_category":"","question_type":"multiple_choice","question_text":"dfdzsff","options":["sfasfs","fasfasdsfa","fasdsafsa","fasfasfs"],"correct_answer":"2"},"sql_error":""}

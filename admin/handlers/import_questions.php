@@ -1,5 +1,6 @@
 <?php
 include('../../config/config.php');
+//This FIle is for importing questions from a csv file
 
 // Set proper headers for JSON response
 header('Content-Type: application/json');

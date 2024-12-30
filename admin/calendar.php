@@ -351,6 +351,39 @@ $unscheduled_exams = array();
 
     <!-- Calendar Initialization Script -->
     <script>
+        function updateCalendarStats() {
+            // Get all events from the calendar
+            const calendar = document.querySelector('#calendar');
+            const fc = calendar.querySelector('.fc');
+            
+            if (!fc) return; // Exit if calendar isn't fully initialized
+            
+            // Count events by status
+            const events = calendar.querySelectorAll('.fc-event');
+            let stats = {
+                total: events.length,
+                upcoming: 0,
+                inProgress: 0,
+                completed: 0
+            };
+
+            events.forEach(event => {
+                const backgroundColor = event.style.backgroundColor;
+                // Check status based on the color we defined earlier
+                if (backgroundColor.includes('3498db')) stats.upcoming++;
+                else if (backgroundColor.includes('f1c40f')) stats.inProgress++;
+                else if (backgroundColor.includes('2ecc71')) stats.completed++;
+            });
+
+            // Update stats in the UI
+            const statNumbers = document.querySelectorAll('.stat-number');
+            if (statNumbers.length >= 3) {
+                statNumbers[0].textContent = stats.total;
+                // The second stat (Scheduled Exams) is already handled by PHP
+                // The third stat (Unscheduled Exams) is already handled by PHP
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
             var inlineEvents = <?php echo json_encode($events); ?>; // PHP inline events
@@ -390,7 +423,12 @@ $unscheduled_exams = array();
             });
 
             calendar.render();
-            updateCalendarStats();
+            setTimeout(updateCalendarStats, 100);
+
+            // Also update stats when events change
+            calendar.on('eventAdd', updateCalendarStats);
+            calendar.on('eventRemove', updateCalendarStats);
+            calendar.on('eventChange', updateCalendarStats);
         });
 
         function showEventDetails(event) {
@@ -494,13 +532,17 @@ $unscheduled_exams = array();
         function saveExamSchedule() {
             const form = document.getElementById('scheduleExamForm');
             const formData = new FormData(form);
-            formData.append('enabled', 'true'); // Add this to match the update_exam.php expectations
             
             fetch('handlers/update_exam.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('scheduleExamModal'));
@@ -513,7 +555,7 @@ $unscheduled_exams = array();
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error scheduling exam');
+                alert('Error scheduling exam. Please try again.');
             });
         }
 

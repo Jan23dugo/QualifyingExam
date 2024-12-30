@@ -16,6 +16,10 @@ include('../config/config.php');
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&display=swap">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.min.css">
     <link rel="stylesheet" href="assets/css/question-bank.css">
@@ -377,6 +381,13 @@ include('../config/config.php');
                             <label class="btn btn-outline-primary" for="btnFalse">False</label>
                         </div>
                     </div>`;
+
+                // Add validation for true/false
+                setTimeout(() => {
+                    $('input[name="correct_answer"]').on('change', function() {
+                        console.log('Selected answer:', this.value);
+                    });
+                }, 0);
             } else if (questionType === 'essay') {
                 html = `
                     <div class="mb-3">
@@ -385,95 +396,112 @@ include('../config/config.php');
                     </div>`;
             } else if (questionType === 'programming') {
                 html = `
-                    <div class="mb-3">
-                        <label class="form-label">Programming Language</label>
-                        <select class="form-control" name="programming_language" required>
-                            <option value="python">Python</option>
-                            <option value="java">Java</option>
-                            <option value="cpp">C++</option>
-                            <option value="c">C</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Problem Description</label>
-                        <textarea class="form-control" name="problem_description" rows="4" placeholder="Detailed description of the programming problem" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Input Format</label>
-                        <textarea class="form-control" name="input_format" rows="2" placeholder="Describe the format of input" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Output Format</label>
-                        <textarea class="form-control" name="output_format" rows="2" placeholder="Describe the format of expected output" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Constraints</label>
-                        <textarea class="form-control" name="constraints" rows="2" placeholder="List any constraints (e.g., input size limits, value ranges)" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Sample Test Cases</label>
-                        <div id="testCasesContainer">
-                            <div class="test-case mb-3">
-                                <div class="card">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <span>Test Case #1</span>
-                                        <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-2">
-                                            <label class="form-label">Sample Input</label>
-                                            <textarea class="form-control" name="test_case_input[]" rows="2" placeholder="Enter sample input" required></textarea>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Sample Output</label>
-                                            <textarea class="form-control" name="test_case_output[]" rows="2" placeholder="Enter expected output" required></textarea>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Explanation (Optional)</label>
-                                            <textarea class="form-control" name="test_case_explanation[]" rows="2" placeholder="Explain this test case"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="programming-question-fields">
+                        <div class="mb-3">
+                            <label class="form-label">Programming Language</label>
+                            <select class="form-control" name="programming_language" id="programmingLanguage" required>
+                                <option value="">Select Language</option>
+                                <option value="Python">Python</option>
+                                <option value="Java">Java</option>
+                                <option value="C++">C++</option>
+                                <option value="JavaScript">JavaScript</option>
+                            </select>
                         </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addTestCaseBtn">
-                            <i class="fas fa-plus"></i> Add Test Case
-                        </button>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Solution Template (Optional)</label>
-                        <textarea class="form-control" name="solution_template" rows="4" placeholder="Provide starter code or function template that students need to complete"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Hidden Test Cases</label>
-                        <div id="hiddenTestCasesContainer">
-                            <div class="test-case mb-3">
-                                <div class="card">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <span>Hidden Test Case #1</span>
-                                        <button type="button" class="btn btn-outline-danger btn-sm remove-hidden-test-case">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-2">
+
+                        <div class="mb-3">
+                            <label class="form-label">Test Cases</label>
+                            <div id="testCasesContainer">
+                                <div class="test-case mb-3">
+                                    <div class="row">
+                                        <div class="col-md-5">
                                             <label class="form-label">Input</label>
-                                            <textarea class="form-control" name="hidden_test_input[]" rows="2" placeholder="Enter input for hidden test" required></textarea>
+                                            <textarea class="form-control" name="test_case_input[]" rows="2" required></textarea>
                                         </div>
-                                        <div class="mb-2">
+                                        <div class="col-md-5">
                                             <label class="form-label">Expected Output</label>
-                                            <textarea class="form-control" name="hidden_test_output[]" rows="2" placeholder="Enter expected output" required></textarea>
+                                            <textarea class="form-control" name="test_case_output[]" rows="2" required></textarea>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input test-case-hidden" type="checkbox" name="test_case_hidden[]" value="1">
+                                                <label class="form-check-label">Hidden</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2 description-row" style="display: none;">
+                                        <div class="col-12">
+                                            <label class="form-label">Description (Optional)</label>
+                                            <input type="text" class="form-control" name="test_case_description[]" 
+                                                placeholder="Describe what this test case is checking">
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-secondary" id="addTestCase">
+                                <i class="fas fa-plus"></i> Add Test Case
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addHiddenTestCaseBtn">
-                            <i class="fas fa-plus"></i> Add Hidden Test Case
-                        </button>
-                    </div>`;
+                    </div>
+                `;
+
+                // Add event handlers after HTML is inserted
+                setTimeout(() => {
+                    // Handle showing/hiding description based on hidden checkbox
+                    $(document).on('change', '.test-case-hidden', function() {
+                        const descriptionRow = $(this).closest('.test-case').find('.description-row');
+                        if (this.checked) {
+                            descriptionRow.slideDown();
+                        } else {
+                            descriptionRow.slideUp();
+                            descriptionRow.find('input').val(''); // Clear description when hidden
+                        }
+                    });
+
+                    // Handle adding new test cases
+                    $('#addTestCase').click(function() {
+                        const newTestCase = `
+                            <div class="test-case mb-3">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <label class="form-label">Input</label>
+                                        <textarea class="form-control" name="test_case_input[]" rows="2" required></textarea>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-label">Expected Output</label>
+                                        <textarea class="form-control" name="test_case_output[]" rows="2" required></textarea>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input test-case-hidden" type="checkbox" name="test_case_hidden[]" value="1">
+                                            <label class="form-check-label">Hidden</label>
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm remove-test-case mt-2">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 description-row" style="display: none;">
+                                    <div class="col-12">
+                                        <label class="form-label">Description (Optional)</label>
+                                        <input type="text" class="form-control" name="test_case_description[]" 
+                                            placeholder="Describe what this test case is checking">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        $('#testCasesContainer').append(newTestCase);
+                    });
+
+                    // Handle removing test cases
+                    $(document).on('click', '.remove-test-case', function() {
+                        $(this).closest('.test-case').remove();
+                    });
+
+                    // Add first test case automatically
+                    if ($('#testCasesContainer .test-case').length === 0) {
+                        $('#addTestCase').click();
+                    }
+                }, 0);
             }
             
             $('#answersSection').html(html);
@@ -559,44 +587,111 @@ include('../config/config.php');
             $('input[name="new_category"]').prop('required', false).val('');
         });
 
-        // Replace the existing form submission handler with this updated version
+        // Replace the existing form submission handler
         $('#addQuestionForm').on('submit', function(e) {
             e.preventDefault();
             
-            // Get all questions data
-            const questions = collectQuestionsData();
-            
-            // Basic validation
-            if (questions.length === 0) {
-                alert('Please add at least one question');
-                return false;
+            // Re-enable the category select before submitting
+            $('#categorySelect').prop('disabled', false);
+
+            const category = $('#categorySelect').val();
+            const newCategory = $('input[name="new_category"]').val();
+            const questionType = $('#questionType').val();
+
+            // Validate category
+            if (category === 'new' && !newCategory) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Please enter a new category name',
+                    confirmButtonColor: '#d33'
+                });
+                return;
             }
-            
-            // Submit the questions
+
+            // Validate programming questions
+            if (questionType === 'programming') {
+                const programmingLanguage = $('#programmingLanguage').val();
+                if (!programmingLanguage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Please select a programming language',
+                        confirmButtonColor: '#d33'
+                    });
+                    return;
+                }
+
+                // Validate test cases
+                if ($('#testCasesContainer .test-case').length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Please add at least one test case',
+                        confirmButtonColor: '#d33'
+                    });
+                    return;
+                }
+            }
+
+            const formData = new FormData(this);
+            formData.append('action', 'add');
+
+            // Debug log
+            console.log('Submitting form with data:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+
             $.ajax({
-                url: $(this).attr('action'),
+                url: 'handlers/question_handler.php',
                 method: 'POST',
-                data: {
-                    action: 'add_multiple',
-                    questions: JSON.stringify(questions)  // Stringify the questions array
-                },
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
+                    console.log('Server response:', response);
                     try {
-                        const result = JSON.parse(response);
+                        const result = typeof response === 'object' ? response : JSON.parse(response);
+                        
                         if (result.status === 'success') {
-                            alert('Questions saved successfully!');
-                            location.reload();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: result.message || 'Question saved successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         } else {
-                            alert('Error: ' + result.message);
+                            throw new Error(result.message || 'Failed to save question');
                         }
                     } catch (e) {
-                        console.error(e);
-                        alert('Error processing the request');
+                        console.error('Error details:', {
+                            error: e,
+                            rawResponse: response
+                        });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: e.message || 'Failed to process the server response',
+                            confirmButtonColor: '#d33'
+                        });
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error(xhr, status, error);
-                    alert('Error submitting the questions');
+                    console.error('Ajax error details:', {
+                        status: status,
+                        error: error,
+                        response: xhr.responseText
+                    });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to save the question. Please try again.',
+                        confirmButtonColor: '#d33'
+                    });
                 }
             });
         });

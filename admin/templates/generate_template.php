@@ -1,4 +1,7 @@
 <?php
+
+//This FIle is for generating a template for importing questions from a csv file
+
 // Set headers for CSV download
 header('Content-Type: text/csv');
 header('Content-Disposition: attachment; filename="question_bank_template.csv"');

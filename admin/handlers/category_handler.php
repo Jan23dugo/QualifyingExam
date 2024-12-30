@@ -16,12 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt->execute();
             
             $conn->commit();
-            echo json_encode(['status' => 'success']);
+            echo json_encode([
+                'status' => 'success',
+                'message' => "Category '$category' has been successfully deleted.",
+                'messageId' => uniqid('msg_')
+            ]);
         } catch (Exception $e) {
             $conn->rollback();
-            echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Failed to delete category'
+            ]);
         }
     }
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'Invalid request'
+    ]);
 } 

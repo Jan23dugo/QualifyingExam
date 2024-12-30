@@ -274,24 +274,15 @@ $category = $_GET['category'];
                                                         break;
 
                                                     case 'true_false':
-                                                        // Get true/false choices
-                                                        $tfSql = "SELECT choice_text, is_correct 
-                                                             FROM question_bank_choices 
-                                                             WHERE question_id = ?";
-                                                        $tfStmt = $conn->prepare($tfSql);
-                                                        $tfStmt->bind_param("i", $row['question_id']);
-                                                        $tfStmt->execute();
-                                                        $tfResult = $tfStmt->get_result();
+                                                        // Get the correct answer directly from question_bank table
                                                         ?>
                                                         <div class="options-list ms-3">
-                                                            <?php 
-                                                            while($choice = $tfResult->fetch_assoc()) {
-                                                                echo '<div class="option ' . ($choice['is_correct'] ? 'text-success' : '') . '">';
-                                                                echo ($choice['is_correct'] ? '<i class="fas fa-check-circle"></i> ' : '<i class="far fa-circle"></i> ');
-                                                                echo htmlspecialchars($choice['choice_text']);
-                                                                echo '</div>';
-                                                            }
-                                                            ?>
+                                                            <div class="option <?php echo $row['correct_answer'] === 'True' ? 'text-success' : ''; ?>">
+                                                                <i class="<?php echo $row['correct_answer'] === 'True' ? 'fas fa-check-circle' : 'far fa-circle'; ?>"></i> True
+                                                            </div>
+                                                            <div class="option <?php echo $row['correct_answer'] === 'False' ? 'text-success' : ''; ?>">
+                                                                <i class="<?php echo $row['correct_answer'] === 'False' ? 'fas fa-check-circle' : 'far fa-circle'; ?>"></i> False
+                                                            </div>
                                                         </div>
                                                         <?php
                                                         break;
