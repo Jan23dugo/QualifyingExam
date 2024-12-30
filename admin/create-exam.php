@@ -91,6 +91,10 @@ function getExamStatus($exam) {
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.min.css">
     
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         /* Custom styles for folder and table */
         .list-header {
@@ -1009,24 +1013,22 @@ function getExamStatus($exam) {
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form action="add_folder.php" method="POST">
-                                <?php if ($folderId): ?>
-                                    <input type="hidden" name="parent_folder_id" value="<?php echo $folderId; ?>">
+                                <?php if (isset($_GET['folder_id'])): ?>
+                                    <input type="hidden" name="parent_folder_id" value="<?php echo htmlspecialchars($_GET['folder_id']); ?>">
                                 <?php endif; ?>
                                 <div class="modal-header">
-                                    <h5 class="modal-title">
-                                        <?php echo $folderId ? "Add Subfolder to " . htmlspecialchars($folderName) : "Add Folder"; ?>
-                                    </h5>
-                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    <h5 class="modal-title">Add Folder</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="mb-3">
-                                        <label for="folderName" class="form-label">Enter Folder Name:</label>
-                                        <input type="text" id="folderNameInput" name="folder_name" class="form-control" required>
+                                        <label for="folderNameInput" class="form-label">Folder Name:</label>
+                                        <input type="text" class="form-control" id="folderNameInput" name="folder_name" required>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button class="btn btn-primary" type="submit">Add Folder</button>
-                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Create Folder</button>
                                 </div>
                             </form>
                         </div>
@@ -1263,27 +1265,22 @@ function getExamStatus($exam) {
     <script>
     // First, define the utility functions
     function showSuccessToast(message) {
-        const toast = document.getElementById('successToast');
-        const toastMessage = document.getElementById('successToastMessage');
-        toastMessage.textContent = message;
-        
-        const bsToast = new bootstrap.Toast(toast, {
-            autohide: true,
-            delay: 3000
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: message,
+            timer: 1500,
+            showConfirmButton: false
         });
-        bsToast.show();
     }
 
     function showErrorToast(message) {
-        const toast = document.getElementById('errorToast');
-        const toastMessage = document.getElementById('errorToastMessage');
-        toastMessage.textContent = message;
-        
-        const bsToast = new bootstrap.Toast(toast, {
-            autohide: true,
-            delay: 5000
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: message,
+            confirmButtonColor: '#d33'
         });
-        bsToast.show();
     }
 
     function setButtonLoading(button, isLoading) {
@@ -1312,56 +1309,68 @@ function getExamStatus($exam) {
         const modalElement = document.getElementById('addFolderModal');
         const modal = new bootstrap.Modal(modalElement);
         
-        // Reset modal title
+        // Reset modal title and form
         modalElement.querySelector('.modal-title').textContent = 'Add Folder';
-        
-        // Clear the folder name input
-        const folderNameInput = document.getElementById('folderNameInput');
-        folderNameInput.value = '';
-        
-        // Update the form action
         const form = modalElement.querySelector('form');
-        form.action = 'handlers/add_folder.php';
+        form.reset();
         
-        // Remove any existing folder ID input
-        const existingFolderIdInput = form.querySelector('input[name="folder_id"]');
-        if (existingFolderIdInput) {
-            existingFolderIdInput.remove();
-        }
+        // Show the modal
+        modal.show();
         
-        // Update submit button text
-        const submitButton = form.querySelector('button[type="submit"]');
-        submitButton.textContent = 'Add Folder';
-        
-        // Reset form submission handler
+        // Update form submission handler
         form.onsubmit = function(e) {
             e.preventDefault();
             
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+            
             const formData = new FormData(form);
             
-            fetch('handlers/add_folder.php', {
+            fetch('add_folder.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    modal.hide();
-                    showSuccessToast('Folder created successfully');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Folder created successfully',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Redirect or reload
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else {
+                            location.reload();
+                        }
+                    });
                 } else {
                     throw new Error(data.message || 'Failed to create folder');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showErrorToast(error.message || 'Error creating folder');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: error.message || 'Failed to create folder',
+                    confirmButtonColor: '#d33'
+                });
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
             });
         };
-        
-        modal.show();
     }
 
     function editFolder(folderId, folderName) {
@@ -1765,37 +1774,36 @@ function getExamStatus($exam) {
     function saveExamChanges() {
         const form = document.getElementById('editExamForm');
         const formData = new FormData(form);
-        const scheduleEnabled = document.getElementById('scheduleEnabled').checked;
-        const dateInput = document.getElementById('scheduleDate');
-        const timeInput = document.getElementById('scheduleTime');
+        const examId = formData.get('exam_id');
         
-        // Preserve schedule if enabled and has values
+        // Show loading state
+        const saveButton = document.querySelector('[onclick="saveExamChanges()"]');
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        
+        // Add schedule data if enabled
+        const scheduleEnabled = document.getElementById('scheduleEnabled')?.checked;
         if (scheduleEnabled) {
-            // Only update if the fields have values
-            if (dateInput.value && timeInput.value) {
-                formData.set('exam_date', dateInput.value);
-                formData.set('exam_time', timeInput.value);
-            } else {
-                // Keep existing values if no new values are provided
-                const existingDate = dateInput.getAttribute('data-original-date');
-                const existingTime = timeInput.getAttribute('data-original-time');
-                if (existingDate && existingTime) {
-                    formData.set('exam_date', existingDate);
-                    formData.set('exam_time', existingTime);
-                }
+            const dateInput = document.getElementById('scheduleDate');
+            const timeInput = document.getElementById('scheduleTime');
+            
+            if (dateInput && timeInput && dateInput.value && timeInput.value) {
+                // Format date as YYYY-MM-DD
+                const formattedDate = new Date(dateInput.value).toISOString().split('T')[0];
+                // Format time as HH:mm:ss
+                const timeArr = timeInput.value.split(':');
+                const formattedTime = `${timeArr[0].padStart(2, '0')}:${timeArr[1].padStart(2, '0')}:00`;
+                
+                formData.set('exam_date', formattedDate);
+                formData.set('exam_time', formattedTime);
+                formData.set('status', 'scheduled');
             }
         } else {
-            // Clear schedule if disabled
             formData.set('exam_date', '');
             formData.set('exam_time', '');
+            formData.set('status', 'unscheduled');
         }
         
-        formData.append('enabled', scheduleEnabled);
-
-        // Show loading state on the save button
-        const saveButton = document.querySelector('[onclick="saveExamChanges()"]');
-        setButtonLoading(saveButton, true);
-
         fetch('handlers/update_exam.php', {
             method: 'POST',
             body: formData
@@ -1803,22 +1811,36 @@ function getExamStatus($exam) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('editExamModal'));
-                modal.hide();
-                showSuccessToast('Exam updated successfully!');
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Exam updated successfully',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Redirect back to the exam list or reload
+                    if (examId) {
+                        window.location.href = 'create-exam.php';
+                    } else {
+                        location.reload();
+                    }
+                });
             } else {
                 throw new Error(data.message || 'Failed to update exam');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showErrorToast(error.message || 'Error updating exam');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: error.message || 'Failed to update exam',
+                confirmButtonColor: '#d33'
+            });
         })
         .finally(() => {
-            setButtonLoading(saveButton, false);
+            // Reset button state
+            saveButton.disabled = false;
+            saveButton.innerHTML = 'Save Changes';
         });
     }
 
@@ -1865,19 +1887,60 @@ function getExamStatus($exam) {
         if (enabled) {
             // Set default values if empty
             if (!dateInput.value) {
-                const today = new Date().toISOString().split('T')[0];
-                dateInput.value = today;
+                dateInput.value = new Date().toISOString().split('T')[0];
             }
             if (!timeInput.value) {
-                timeInput.value = '08:00';
+                const now = new Date();
+                timeInput.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             }
+        } else {
+            // Clear values when disabling
+            dateInput.value = '';
+            timeInput.value = '';
         }
     }
 
     function updateSchedule() {
         const form = document.getElementById('manageScheduleForm');
         const formData = new FormData(form);
-        formData.append('enabled', document.getElementById('scheduleEnabled').checked);
+        const scheduleEnabled = document.getElementById('scheduleEnabled').checked;
+        
+        // Add the enabled state to formData
+        formData.set('enabled', scheduleEnabled);
+        
+        // Only validate and format date/time if schedule is enabled
+        if (scheduleEnabled) {
+            const dateInput = document.getElementById('scheduleDate');
+            const timeInput = document.getElementById('scheduleTime');
+            
+            if (!dateInput.value || !timeInput.value) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Please select both date and time',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
+
+            // Format date as YYYY-MM-DD
+            const formattedDate = new Date(dateInput.value).toISOString().split('T')[0];
+            // Format time as HH:mm:ss
+            const timeArr = timeInput.value.split(':');
+            const formattedTime = `${timeArr[0].padStart(2, '0')}:${timeArr[1].padStart(2, '0')}:00`;
+
+            formData.set('exam_date', formattedDate);
+            formData.set('exam_time', formattedTime);
+        } else {
+            // If schedule is disabled, set date and time to empty
+            formData.set('exam_date', '');
+            formData.set('exam_time', '');
+        }
+        
+        // Show loading state
+        const saveButton = document.querySelector('[onclick="updateSchedule()"]');
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
         
         fetch('handlers/update_schedule.php', {
             method: 'POST',
@@ -1886,48 +1949,146 @@ function getExamStatus($exam) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                $('#manageScheduleModal').modal('hide');
-                alert('Schedule updated successfully!');
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Schedule updated successfully',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
             } else {
-                alert('Error updating schedule: ' + data.message);
+                throw new Error(data.message || 'Failed to update schedule');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error updating schedule');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: error.message || 'Failed to update schedule',
+                confirmButtonColor: '#d33'
+            });
+        })
+        .finally(() => {
+            saveButton.disabled = false;
+            saveButton.innerHTML = 'Save Changes';
         });
     }
 
+    // Replace the existing deleteFolder function with this one
     function deleteFolder(folderId) {
         if (!folderId) {
             console.error('No folder ID provided');
             return;
         }
 
-        // Store the folder ID for use in confirmation
-        const confirmBtn = document.getElementById('confirmDeleteFolder');
-        confirmBtn.setAttribute('data-folder-id', folderId);
-
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('deleteFolderModal'));
-        modal.show();
+        Swal.fire({
+            title: 'Delete Folder?',
+            html: `Are you sure you want to delete this folder?<br><br>` +
+                  `<div class="alert alert-warning" role="alert">` +
+                  `<i class="fas fa-exclamation-triangle"></i> ` +
+                  `This will also delete all exams inside this folder!</div>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return fetch('handlers/delete_folder.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `folder_id=${folderId}`
+                })
+                .then(response => response.json())
+                .catch(error => {
+                    Swal.showValidationMessage(
+                        `Request failed: ${error.message || 'Unknown error occurred'}`
+                    );
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed && result.value.success) {
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'Folder has been deleted successfully.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            } else if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: result.value.message || 'Failed to delete folder',
+                    icon: 'error'
+                });
+            }
+        });
     }
 
-    // Add this function to handle exam deletion
+    // Replace the existing deleteExam function with this one
     function deleteExam(examId) {
         if (!examId) {
             console.error('No exam ID provided');
             return;
         }
 
-        // Store the exam ID for use in confirmation
-        const confirmBtn = document.getElementById('confirmDeleteExam');
-        confirmBtn.setAttribute('data-exam-id', examId);
-
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('deleteExamModal'));
-        modal.show();
+        // Use SweetAlert2 for confirmation
+        Swal.fire({
+            title: 'Delete Exam?',
+            html: `Are you sure you want to delete this exam?<br><br>` +
+                  `<div class="alert alert-warning" role="alert">` +
+                  `<i class="fas fa-exclamation-triangle"></i> ` +
+                  `This action cannot be undone!</div>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return fetch('handlers/delete_exam.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `exam_id=${examId}`
+                })
+                .then(response => response.json())
+                .catch(error => {
+                    Swal.showValidationMessage(
+                        `Request failed: ${error.message || 'Unknown error occurred'}`
+                    );
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed && result.value.success) {
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'Exam has been deleted successfully.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            } else if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: result.value.message || 'Failed to delete exam',
+                    icon: 'error'
+                });
+            }
+        });
     }
 
     // Add these event listeners in your document.addEventListener('DOMContentLoaded', function() {...})
@@ -2012,6 +2173,77 @@ function getExamStatus($exam) {
             });
         });
     });
+
+    function createFolder(event) {
+        event.preventDefault(); // Prevent form submission
+        
+        const form = document.getElementById('createFolderForm');
+        const folderName = form.querySelector('[name="folder_name"]').value.trim();
+        const parentFolderId = form.querySelector('[name="parent_folder_id"]')?.value;
+        
+        if (!folderName) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Please enter a folder name',
+                confirmButtonColor: '#d33'
+            });
+            return false;
+        }
+        
+        // Show loading state
+        const saveButton = document.getElementById('createFolderBtn');
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+        
+        // Use the old endpoint for consistency
+        fetch('add_folder.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'  // Add this line
+            },
+            body: new URLSearchParams({
+                folder_name: folderName,
+                ...(parentFolderId && { parent_folder_id: parentFolderId })
+            })
+        })
+        .then(response => response.json())  // Parse the JSON response
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Folder created successfully',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = data.redirect || 'create-exam.php';  // Use the redirect URL from response
+                });
+            } else {
+                throw new Error(data.message || 'Failed to create folder');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: error.message || 'Failed to create folder',
+                confirmButtonColor: '#d33'
+            });
+        })
+        .finally(() => {
+            // Reset button state
+            saveButton.disabled = false;
+            saveButton.innerHTML = 'Create Folder';
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createFolderModal'));
+            if (modal) modal.hide();
+        });
+        
+        return false;
+    }
     </script>
 
 </body>

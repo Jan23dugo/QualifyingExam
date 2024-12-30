@@ -272,26 +272,6 @@ include('../config/config.php');
         </div>
     </div>
 
-     <!-- Category Deletion -->
-    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCategoryModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- This text will be dynamically updated -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="confirmDeleteCategoryButton" type="button" class="btn btn-danger">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -591,57 +571,42 @@ include('../config/config.php');
         $('#addQuestionForm').on('submit', function(e) {
             e.preventDefault();
             
-            // Re-enable the category select before submitting
-            $('#categorySelect').prop('disabled', false);
+            // Validate current question
+            if (!validateCurrentQuestion()) {
+                return;
+            }
 
-            const category = $('#categorySelect').val();
-            const newCategory = $('input[name="new_category"]').val();
-            const questionType = $('#questionType').val();
-
-            // Validate category
-            if (category === 'new' && !newCategory) {
+            // Add the current question to the list before submitting
+            try {
+                const currentQuestion = collectCurrentQuestionData();
+                questionsList.push(currentQuestion);
+            } catch (error) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: 'Please enter a new category name',
+                    text: error.message,
                     confirmButtonColor: '#d33'
                 });
                 return;
             }
 
-            // Validate programming questions
-            if (questionType === 'programming') {
-                const programmingLanguage = $('#programmingLanguage').val();
-                if (!programmingLanguage) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Please select a programming language',
-                        confirmButtonColor: '#d33'
-                    });
-                    return;
-                }
-
-                // Validate test cases
-                if ($('#testCasesContainer .test-case').length === 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Please add at least one test case',
-                        confirmButtonColor: '#d33'
-                    });
-                    return;
-                }
-            }
-
-            const formData = new FormData(this);
-            formData.append('action', 'add');
-
+            // Create FormData object to send all questions
+            const formData = new FormData();
+            formData.append('action', 'add_multiple');
+            formData.append('questions', JSON.stringify(questionsList));
+            
             // Debug log
-            console.log('Submitting form with data:');
+            console.log('Questions to be submitted:', questionsList);
+            console.log('FormData contents:');
             for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
+                console.log(pair[0], pair[1]);
             }
+
+            // Show loading state
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalText = submitButton.html();
+            submitButton.prop('disabled', true)
+                .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
 
             $.ajax({
                 url: 'handlers/question_handler.php',
@@ -658,14 +623,14 @@ include('../config/config.php');
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success!',
-                                text: result.message || 'Question saved successfully',
+                                text: `Successfully saved ${questionsList.length} question(s)!`,
                                 showConfirmButton: false,
                                 timer: 1500
                             }).then(() => {
                                 window.location.reload();
                             });
                         } else {
-                            throw new Error(result.message || 'Failed to save question');
+                            throw new Error(result.message || 'Failed to save questions');
                         }
                     } catch (e) {
                         console.error('Error details:', {
@@ -689,12 +654,96 @@ include('../config/config.php');
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: 'Failed to save the question. Please try again.',
+                        text: 'Failed to save the questions. Please try again.',
                         confirmButtonColor: '#d33'
                     });
+                },
+                complete: function() {
+                    // Reset button state
+                    submitButton.prop('disabled', false).html(originalText);
                 }
             });
         });
+
+        // Add this new function to collect current question data
+        function collectCurrentQuestionData() {
+            const questionType = $('#questionType').val();
+            const questionText = $('textarea[name="question_text"]').val().trim();
+            
+            if (!questionText) {
+                throw new Error('Question text is required');
+            }
+
+            const questionData = {
+                category: $('#categorySelect').val() === 'new' ? 
+                    $('input[name="new_category"]').val() : 
+                    $('#categorySelect').val(),
+                question_type: questionType,
+                question_text: questionText
+            };
+
+            // Add type-specific data
+            switch(questionType) {
+                case 'multiple_choice':
+                    const options = [];
+                    const correctAnswer = $('input[name="correct_answer"]:checked').val();
+                    
+                    $('input[name="options[]"]').each(function() {
+                        options.push($(this).val().trim());
+                    });
+
+                    if (!options.length) {
+                        throw new Error('At least one option is required');
+                    }
+                    if (correctAnswer === undefined) {
+                        throw new Error('Please select the correct answer');
+                    }
+
+                    questionData.options = options;
+                    questionData.correct_answer = correctAnswer;
+                    break;
+
+                case 'true_false':
+                    const tfAnswer = $('input[name="correct_answer"]:checked').val();
+                    if (!tfAnswer) {
+                        throw new Error('Please select True or False');
+                    }
+                    questionData.correct_answer = tfAnswer;
+                    break;
+
+                case 'programming':
+                    const language = $('#programmingLanguage').val();
+                    if (!language) {
+                        throw new Error('Please select a programming language');
+                    }
+
+                    questionData.programming_language = language;
+                    questionData.test_cases = [];
+
+                    $('.test-case').each(function() {
+                        const input = $(this).find('textarea[name="test_case_input[]"]').val().trim();
+                        const output = $(this).find('textarea[name="test_case_output[]"]').val().trim();
+                        const isHidden = $(this).find('.test-case-hidden').prop('checked');
+                        const description = $(this).find('input[name="test_case_description[]"]').val().trim();
+
+                        if (input && output) {
+                            questionData.test_cases.push({
+                                input: input,
+                                output: output,
+                                is_hidden: isHidden ? 1 : 0,
+                                description: description
+                            });
+                        }
+                    });
+
+                    if (!questionData.test_cases.length) {
+                        throw new Error('At least one test case is required');
+                    }
+                    break;
+            }
+
+            return questionData;
+        }
 
         // Add these new functions to handle multiple questions
         let questionsList = [];
@@ -952,49 +1001,59 @@ $('#importSubmitBtn').click(function(e) {
         });
 
         // Show the confirmation modal and set category data
-        $('.delete-category').click(function () {
+        $('.delete-category').click(function(e) {
+            e.preventDefault();
             const categoryToDelete = $(this).data('category');
-
-            // Create the icon and text elements dynamically
-            const deleteIconDiv = `
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-trash-alt delete-icon"></i>
-                    <p>Are you sure you want to delete the category "<strong>${categoryToDelete}</strong>" and all its questions? This action cannot be undone.</p>
-                </div>
-            `;
-            // Update the modal body with the new content
-            $('#deleteCategoryModal .modal-body').html(deleteIconDiv);
-        });
-
-
-        // Handle delete confirmation
-        $('#confirmDeleteCategoryButton').click(function () {
-            if (categoryToDelete) {
-                $.ajax({
-                    url: 'handlers/category_handler.php',
-                    method: 'POST',
-                    data: {
-                        action: 'delete',
-                        category: categoryToDelete
-                    },
-                    success: function (response) {
-                        try {
-                            const result = JSON.parse(response);
-                            if (result.status === 'success') {
-                                location.reload(); // Refresh the page
-                            } else {
-                                alert('Error: ' + result.message);
-                            }
-                        } catch (e) {
-                            alert('Error processing the request');
-                        }
-                    },
-                    error: function () {
-                        alert('Error deleting the category');
-                    }
-                });
-            }
-            $('#deleteCategoryModal').modal('hide');
+            
+            // Show delete confirmation using SweetAlert2
+            Swal.fire({
+                title: 'Delete Category?',
+                html: `Are you sure you want to delete the category <strong>"${categoryToDelete}"</strong>?<br><br>` +
+                      `<div class="alert alert-warning" role="alert">` +
+                      `<i class="fas fa-exclamation-triangle"></i> ` +
+                      `This will permanently delete all questions in this category!</div>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return $.ajax({
+                        url: 'handlers/category_handler.php',
+                        method: 'POST',
+                        data: {
+                            action: 'delete',
+                            category: categoryToDelete
+                        },
+                        dataType: 'json'
+                    }).catch(error => {
+                        Swal.showValidationMessage(
+                            `Request failed: ${error.responseText || 'Unknown error occurred'}`
+                        );
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value.status === 'success') {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: 'Category and all its questions have been deleted.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: result.value.message || 'Failed to delete category',
+                        icon: 'error'
+                    });
+                }
+            });
         });
 
         // Handle clicking "Add Question" button on a category

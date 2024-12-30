@@ -171,6 +171,8 @@ $category = $_GET['category'];
             color: #6200ea;
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body id="page-top">
     <div id="wrapper">
@@ -367,39 +369,55 @@ $category = $_GET['category'];
         }
 
         // Handle question deletion
-        $('.delete-question').click(function () {
-            questionIdToDelete = $(this).data('question-id');
-            $('#deleteConfirmationModal').modal('show');
-        });
-
-        // Handle confirmation button click
-        $('#confirmDeleteButton').click(function () {
-            if (questionIdToDelete) {
-                $.ajax({
-                    url: 'handlers/question_handler.php',
-                    method: 'POST',
-                    data: {
-                        action: 'delete',
-                        question_id: questionIdToDelete
-                    },
-                    success: function (response) {
-                        try {
-                            const result = JSON.parse(response);
-                            if (result.status === 'success') {
-                                location.reload();
-                            } else {
-                                alert('Error: ' + result.message);
-                            }
-                        } catch (e) {
-                            alert('Error processing the request');
-                        }
-                    },
-                    error: function () {
-                        alert('Error deleting the question');
-                    }
-                });
-            }
-            $('#deleteConfirmationModal').modal('hide');
+        $('.delete-question').click(function(e) {
+            e.preventDefault();
+            const questionId = $(this).data('question-id');
+            
+            // Show delete confirmation using SweetAlert2
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return $.ajax({
+                        url: 'handlers/question_handler.php',
+                        method: 'POST',
+                        data: {
+                            action: 'delete',
+                            question_id: questionId
+                        },
+                        dataType: 'json'
+                    }).catch(error => {
+                        Swal.showValidationMessage(
+                            `Request failed: ${error.responseText || 'Unknown error occurred'}`
+                        );
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value.status === 'success') {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: 'Question has been deleted successfully.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: result.value.message || 'Failed to delete question',
+                        icon: 'error'
+                    });
+                }
+            });
         });
 
         // Update the edit button click handler
