@@ -63,6 +63,35 @@ function getExamStatus($exam) {
         return ['class' => 'warning', 'text' => 'In Progress'];
     }
 }
+
+// Update the query that fetches exam details for editing
+if (isset($_GET['edit'])) {
+    $exam_id = (int)$_GET['edit'];
+    $sql = "SELECT e.*, 
+            e.exam_type,
+            e.year,
+            e.status,
+            e.exam_date,
+            e.exam_time,
+            e.duration,
+            e.description
+            FROM exams e
+            WHERE e.exam_id = ?";
+            
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $exam_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $exam = $result->fetch_assoc();
+
+    if (!$exam) {
+        header('Location: create-exam.php');
+        exit;
+    }
+
+    // Debug output
+    error_log("Fetched exam data: " . print_r($exam, true));
+}
 ?>
 
 
@@ -970,11 +999,13 @@ function getExamStatus($exam) {
                                     <div class="section">
                                         <h6 class="section-title">Student Type</h6>
                                         <div class="form-check mb-2">
-                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech" required>
+                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech" required
+                                                <?php echo (isset($exam) && $exam['exam_type'] === 'tech') ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="techStudents">Tech Students</label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech">
+                                            <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech"
+                                                <?php echo (isset($exam) && $exam['exam_type'] === 'non-tech') ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
                                         </div>
                                     </div>
@@ -989,7 +1020,8 @@ function getExamStatus($exam) {
                                                 $currentYear = date('Y');
                                                 for($i = 0; $i < 4; $i++) {
                                                     $year = $currentYear - $i;
-                                                    echo "<option value='$year'>$year</option>";
+                                                    $selected = (isset($exam) && $exam['year'] == $year) ? 'selected' : '';
+                                                    echo "<option value='$year' $selected>$year</option>";
                                                 }
                                                 ?>
                                             </select>
@@ -1095,7 +1127,7 @@ function getExamStatus($exam) {
                     </div>
                 </div>
 
-                <!-- Replace both editExamModal and manageScheduleModal with this new unified modal -->
+                <!-- Edit Exam Modal -->
                 <div class="modal fade" id="editExamModal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -1105,69 +1137,73 @@ function getExamStatus($exam) {
                             </div>
                             <div class="modal-body">
                                 <form id="editExamForm">
-                                    <input type="hidden" id="editExamId" name="exam_id">
+                                    <input type="hidden" name="exam_id" value="<?php echo isset($exam) ? $exam['exam_id'] : ''; ?>">
                                     
-                                    <!-- Exam Details Section -->
-                                    <div class="mb-4">
-                                        <h6 class="mb-3">Exam Details</h6>
-                                        <div class="mb-3">
-                                            <label for="editExamName" class="form-label">Exam Name:</label>
-                                            <input type="text" class="form-control" id="editExamName" name="exam_name" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="editDescription" class="form-label">Description:</label>
-                                            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="editDuration" class="form-label">Duration (minutes):</label>
-                                            <input type="number" class="form-control" id="editDuration" name="duration" required>
-                                        </div>
+                                    <!-- Basic Info -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Exam Name:</label>
+                                        <input type="text" class="form-control" name="exam_name" required 
+                                            value="<?php echo isset($exam) ? htmlspecialchars($exam['exam_name']) : ''; ?>">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Description:</label>
+                                        <textarea class="form-control" name="description"><?php echo isset($exam) ? htmlspecialchars($exam['description']) : ''; ?></textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Duration (minutes):</label>
+                                        <input type="number" class="form-control" name="duration" required 
+                                            value="<?php echo isset($exam) ? $exam['duration'] : ''; ?>">
                                     </div>
 
                                     <!-- Schedule Section -->
-                                    <div class="mb-4">
-                                        <h6 class="mb-3">Exam Schedule</h6>
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="scheduleEnabled" onchange="toggleScheduleFields()">
-                                                <label class="form-check-label" for="scheduleEnabled">Enable Schedule</label>
-                                            </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="editScheduleEnabled" name="schedule_enabled"
+                                                <?php echo (isset($exam) && $exam['status'] === 'scheduled') ? 'checked' : ''; ?>>
+                                            <label class="form-check-label">Enable Schedule</label>
                                         </div>
-                                        <div id="scheduleFields" style="display: none;">
+                                        <div id="editScheduleFields" style="display: <?php echo (isset($exam) && $exam['status'] === 'scheduled') ? 'block' : 'none'; ?>;">
                                             <div class="mb-3">
                                                 <label class="form-label">Date:</label>
-                                                <input type="date" class="form-control" id="scheduleDate" name="exam_date">
+                                                <input type="date" class="form-control" name="exam_date" 
+                                                    value="<?php echo isset($exam) ? $exam['exam_date'] : ''; ?>">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Time:</label>
-                                                <input type="time" class="form-control" id="scheduleTime" name="exam_time">
+                                                <input type="time" class="form-control" name="exam_time" 
+                                                    value="<?php echo isset($exam) ? $exam['exam_time'] : ''; ?>">
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Student Type Section -->
                                     <div class="mb-3">
-                                        <label id="studentTypeLabel" class="form-label">Student Type:</label>
+                                        <label class="form-label">Student Type:</label>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech">
-                                            <label id="techStudentsLabel" class="form-check-label" for="techStudents">Tech Students</label>
+                                            <input class="form-check-input" type="radio" name="student_type" value="tech" required
+                                                <?php echo (isset($exam) && $exam['student_type'] === 'tech') ? 'checked' : ''; ?>>
+                                            <label class="form-check-label">Tech Students</label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech">
-                                            <label id="nonTechStudentsLabel" class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
+                                            <input class="form-check-input" type="radio" name="student_type" value="non-tech"
+                                                <?php echo (isset($exam) && $exam['student_type'] === 'non-tech') ? 'checked' : ''; ?>>
+                                            <label class="form-check-label">Non-Tech Students</label>
                                         </div>
                                     </div>
 
                                     <!-- Student Year Section -->
                                     <div class="mb-3">
-                                        <label id="studentYearLabel" for="studentYear" class="form-label">Student Year:</label>
-                                        <select class="form-control" id="studentYear" name="student_year">
+                                        <label class="form-label">Student Year:</label>
+                                        <select class="form-select" name="student_year">
                                             <option value="">Select Year (Optional)</option>
                                             <?php
                                             $currentYear = date('Y');
                                             for($i = 0; $i < 4; $i++) {
                                                 $year = $currentYear - $i;
-                                                echo "<option value='$year'>$year</option>";
+                                                $selected = (isset($exam) && $exam['year'] == $year) ? 'selected' : '';
+                                                echo "<option value='$year' $selected>$year</option>";
                                             }
                                             ?>
                                         </select>
@@ -2243,6 +2279,149 @@ function getExamStatus($exam) {
         });
         
         return false;
+    }
+
+    // Add this to your existing JavaScript
+    $(document).ready(function() {
+        <?php if (isset($exam)): ?>
+        // If editing an exam, set the schedule fields based on existing data
+        if ('<?php echo $exam['exam_date']; ?>' && '<?php echo $exam['exam_time']; ?>') {
+            $('#scheduleEnabled').prop('checked', true);
+            $('#scheduleFields').show();
+            $('#scheduleDate').val('<?php echo $exam['exam_date']; ?>');
+            $('#scheduleTime').val('<?php echo $exam['exam_time']; ?>');
+        }
+        <?php endif; ?>
+    });
+
+    // Add this to your existing JavaScript
+    function editExam(examId) {
+        console.log('Editing exam:', examId); // Debug log
+        
+        // Show loading state
+        Swal.fire({
+            title: 'Loading...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Fetch exam details
+        $.ajax({
+            url: 'handlers/get_exam.php',
+            type: 'GET',
+            data: { exam_id: examId },
+            success: function(response) {
+                console.log('Response:', response); // Debug log
+                
+                Swal.close();
+                
+                if (response.success) {
+                    const exam = response.exam;
+                    
+                    // Populate form fields
+                    $('#editExamForm input[name="exam_id"]').val(exam.exam_id);
+                    $('#editExamForm input[name="exam_name"]').val(exam.exam_name);
+                    $('#editExamForm textarea[name="description"]').val(exam.description);
+                    $('#editExamForm input[name="duration"]').val(exam.duration);
+                    
+                    // Set student type (updated to use student_type instead of exam_type)
+                    $(`#editExamForm input[name="student_type"][value="${exam.student_type}"]`).prop('checked', true);
+                    
+                    // Set student year
+                    $('#editExamForm select[name="student_year"]').val(exam.student_year);
+                    
+                    // Handle schedule
+                    if (exam.status === 'scheduled') {
+                        $('#editScheduleEnabled').prop('checked', true);
+                        $('#editScheduleFields').show();
+                        $('#editExamForm input[name="exam_date"]').val(exam.exam_date);
+                        $('#editExamForm input[name="exam_time"]').val(exam.exam_time);
+                    } else {
+                        $('#editScheduleEnabled').prop('checked', false);
+                        $('#editScheduleFields').hide();
+                    }
+                    
+                    // Show modal
+                    const editModal = new bootstrap.Modal(document.getElementById('editExamModal'));
+                    editModal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to load exam details'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Ajax error:', error); // Debug log
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load exam details. Please try again.'
+                });
+            }
+        });
+    }
+
+    // Add function to handle schedule toggle
+    $('#editScheduleEnabled').change(function() {
+        $('#editScheduleFields').toggle(this.checked);
+    });
+
+    // Add function to save exam changes
+    function saveExamChanges() {
+        const formData = new FormData($('#editExamForm')[0]);
+        
+        // Add schedule status
+        formData.append('status', $('#editScheduleEnabled').prop('checked') ? 'scheduled' : 'unscheduled');
+        
+        // Show loading state
+        Swal.fire({
+            title: 'Saving...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: 'handlers/update_exam.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('Save response:', response); // Debug log
+                
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Exam updated successfully',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to update exam'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Save error:', error); // Debug log
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update exam. Please try again.'
+                });
+            }
+        });
     }
     </script>
 

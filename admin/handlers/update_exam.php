@@ -75,19 +75,56 @@ try {
                 duration = ?,
                 status = ?,
                 exam_date = ?,
-                exam_time = ?
+                exam_time = ?,
+                student_type = ?,
+                student_year = ?
                 WHERE exam_id = ?";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssisssi", 
+        $student_type = $_POST['student_type'];
+        $student_year = $_POST['student_year'] ?: null;
+
+        $stmt->bind_param("ssisssssi", 
             $exam_name, 
             $description, 
             $duration, 
             $status,
             $exam_date,
             $exam_time,
+            $student_type,
+            $student_year,
             $exam_id
         );
+
+        // Update student types and year levels
+        if (isset($_POST['student_type']) || isset($_POST['year_level'])) {
+            error_log("Updating student types and year levels");
+            error_log("Student types: " . print_r($_POST['student_type'], true));
+            error_log("Year levels: " . print_r($_POST['year_level'], true));
+            
+            // First delete existing entries
+            $delete_sql = "DELETE FROM exam_students WHERE exam_id = ?";
+            $delete_stmt = $conn->prepare($delete_sql);
+            $delete_stmt->bind_param("i", $exam_id);
+            $delete_stmt->execute();
+
+            // Insert new entries
+            if (isset($_POST['student_type']) && is_array($_POST['student_type'])) {
+                $insert_sql = "INSERT INTO exam_students (exam_id, student_type, year_level) VALUES (?, ?, ?)";
+                $insert_stmt = $conn->prepare($insert_sql);
+
+                foreach ($_POST['student_type'] as $type) {
+                    if (isset($_POST['year_level']) && is_array($_POST['year_level'])) {
+                        foreach ($_POST['year_level'] as $year) {
+                            $insert_stmt->bind_param("iss", $exam_id, $type, $year);
+                            if (!$insert_stmt->execute()) {
+                                throw new Exception('Failed to update student types and year levels');
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     if (!$stmt->execute()) {
