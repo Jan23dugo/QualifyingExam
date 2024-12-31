@@ -433,48 +433,90 @@ function handleEditQuestion() {
                 
             case 'true_false':
                 if (isset($_POST['correct_answer'])) {
-                    $sql = "UPDATE question_bank SET correct_answer = ? WHERE question_id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $correct_answer = $_POST['correct_answer'];
-                    $stmt->bind_param("si", $correct_answer, $question_id);
-                    if (!$stmt->execute()) {
-                        throw new Exception('Failed to update true/false answer');
+                    // Debug log
+                    error_log("Updating true/false answer - Question ID: $question_id, New Answer: " . $_POST['correct_answer']);
+                    
+                    // Make sure the answer is either 'True' or 'False'
+                    $correct_answer = ($_POST['correct_answer'] === 'True') ? 'True' : 'False';
+                    
+                    // Use a separate prepared statement for true/false update
+                    $tf_sql = "UPDATE question_bank SET correct_answer = ? WHERE question_id = ?";
+                    $tf_stmt = $conn->prepare($tf_sql);
+                    
+                    if (!$tf_stmt->bind_param("si", $correct_answer, $question_id)) {
+                        throw new Exception('Failed to bind parameters: ' . $tf_stmt->error);
                     }
+                    
+                    if (!$tf_stmt->execute()) {
+                        throw new Exception('Failed to update true/false answer: ' . $tf_stmt->error);
+                    }
+                    
+                    // Verify the update
+                    $verify_sql = "SELECT correct_answer FROM question_bank WHERE question_id = ?";
+                    $verify_stmt = $conn->prepare($verify_sql);
+                    $verify_stmt->bind_param("i", $question_id);
+                    $verify_stmt->execute();
+                    $verify_result = $verify_stmt->get_result();
+                    $saved_data = $verify_result->fetch_assoc();
+                    error_log("Verified saved answer: " . print_r($saved_data, true));
+                } else {
+                    error_log("No correct_answer provided in POST data for true/false question");
+                    throw new Exception('Correct answer is required for true/false questions');
                 }
                 break;
                 
             case 'programming':
                 if (isset($_POST['programming_language'])) {
-                    $sql = "UPDATE question_bank_programming SET programming_language = ? WHERE question_id = ?";
+                    // Debug log
+                    error_log("Updating programming question - ID: $question_id");
+                    error_log("Programming language: " . $_POST['programming_language']);
+                    
+                    // Update programming language
+                    $sql = "UPDATE question_bank_programming 
+                            SET programming_language = ? 
+                            WHERE question_id = ?";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("si", $_POST['programming_language'], $question_id);
+                    
                     if (!$stmt->execute()) {
-                        throw new Exception('Failed to update programming details');
+                        throw new Exception('Failed to update programming language: ' . $conn->error);
                     }
-                }
-                
-                // Handle test cases if provided
-                if (isset($_POST['test_cases']) && is_array($_POST['test_cases'])) {
-                    // Delete existing test cases
-                    $sql = "DELETE FROM question_bank_test_cases WHERE question_id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("i", $question_id);
-                    $stmt->execute();
-                    
-                    // Insert updated test cases
-                    $sql = "INSERT INTO question_bank_test_cases (question_id, test_input, expected_output, is_hidden, description) VALUES (?, ?, ?, ?, ?)";
-                    $stmt = $conn->prepare($sql);
-                    
-                    foreach ($_POST['test_cases'] as $test_case) {
-                        $stmt->bind_param("issis", 
-                            $question_id,
-                            $test_case['test_input'],
-                            $test_case['expected_output'],
-                            $test_case['is_hidden'],
-                            $test_case['description']
-                        );
+
+                    // Handle test cases if provided
+                    if (isset($_POST['test_cases'])) {
+                        $testCases = json_decode($_POST['test_cases'], true);
+                        error_log("Received test cases: " . print_r($testCases, true));
+
+                        // First delete existing test cases
+                        $sql = "DELETE FROM question_bank_test_cases WHERE question_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $question_id);
+                        
                         if (!$stmt->execute()) {
-                            throw new Exception('Failed to update test case');
+                            throw new Exception('Failed to delete existing test cases: ' . $conn->error);
+                        }
+
+                        // Insert new test cases
+                        if (!empty($testCases)) {
+                            $sql = "INSERT INTO question_bank_test_cases 
+                                    (question_id, test_input, expected_output, is_hidden, description) 
+                                    VALUES (?, ?, ?, ?, ?)";
+                            $stmt = $conn->prepare($sql);
+
+                            foreach ($testCases as $testCase) {
+                                $isHidden = $testCase['is_hidden'] ? 1 : 0;
+                                $stmt->bind_param("issis", 
+                                    $question_id,
+                                    $testCase['test_input'],
+                                    $testCase['expected_output'],
+                                    $isHidden,
+                                    $testCase['description']
+                                );
+                                
+                                if (!$stmt->execute()) {
+                                    throw new Exception('Failed to insert test case: ' . $conn->error);
+                                }
+                            }
                         }
                     }
                 }
@@ -491,4 +533,4 @@ function handleEditQuestion() {
     }
 }
 
-// Keep other existing functions (handleEditQuestion, handleDeleteQuestion) as they were... 
+// Keep other existing functio... 

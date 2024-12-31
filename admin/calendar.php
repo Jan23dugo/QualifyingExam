@@ -414,11 +414,68 @@ $unscheduled_exams = array();
                 },
                 editable: true, // Enable drag and drop
                 eventDrop: function(info) {
-                    updateExamSchedule(
-                        info.event.id,
-                        info.event.start.toISOString().split('T')[0],
-                        info.event.start.toTimeString().split(' ')[0].substring(0, 5)
-                    );
+                    // Format the date and time properly
+                    const newDate = info.event.start.toISOString().split('T')[0];
+                    const newTime = info.event.start.toLocaleTimeString('en-US', { 
+                        hour12: false, 
+                        hour: '2-digit', 
+                        minute: '2-digit'
+                    });
+
+                    // Show loading indicator
+                    Swal.fire({
+                        title: 'Updating schedule...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Send update request
+                    $.ajax({
+                        url: 'handlers/update_exam.php',
+                        method: 'POST',
+                        data: {
+                            exam_id: info.event.id,
+                            exam_date: newDate,
+                            exam_time: newTime
+                        },
+                        success: function(response) {
+                            try {
+                                const result = typeof response === 'object' ? response : JSON.parse(response);
+                                if (result.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Schedule Updated',
+                                        text: 'The exam schedule has been updated successfully',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                } else {
+                                    throw new Error(result.message || 'Failed to update schedule');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: error.message,
+                                    confirmButtonColor: '#d33'
+                                });
+                                info.revert(); // Revert the calendar change
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Ajax error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Failed to update schedule. Please try again.',
+                                confirmButtonColor: '#d33'
+                            });
+                            info.revert(); // Revert the calendar change
+                        }
+                    });
                 }
             });
 
