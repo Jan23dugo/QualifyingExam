@@ -2,6 +2,13 @@
 require_once '../../config/config.php';
 header('Content-Type: application/json');
 
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Debug log the incoming request
+error_log("Received POST data: " . print_r($_POST, true));
+
 try {
     if (!isset($_POST['exam_id'])) {
         throw new Exception('Missing exam ID');
@@ -10,141 +17,89 @@ try {
     $exam_id = (int)$_POST['exam_id'];
     $status = isset($_POST['status']) ? $_POST['status'] : 'scheduled';
     
-    // Initialize variables
-    $exam_date = null;
-    $exam_time = null;
-    $exam_name = null;
-    $description = null;
-    $duration = null;
+    // Debug log the processed values
+    error_log("Processing exam update: " . json_encode([
+        'exam_id' => $exam_id,
+        'status' => $status,
+        'exam_date' => $_POST['exam_date'] ?? null,
+        'exam_time' => $_POST['exam_time'] ?? null
+    ]));
 
     // Start transaction
     $conn->begin_transaction();
 
     if ($status === 'scheduled') {
-        // Handle date and time
+        // Handle scheduled exam
         if (isset($_POST['exam_date']) && isset($_POST['exam_time'])) {
             $exam_date = $_POST['exam_date'];
             $exam_time = $_POST['exam_time'];
 
-            // Try to parse and standardize the date format
+            // Debug log the date/time processing
+            error_log("Processing date/time: Date=$exam_date, Time=$exam_time");
+
+            // Validate date format
             $dateObj = date_create_from_format('Y-m-d', $exam_date);
             if (!$dateObj) {
-                // Try alternate format (m/d/Y)
-                $dateObj = date_create_from_format('m/d/Y', $exam_date);
+                error_log("Date parsing failed. Errors: " . print_r(date_get_last_errors(), true));
+                throw new Exception("Invalid date format: $exam_date");
             }
-            
-            if (!$dateObj) {
-                throw new Exception('Invalid date format');
-            }
-            
-            // Standardize date format
-            $exam_date = $dateObj->format('Y-m-d');
 
-            // Validate and format time
+            // Validate time format
             if (strtotime($exam_time) === false) {
-                throw new Exception('Invalid time format');
+                error_log("Time parsing failed for: $exam_time");
+                throw new Exception("Invalid time format: $exam_time");
             }
-            // Standardize time format to 24-hour
-            $exam_time = date('H:i', strtotime($exam_time));
-        }
 
-        // Basic update query for calendar drag-and-drop
-        $sql = "UPDATE exams SET exam_date = ?, exam_time = ?, status = ? WHERE exam_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssi", $exam_date, $exam_time, $status, $exam_id);
+            $exam_date = $dateObj->format('Y-m-d');
+            $exam_time = date('H:i:s', strtotime($exam_time));
+        }
+    } else {
+        // Handle unscheduled exam
+        $exam_date = null;
+        $exam_time = null;
     }
 
-    // If additional exam details are provided (from create-exam.php)
-    if (isset($_POST['exam_name'])) {
-        $exam_name = trim($_POST['exam_name']);
-        $description = isset($_POST['description']) ? trim($_POST['description']) : '';
-        $duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 0;
-
-        if (empty($exam_name)) {
-            throw new Exception('Exam name is required');
-        }
-
-        if ($duration <= 0) {
-            throw new Exception('Duration must be greater than 0');
-        }
-
-        // Full update query for create-exam.php
-        $sql = "UPDATE exams SET 
-                exam_name = ?, 
-                description = ?, 
-                duration = ?,
-                status = ?,
-                exam_date = ?,
-                exam_time = ?,
-                student_type = ?,
-                student_year = ?
-                WHERE exam_id = ?";
-        
-        $stmt = $conn->prepare($sql);
-        $student_type = $_POST['student_type'];
-        $student_year = $_POST['student_year'] ?: null;
-
-        $stmt->bind_param("ssisssssi", 
-            $exam_name, 
-            $description, 
-            $duration, 
-            $status,
-            $exam_date,
-            $exam_time,
-            $student_type,
-            $student_year,
-            $exam_id
-        );
-
-        // Update student types and year levels
-        if (isset($_POST['student_type']) || isset($_POST['year_level'])) {
-            error_log("Updating student types and year levels");
-            error_log("Student types: " . print_r($_POST['student_type'], true));
-            error_log("Year levels: " . print_r($_POST['year_level'], true));
-            
-            // First delete existing entries
-            $delete_sql = "DELETE FROM exam_students WHERE exam_id = ?";
-            $delete_stmt = $conn->prepare($delete_sql);
-            $delete_stmt->bind_param("i", $exam_id);
-            $delete_stmt->execute();
-
-            // Insert new entries
-            if (isset($_POST['student_type']) && is_array($_POST['student_type'])) {
-                $insert_sql = "INSERT INTO exam_students (exam_id, student_type, year_level) VALUES (?, ?, ?)";
-                $insert_stmt = $conn->prepare($insert_sql);
-
-                foreach ($_POST['student_type'] as $type) {
-                    if (isset($_POST['year_level']) && is_array($_POST['year_level'])) {
-                        foreach ($_POST['year_level'] as $year) {
-                            $insert_stmt->bind_param("iss", $exam_id, $type, $year);
-                            if (!$insert_stmt->execute()) {
-                                throw new Exception('Failed to update student types and year levels');
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    // Update query - now handles both scheduled and unscheduled cases
+    $sql = "UPDATE exams SET exam_date = ?, exam_time = ?, status = ? WHERE exam_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssi", $exam_date, $exam_time, $status, $exam_id);
+    
     if (!$stmt->execute()) {
-        throw new Exception('Failed to update exam: ' . $conn->error);
+        error_log("SQL Error: " . $conn->error);
+        throw new Exception("Database update failed: " . $conn->error);
     }
 
     $conn->commit();
+    
+    // Debug log the successful update
+    error_log("Exam updated successfully. Status: $status, Date: " . ($exam_date ?? 'null') . ", Time: " . ($exam_time ?? 'null'));
+    
     echo json_encode([
         'success' => true,
-        'message' => 'Exam updated successfully'
+        'message' => 'Exam updated successfully',
+        'debug_info' => [
+            'status' => $status,
+            'exam_date' => $exam_date,
+            'exam_time' => $exam_time
+        ]
     ]);
 
 } catch (Exception $e) {
+    error_log("Error in update_exam.php: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
+    
     if ($conn->connect_errno) {
         $conn->rollback();
     }
-    error_log("Error updating exam: " . $e->getMessage());
+    
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'debug_info' => [
+            'post_data' => $_POST,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]
     ]);
 }
 ?> 

@@ -62,13 +62,16 @@ $unscheduled_exams = array();
             'end' => $end->format('Y-m-d\TH:i:s'),
             'backgroundColor' => $statusColor,
             'borderColor' => $statusColor,
-            'description' => $row['description'],
-            'registeredStudents' => $row['registered_students'],
-            'completedExams' => $row['completed_exams'],
-            'duration' => $row['duration'],
-            'status' => $row['current_status'],
-            'exam_date' => $row['exam_date'],
-            'exam_time' => $row['exam_time']
+            'extendedProps' => array(
+                'description' => $row['description'],
+                'registeredStudents' => (int)$row['registered_students'],
+                'completedExams' => (int)$row['completed_exams'],
+                'duration' => (int)$row['duration'],
+                'status' => $row['current_status'],
+                'exam_date' => $row['exam_date'],
+                'exam_time' => $row['exam_time'],
+                'student_type' => $row['student_type']
+            )
         );
     } else {
         $unscheduled_exams[] = $row;
@@ -92,6 +95,20 @@ $unscheduled_exams = array();
     <link rel="stylesheet" href="assets/css/styles.min.css">
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet'>
     
+    <!-- SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+
     <style>
         /* Calendar specific styles */
         .calendar-container {
@@ -414,66 +431,84 @@ $unscheduled_exams = array();
                 },
                 editable: true, // Enable drag and drop
                 eventDrop: function(info) {
-                    // Format the date and time properly
-                    const newDate = info.event.start.toISOString().split('T')[0];
-                    const newTime = info.event.start.toLocaleTimeString('en-US', { 
-                        hour12: false, 
-                        hour: '2-digit', 
-                        minute: '2-digit'
+                    // Debug logs for event data
+                    console.log('Event dropped:', {
+                        id: info.event.id,
+                        start: info.event.start,
+                        formattedDate: info.event.start.toISOString().split('T')[0],
+                        formattedTime: info.event.start.toISOString().split('T')[1].substring(0, 5)
                     });
 
-                    // Show loading indicator
-                    Swal.fire({
-                        title: 'Updating schedule...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                    const formData = new FormData();
+                    formData.append('exam_id', info.event.id);
+                    formData.append('exam_name', info.event.title); // Add exam name
+                    formData.append('status', 'scheduled');
+                    formData.append('exam_date', info.event.start.toISOString().split('T')[0]);
+                    formData.append('exam_time', info.event.start.toISOString().split('T')[1].substring(0, 5));
+                    
+                    // Add other required fields that match create-exam.php
+                    if (info.event.extendedProps) {
+                        formData.append('description', info.event.extendedProps.description || '');
+                        formData.append('duration', info.event.extendedProps.duration || '');
+                        formData.append('student_type', info.event.extendedProps.student_type || '');
+                        formData.append('student_year', info.event.extendedProps.student_year || '');
+                    }
 
-                    // Send update request
+                    // Debug log the form data
+                    for (let pair of formData.entries()) {
+                        console.log('FormData entry:', pair[0], pair[1]);
+                    }
+
                     $.ajax({
                         url: 'handlers/update_exam.php',
-                        method: 'POST',
-                        data: {
-                            exam_id: info.event.id,
-                            exam_date: newDate,
-                            exam_time: newTime
-                        },
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
                         success: function(response) {
+                            console.log('Raw server response:', response);
                             try {
-                                const result = typeof response === 'object' ? response : JSON.parse(response);
+                                const result = typeof response === 'string' ? JSON.parse(response) : response;
+                                console.log('Parsed response:', result);
+                                
                                 if (result.success) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Schedule Updated',
-                                        text: 'The exam schedule has been updated successfully',
-                                        timer: 1500,
-                                        showConfirmButton: false
-                                    });
+                                    // Update the calendar event if needed
+                                    info.event.setDates(
+                                        info.event.start,
+                                        info.event.end,
+                                        { allDay: info.event.allDay }
+                                    );
                                 } else {
                                     throw new Error(result.message || 'Failed to update schedule');
                                 }
                             } catch (error) {
-                                console.error('Error:', error);
+                                console.error('Error details:', {
+                                    message: error.message,
+                                    response: response,
+                                    stack: error.stack
+                                });
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error!',
-                                    text: error.message,
-                                    confirmButtonColor: '#d33'
+                                    text: error.message
                                 });
-                                info.revert(); // Revert the calendar change
+                                info.revert();
                             }
                         },
                         error: function(xhr, status, error) {
-                            console.error('Ajax error:', error);
+                            console.error('Ajax error details:', {
+                                status: status,
+                                error: error,
+                                response: xhr.responseText,
+                                statusCode: xhr.status,
+                                statusText: xhr.statusText
+                            });
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
-                                text: 'Failed to update schedule. Please try again.',
-                                confirmButtonColor: '#d33'
+                                text: 'Failed to update schedule. Please try again.'
                             });
-                            info.revert(); // Revert the calendar change
+                            info.revert();
                         }
                     });
                 }
@@ -496,6 +531,16 @@ $unscheduled_exams = array();
                 'unscheduled': 'secondary'
             };
 
+            // Format the date and time for display
+            const examDate = event.extendedProps.exam_date ? 
+                new Date(event.extendedProps.exam_date).toLocaleDateString() : 'Not scheduled';
+            const examTime = event.extendedProps.exam_time ? 
+                new Date(`2000-01-01T${event.extendedProps.exam_time}`).toLocaleTimeString([], 
+                    { hour: '2-digit', minute: '2-digit' }) : 'Not scheduled';
+
+            // Get duration with fallback
+            const duration = event.extendedProps.duration || 'Not set';
+
             const modalHtml = `
                 <div class="modal fade" id="eventDetailsModal" tabindex="-1">
                     <div class="modal-dialog">
@@ -505,17 +550,31 @@ $unscheduled_exams = array();
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <p><strong>Description:</strong> ${event.extendedProps.description || 'No description'}</p>
-                                <p><strong>Duration:</strong> ${event.extendedProps.duration} minutes</p>
-                                <p><strong>Date:</strong> ${event.extendedProps.exam_date}</p>
-                                <p><strong>Time:</strong> ${event.extendedProps.exam_time}</p>
-                                <p><strong>Status:</strong> 
-                                    <span class="badge bg-${statusColors[event.extendedProps.status]}">
-                                        ${event.extendedProps.status.charAt(0).toUpperCase() + event.extendedProps.status.slice(1)}
+                                <div class="mb-3">
+                                    <strong>Description:</strong> 
+                                    <p>${event.extendedProps.description || 'No description available'}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Duration:</strong> 
+                                    <span>${duration} minutes</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Schedule:</strong>
+                                    <div>Date: ${examDate}</div>
+                                    <div>Time: ${examTime}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-${statusColors[event.extendedProps.status] || 'secondary'}">
+                                        ${(event.extendedProps.status || 'Unknown').charAt(0).toUpperCase() + 
+                                          (event.extendedProps.status || 'Unknown').slice(1)}
                                     </span>
-                                </p>
-                                <p><strong>Registered Students:</strong> ${event.extendedProps.registeredStudents}</p>
-                                <p><strong>Completed Exams:</strong> ${event.extendedProps.completedExams}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Students:</strong>
+                                    <div>Registered: ${event.extendedProps.registeredStudents || 0}</div>
+                                    <div>Completed: ${event.extendedProps.completedExams || 0}</div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -570,8 +629,116 @@ $unscheduled_exams = array();
             const detailsModal = bootstrap.Modal.getInstance(document.getElementById('eventDetailsModal'));
             detailsModal.hide();
             
-            // Redirect to the exam edit page
-            window.location.href = `create-exam.php?edit=${examId}`;
+            // Show loading state
+            Swal.fire({
+                title: 'Loading...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Fetch current exam details
+            $.ajax({
+                url: 'handlers/get_exam.php',
+                type: 'GET',
+                data: { exam_id: examId },
+                success: function(response) {
+                    Swal.close();
+                    
+                    if (response.success) {
+                        const exam = response.exam;
+                        
+                        // Create edit modal HTML
+                        const editModalHtml = `
+                            <div class="modal fade" id="editExamModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Edit Exam</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="editExamForm">
+                                                <input type="hidden" name="exam_id" value="${exam.exam_id}">
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Exam Name:</label>
+                                                    <input type="text" class="form-control" name="exam_name" value="${exam.exam_name}" required>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Description:</label>
+                                                    <textarea class="form-control" name="description">${exam.description || ''}</textarea>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Duration (minutes):</label>
+                                                    <input type="number" class="form-control" name="duration" value="${exam.duration}" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="editScheduleEnabled" 
+                                                            ${exam.status === 'scheduled' ? 'checked' : ''}>
+                                                        <label class="form-check-label">Enable Schedule</label>
+                                                    </div>
+                                                    <div id="editScheduleFields" style="display: ${exam.status === 'scheduled' ? 'block' : 'none'};">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Date:</label>
+                                                            <input type="date" class="form-control" name="exam_date" value="${exam.exam_date || ''}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Time:</label>
+                                                            <input type="time" class="form-control" name="exam_time" value="${exam.exam_time ? exam.exam_time.substring(0, 5) : ''}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-primary" onclick="saveExamChanges()">Save Changes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        // Remove existing modal if any
+                        const existingModal = document.getElementById('editExamModal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
+
+                        // Add new modal to body
+                        document.body.insertAdjacentHTML('beforeend', editModalHtml);
+
+                        // Add event listener for schedule toggle
+                        document.getElementById('editScheduleEnabled').addEventListener('change', function() {
+                            document.getElementById('editScheduleFields').style.display = this.checked ? 'block' : 'none';
+                        });
+
+                        // Show the modal
+                        const editModal = new bootstrap.Modal(document.getElementById('editExamModal'));
+                        editModal.show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to load exam details'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ajax error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load exam details. Please try again.'
+                    });
+                }
+            });
         }
 
         function scheduleExam(examId, examName) {
@@ -662,6 +829,106 @@ $unscheduled_exams = array();
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error creating event');
+            });
+        }
+
+        function saveExamChanges() {
+            const form = document.getElementById('editExamForm');
+            const formData = new FormData(form);
+            
+            // Get schedule status from the checkbox
+            const scheduleEnabled = document.getElementById('editScheduleEnabled').checked;
+            formData.set('status', scheduleEnabled ? 'scheduled' : 'unscheduled');
+            
+            // Handle schedule data
+            if (scheduleEnabled) {
+                const examDate = form.querySelector('input[name="exam_date"]').value;
+                const examTime = form.querySelector('input[name="exam_time"]').value;
+                
+                if (!examDate || !examTime) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please fill in both date and time for scheduling'
+                    });
+                    return;
+                }
+                
+                formData.set('exam_date', examDate);
+                formData.set('exam_time', examTime);
+            } else {
+                formData.set('exam_date', '');
+                formData.set('exam_time', '');
+            }
+
+            // Show loading state
+            Swal.fire({
+                title: 'Saving...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Send the update request
+            $.ajax({
+                url: 'handlers/update_exam.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('Raw server response:', response);
+                    try {
+                        const result = typeof response === 'string' ? JSON.parse(response) : response;
+                        console.log('Parsed response:', result);
+                        
+                        if (result.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Exam updated successfully',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                // Close the edit modal
+                                const editModal = bootstrap.Modal.getInstance(document.getElementById('editExamModal'));
+                                if (editModal) {
+                                    editModal.hide();
+                                }
+                                // Reload the calendar to show updated events
+                                location.reload();
+                            });
+                        } else {
+                            throw new Error(result.message || 'Failed to update exam');
+                        }
+                    } catch (error) {
+                        console.error('Error details:', {
+                            message: error.message,
+                            response: response,
+                            stack: error.stack
+                        });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: error.message || 'Failed to update exam'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ajax error details:', {
+                        status: status,
+                        error: error,
+                        response: xhr.responseText,
+                        statusCode: xhr.status,
+                        statusText: xhr.statusText
+                    });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to update exam. Please try again.'
+                    });
+                }
             });
         }
     </script>

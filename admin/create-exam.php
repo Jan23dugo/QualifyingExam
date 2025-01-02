@@ -1,4 +1,8 @@
 <?php
+// Add at the very top of the file
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Connect to the database
 require_once '../config/config.php';
 
@@ -1810,73 +1814,84 @@ if (isset($_GET['edit'])) {
     function saveExamChanges() {
         const form = document.getElementById('editExamForm');
         const formData = new FormData(form);
-        const examId = formData.get('exam_id');
         
+        // Get schedule status from the checkbox
+        const scheduleEnabled = document.getElementById('editScheduleEnabled').checked;
+        formData.set('status', scheduleEnabled ? 'scheduled' : 'unscheduled');
+        
+        // Handle schedule data
+        if (scheduleEnabled) {
+            const examDate = form.querySelector('input[name="exam_date"]').value;
+            const examTime = form.querySelector('input[name="exam_time"]').value;
+            formData.set('exam_date', examDate);
+            formData.set('exam_time', examTime);
+        } else {
+            formData.set('exam_date', '');
+            formData.set('exam_time', '');
+        }
+
+        // Debug log the form data
+        console.log('Form data being sent:', Object.fromEntries(formData));
+
         // Show loading state
         const saveButton = document.querySelector('[onclick="saveExamChanges()"]');
         saveButton.disabled = true;
         saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-        
-        // Add schedule data if enabled
-        const scheduleEnabled = document.getElementById('scheduleEnabled')?.checked;
-        if (scheduleEnabled) {
-            const dateInput = document.getElementById('scheduleDate');
-            const timeInput = document.getElementById('scheduleTime');
-            
-            if (dateInput && timeInput && dateInput.value && timeInput.value) {
-                // Format date as YYYY-MM-DD
-                const formattedDate = new Date(dateInput.value).toISOString().split('T')[0];
-                // Format time as HH:mm:ss
-                const timeArr = timeInput.value.split(':');
-                const formattedTime = `${timeArr[0].padStart(2, '0')}:${timeArr[1].padStart(2, '0')}:00`;
+
+        $.ajax({
+            url: 'handlers/update_exam.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('Raw server response:', response); // Log raw response
                 
-                formData.set('exam_date', formattedDate);
-                formData.set('exam_time', formattedTime);
-                formData.set('status', 'scheduled');
-            }
-        } else {
-            formData.set('exam_date', '');
-            formData.set('exam_time', '');
-            formData.set('status', 'unscheduled');
-        }
-        
-        fetch('handlers/update_exam.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Exam updated successfully',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    // Redirect back to the exam list or reload
-                    if (examId) {
-                        window.location.href = 'create-exam.php';
+                try {
+                    // Try to parse response if it's a string
+                    const result = typeof response === 'string' ? JSON.parse(response) : response;
+                    console.log('Parsed response:', result); // Log parsed response
+                    
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Exam updated successfully',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
                     } else {
-                        location.reload();
+                        throw new Error(result.message || 'Failed to update exam');
                     }
+                } catch (error) {
+                    console.error('Parse error:', error);
+                    console.error('Response that failed to parse:', response);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to process server response',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Ajax error status:', status);
+                console.error('Ajax error:', error);
+                console.error('Server response:', xhr.responseText); // Log the actual server response
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to update exam. Please try again.',
+                    confirmButtonColor: '#d33'
                 });
-            } else {
-                throw new Error(data.message || 'Failed to update exam');
+            },
+            complete: function() {
+                saveButton.disabled = false;
+                saveButton.innerHTML = 'Save Changes';
             }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: error.message || 'Failed to update exam',
-                confirmButtonColor: '#d33'
-            });
-        })
-        .finally(() => {
-            // Reset button state
-            saveButton.disabled = false;
-            saveButton.innerHTML = 'Save Changes';
         });
     }
 
@@ -2369,60 +2384,6 @@ if (isset($_GET['edit'])) {
     $('#editScheduleEnabled').change(function() {
         $('#editScheduleFields').toggle(this.checked);
     });
-
-    // Add function to save exam changes
-    function saveExamChanges() {
-        const formData = new FormData($('#editExamForm')[0]);
-        
-        // Add schedule status
-        formData.append('status', $('#editScheduleEnabled').prop('checked') ? 'scheduled' : 'unscheduled');
-        
-        // Show loading state
-        Swal.fire({
-            title: 'Saving...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            url: 'handlers/update_exam.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                console.log('Save response:', response); // Debug log
-                
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Exam updated successfully',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message || 'Failed to update exam'
-                    });
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Save error:', error); // Debug log
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to update exam. Please try again.'
-                });
-            }
-        });
-    }
     </script>
 
 </body>
