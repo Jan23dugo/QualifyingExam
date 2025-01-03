@@ -1,0 +1,216 @@
+[02-Jan-2025 10:11:38 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:11:38 UTC] POST data: Array
+(
+    [num_questions] => 1
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:11:38 UTC] Parsed parameters: numQuestions=1, types=Array
+(
+    [0] => multiple_choice
+)
+, categories=Array
+(
+    [0] => Tech Questions
+)
+
+[02-Jan-2025 10:11:38 UTC] PHP Fatal error:  Uncaught TypeError: array_rand(): Argument #1 ($array) must be of type array, null given in C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php:135
+Stack trace:
+#0 C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php(135): array_rand(NULL)
+#1 C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php(69): generateMultipleChoiceQuestions(Object(mysqli), 1.0, 'Tech Questions')
+#2 {main}
+  thrown in C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php on line 135
+[02-Jan-2025 10:11:38 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:11:38 UTC] POST data: Array
+(
+    [num_questions] => 1
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:11:38 UTC] Parsed parameters: numQuestions=1, types=Array
+(
+    [0] => multiple_choice
+)
+, categories=Array
+(
+    [0] => Tech Questions
+)
+
+[02-Jan-2025 10:11:38 UTC] PHP Fatal error:  Uncaught TypeError: array_rand(): Argument #1 ($array) must be of type array, null given in C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php:135
+Stack trace:
+#0 C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php(135): array_rand(NULL)
+#1 C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php(69): generateMultipleChoiceQuestions(Object(mysqli), 1.0, 'Tech Questions')
+#2 {main}
+  thrown in C:\laragon\www\QualifyingExam\admin\handlers\generate_questions.php on line 135
+[02-Jan-2025 10:14:17 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:14:17 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:14:17 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:14:17 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:14:17 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:14:17 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:14:17 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:14:17 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:16:59 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:16:59 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:16:59 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:16:59 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:16:59 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:16:59 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:16:59 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:16:59 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:17:21 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:17:21 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:17:21 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:17:21 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:17:21 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:17:21 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:17:21 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:17:21 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:20:52 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:20:52 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:20:52 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:20:52 UTC] Stack trace: #0 {main}
+[02-Jan-2025 10:20:52 UTC] Generating questions - Request Method: POST
+[02-Jan-2025 10:20:52 UTC] POST data: Array
+(
+    [num_questions] => 2
+    [question_types] => Array
+        (
+            [0] => multiple_choice
+        )
+
+    [categories] => Array
+        (
+            [0] => Tech Questions
+        )
+
+    [include_test_cases] => on
+)
+
+[02-Jan-2025 10:20:52 UTC] Error in generate_questions.php: Exam ID is required
+[02-Jan-2025 10:20:52 UTC] Stack trace: #0 {main}

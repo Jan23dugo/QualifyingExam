@@ -63,12 +63,12 @@ $unscheduled_exams = array();
             'backgroundColor' => $statusColor,
             'borderColor' => $statusColor,
             'extendedProps' => array(
-                'description' => $row['description'],
+            'description' => $row['description'],
                 'registeredStudents' => (int)$row['registered_students'],
                 'completedExams' => (int)$row['completed_exams'],
                 'duration' => (int)$row['duration'],
-                'status' => $row['current_status'],
-                'exam_date' => $row['exam_date'],
+            'status' => $row['current_status'],
+            'exam_date' => $row['exam_date'],
                 'exam_time' => $row['exam_time'],
                 'student_type' => $row['student_type']
             )
@@ -108,7 +108,7 @@ $unscheduled_exams = array();
     
     <!-- FullCalendar JS -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-
+    
     <style>
         /* Calendar specific styles */
         .calendar-container {

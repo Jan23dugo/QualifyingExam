@@ -62,6 +62,9 @@ while ($row = $result->fetch_assoc()) {
   <link rel="stylesheet" href="assets/css/styles.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
   
+  <!-- Add these in the head section, after the other CSS links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
   
   <style>
 
@@ -989,6 +992,12 @@ while ($row = $result->fetch_assoc()) {
                       <input type="hidden" name="exam_id" value="<?php echo $exam_id; ?>">
                       <div id="sectionBlocks">
                           <!-- Sections will be added here dynamically -->
+                          <div class="section-block" data-section-id="<?php echo $section_id; ?>">
+                              <!-- Section title and other content -->
+                              <div class="questions-container">
+                                  <!-- Questions will be added here -->
+                              </div>
+                          </div>
                       </div>
                   </form>
               </div>
@@ -1013,5 +1022,67 @@ while ($row = $result->fetch_assoc()) {
 <?php include 'includes/question-bank-modal.php'; ?>
 <script src="js/question-bank.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Function to show success message
+function showSuccess(message) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: message,
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+// Function to show error message
+function showError(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        confirmButtonText: 'OK'
+    });
+}
+
+// Function to show warning message
+function showWarning(message, confirmCallback = null) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Warning',
+        text: message,
+        confirmButtonText: 'OK',
+        showCancelButton: confirmCallback ? true : false,
+    }).then((result) => {
+        if (result.isConfirmed && confirmCallback) {
+            confirmCallback();
+        }
+    });
+}
+
+// Add event listener for the add section button
+document.getElementById('add-section-btn')?.addEventListener('click', function() {
+    // Your existing add section logic here
+    showSuccess('New section has been added successfully.');
+});
+
+// Add event listener for the save form button
+document.getElementById('save-form-btn')?.addEventListener('click', function() {
+    Swal.fire({
+        title: 'Saving...',
+        text: 'Please wait while we save your changes',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Your existing save logic here
+    // After successful save:
+    showSuccess('All changes have been saved successfully.');
+    
+    // If there's an error:
+    // showError('Failed to save changes. Please try again.');
+});
+</script>
 </body>
 </html>

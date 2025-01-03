@@ -196,6 +196,69 @@ window.addEventListener('resize', function() {
     }
 });
 
+// At the top of test2.js, before the DOMContentLoaded event
+window.addQuestionToExam = function(question, sectionId) {
+    console.log('Adding question to exam:', question); // Debug log
+    
+    // Find the question container within the correct section
+    const section = document.querySelector(`.section-block[data-section-id="${sectionId}"]`);
+    if (!section) {
+        console.error('Section not found:', sectionId);
+        return;
+    }
+
+    const questionContainer = section.querySelector('.questions-container');
+    if (!questionContainer) {
+        console.error('Questions container not found in section:', sectionId);
+        return;
+    }
+
+    const questionIndex = questionContainer.children.length;
+    const questionBlock = document.createElement('div');
+    questionBlock.classList.add('question-block');
+    questionBlock.style.marginBottom = '20px';
+    questionBlock.style.padding = '15px';
+    questionBlock.style.border = '1px solid #ddd';
+    questionBlock.style.borderRadius = '8px';
+
+    // Create the question HTML
+    questionBlock.innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <div class="form-control editable-field question-field" 
+                contenteditable="true" 
+                data-placeholder="Enter your question here"
+                data-input-name="question_text[${sectionId}][${questionIndex}]"
+                style="flex: 1; margin-right: 10px; min-height: 100px; cursor: text;"
+            >${question.question_text}</div>
+            <div style="min-width: 200px;">
+                <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
+                    <option value="">Select Question Type</option>
+                    <option value="multiple_choice" ${question.question_type === 'multiple_choice' ? 'selected' : ''}>Multiple Choice</option>
+                    <option value="true_false" ${question.question_type === 'true_false' ? 'selected' : ''}>True/False</option>
+                    <option value="programming" ${question.question_type === 'programming' ? 'selected' : ''}>Programming</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-link text-danger delete-question-btn" style="padding: 5px;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+        <div class="question-options" style="margin-top: 10px;"></div>
+        <div style="margin-top: 10px;">
+            <input type="number" name="points[${sectionId}][${questionIndex}]" 
+                class="form-control" placeholder="Points" style="width: 100px;"
+                value="${question.points || 1}">
+        </div>
+    `;
+
+    // Add the question block to the container
+    questionContainer.appendChild(questionBlock);
+
+    // Rest of the function remains the same...
+    // (Keep all the existing code for handling options, test cases, etc.)
+
+    console.log('Question added successfully to container:', questionContainer.id); // Debug log
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize modals with error handling
     initializeModals();
@@ -1559,5 +1622,133 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         return question;
+    }
+
+    // Add this function to handle adding questions to the exam
+    function addQuestionToExam(question, sectionId) {
+        console.log('Adding question to exam:', question); // Debug log
+        
+        const questionContainer = document.getElementById(`question-container-${sectionId}`);
+        if (!questionContainer) {
+            console.error('Question container not found for section:', sectionId);
+            return;
+        }
+
+        const questionIndex = questionContainer.children.length;
+        const questionBlock = document.createElement('div');
+        questionBlock.classList.add('question-block');
+        questionBlock.style.marginBottom = '20px';
+        questionBlock.style.padding = '15px';
+        questionBlock.style.border = '1px solid #ddd';
+        questionBlock.style.borderRadius = '8px';
+
+        // Create the question HTML
+        questionBlock.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <div class="form-control editable-field question-field" 
+                    contenteditable="true" 
+                    data-placeholder="Enter your question here"
+                    data-input-name="question_text[${sectionId}][${questionIndex}]"
+                    style="flex: 1; margin-right: 10px; min-height: 100px; cursor: text;"
+                >${question.question_text}</div>
+                <div style="min-width: 200px;">
+                    <select class="form-control question-type-select" name="question_type[${sectionId}][${questionIndex}]">
+                        <option value="">Select Question Type</option>
+                        <option value="multiple_choice" ${question.question_type === 'multiple_choice' ? 'selected' : ''}>Multiple Choice</option>
+                        <option value="true_false" ${question.question_type === 'true_false' ? 'selected' : ''}>True/False</option>
+                        <option value="programming" ${question.question_type === 'programming' ? 'selected' : ''}>Programming</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-link text-danger delete-question-btn" style="padding: 5px;">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <div class="question-options" style="margin-top: 10px;"></div>
+            <div style="margin-top: 10px;">
+                <input type="number" name="points[${sectionId}][${questionIndex}]" 
+                    class="form-control" placeholder="Points" style="width: 100px;"
+                    value="${question.points || 1}">
+            </div>
+        `;
+
+        // Add the question block to the container
+        questionContainer.appendChild(questionBlock);
+
+        // Get the question type select and options container
+        const questionTypeSelect = questionBlock.querySelector('.question-type-select');
+        const optionsContainer = questionBlock.querySelector('.question-options');
+
+        // Handle question type specific options
+        if (question.question_type === 'multiple_choice' && question.choices) {
+            optionsContainer.innerHTML = `
+                <div class="multiple-choice-options">
+                    ${question.choices.map((choice, idx) => `
+                        <div class="option-container" style="margin-bottom: 10px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <input type="radio" name="correct_option[${sectionId}][${questionIndex}]" 
+                                            value="${idx}" ${choice.is_correct ? 'checked' : ''}>
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control" 
+                                    name="options[${sectionId}][${questionIndex}][]"
+                                    value="${choice.choice_text}"
+                                    placeholder="Enter option text">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger delete-option-btn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button type="button" class="btn btn-secondary add-option-btn">Add Option</button>
+            `;
+        } else if (question.question_type === 'programming' && question.test_cases) {
+            // Add programming-specific fields
+            optionsContainer.innerHTML = `
+                <div class="programming-options">
+                    <select name="programming_language[${sectionId}][${questionIndex}]" class="form-control mb-3">
+                        <option value="python" ${question.programming_language === 'python' ? 'selected' : ''}>Python</option>
+                        <option value="java" ${question.programming_language === 'java' ? 'selected' : ''}>Java</option>
+                        <option value="javascript" ${question.programming_language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                    </select>
+                    <div class="test-cases">
+                        ${question.test_cases.map((test, testIndex) => `
+                            <div class="test-case mb-3">
+                                <input type="text" class="form-control mb-2" 
+                                    name="test_case_input[${sectionId}][${questionIndex}][]" 
+                                    value="${test.test_input}" 
+                                    placeholder="Test input">
+                                <input type="text" class="form-control mb-2" 
+                                    name="test_case_output[${sectionId}][${questionIndex}][]" 
+                                    value="${test.expected_output}" 
+                                    placeholder="Expected output">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" 
+                                        name="test_case_hidden[${sectionId}][${questionIndex}][]" 
+                                        ${test.is_hidden ? 'checked' : ''}>
+                                    <label class="form-check-label">Hidden test case</label>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button type="button" class="btn btn-secondary add-test-case-btn">Add Test Case</button>
+                </div>
+            `;
+        }
+
+        // Add event listeners for the new question block
+        attachQuestionEventListeners(questionBlock);
+        
+        // Initialize the toolbar for editable fields
+        const editableFields = questionBlock.querySelectorAll('.editable-field');
+        editableFields.forEach(field => {
+            attachEditableFieldListeners(field);
+        });
+
+        console.log('Question added successfully'); // Debug log
     }
 }); // Close the DOMContentLoaded event listener

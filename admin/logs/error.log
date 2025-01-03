@@ -4841,3 +4841,180 @@ ReferenceError: CKEDITOR is not defined
 
 )
 
+[2025-01-02 07:28:27] debug: Received data: Array
+(
+    [exam_id] => 19
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 19
+                    [title] => sf
+                    [description] => sf
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                    [imported_questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+
+[2025-01-02 09:38:15] debug: Received data: Array
+(
+    [exam_id] => 16
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 16
+                    [title] => auto generate&nbsp;
+                    [description] => dsdsds
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                    [imported_questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+
+[2025-01-03 03:21:28] debug: Received data: Array
+(
+    [exam_id] => 19
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 12
+                    [exam_id] => 19
+                    [title] => sf
+                    [description] => sf
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                    [imported_questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_type] => multiple_choice
+                                    [question_text] => fafas
+                                    [points] => 2
+                                    [order] => 0
+                                    [is_imported] => 1
+                                )
+
+                            [1] => Array
+                                (
+                                    [question_type] => multiple_choice
+                                    [question_text] => try
+                                    [points] => 2
+                                    [order] => 1
+                                    [is_imported] => 1
+                                )
+
+                            [2] => Array
+                                (
+                                    [question_type] => multiple_choice
+                                    [question_text] => is it hard
+                                    [points] => 2
+                                    [order] => 2
+                                    [is_imported] => 1
+                                )
+
+                            [3] => Array
+                                (
+                                    [question_type] => programming
+                                    [question_text] => just as hdsaf
+                                    [points] => 5
+                                    [order] => 3
+                                    [is_imported] => 1
+                                    [programming_language] => python
+                                    [test_cases] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [test_input] => 5 7
+                                                    [expected_output] => 12
+                                                    [is_hidden] => 1
+                                                    [description] => just add
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [test_input] => 8 9
+                                                    [expected_output] => 17
+                                                    [is_hidden] => 
+                                                )
+
+                                        )
+
+                                )
+
+                            [4] => Array
+                                (
+                                    [question_type] => programming
+                                    [question_text] => Write a function program using python that adds two positive integer.
+                                    [points] => 10
+                                    [order] => 4
+                                    [is_imported] => 1
+                                    [programming_language] => python
+                                    [test_cases] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [test_input] => 1 2
+                                                    [expected_output] => 90
+                                                    [is_hidden] => 
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [test_input] => 3 4
+                                                    [expected_output] => 7
+                                                    [is_hidden] => 
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+

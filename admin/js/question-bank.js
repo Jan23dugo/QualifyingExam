@@ -23,7 +23,36 @@ function debounce(func, wait) {
 
 // Initialize everything when the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    initializeQuestionBank();
+    // Check if SweetAlert2 is loaded
+    if (!checkSweetAlert()) {
+        console.error('SweetAlert2 is required but not loaded!');
+        return;
+    }
+
+    // Initialize question bank modal
+    const qbModal = document.getElementById('qbModal');
+    if (qbModal) {
+        const importBtn = document.getElementById('qbImportSelectedBtn');
+        if (importBtn) {
+            importBtn.addEventListener('click', function() {
+                console.log('Import button clicked');
+                importSelectedQuestions();
+            });
+        } else {
+            console.error('Import button not found in modal');
+        }
+    } else {
+        console.error('Question bank modal not found');
+    }
+
+    // Add click handler for auto generate button
+    document.getElementById('autoGenerateBtn')?.addEventListener('click', showAutoGenerateModal);
+
+    // Load categories when modal opens
+    $('#qbModal').on('show.bs.modal', loadCategories);
+    
+    // Auto generate button click handler
+    document.getElementById('autoGenerateBtn').addEventListener('click', handleAutoGenerate);
 });
 
 async function loadQuestionBank(search = '', category = '') {
@@ -153,46 +182,64 @@ function initializeQuestionBank() {
 }
 
 // Function to load categories
-async function loadCategories() {
-    try {
-        console.log('Fetching categories...');
-        
-        // Get the category select element - use qbCategorySelect consistently
-        categorySelect = document.getElementById('qbCategorySelect') || document.getElementById('categorySelect');
-        
-        if (!categorySelect) {
-            console.warn('Category select element not found. Will retry after modal opens.');
-            return;
-        }
-
-        const response = await fetch('../admin/fetch_categories.php');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Categories response:', data);
-
-        if (data.success && Array.isArray(data.categories)) {
-            categorySelect.innerHTML = '<option value="">All Categories</option>';
-            data.categories.forEach(category => {
+function loadCategories() {
+    console.log('Loading categories...');
+    
+    fetch('handlers/get_categories.php')
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Categories data:', data);
+            
+            const select = document.getElementById('qbCategorySelect');
+            if (!select) {
+                console.error('Category select element not found');
+                return;
+            }
+            
+            select.innerHTML = ''; // Clear existing options
+            
+            if (!data.success) {
+                console.error('Error loading categories:', data.message);
+                throw new Error(data.message);
+            }
+            
+            // Get categories array from the response data
+            const categories = data.categories || [];
+            
+            if (categories.length === 0) {
+                // Add a placeholder option if no categories are found
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No categories available";
+                option.disabled = true;
+                select.appendChild(option);
+                return;
+            }
+            
+            categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
                 option.textContent = category;
-                categorySelect.appendChild(option);
+                select.appendChild(option);
             });
-        } else {
-            console.error('Failed to load categories:', data.error || 'Unknown error');
-            categorySelect.innerHTML = '<option value="">Error loading categories</option>';
-        }
-    } catch (error) {
-        console.error('Error loading categories:', error);
-        if (categorySelect) {
-            categorySelect.innerHTML = '<option value="">Error loading categories</option>';
-        }
-    }
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+            showError('Failed to load categories: ' + error.message);
+            
+            // Add a placeholder option in case of error
+            const select = document.getElementById('qbCategorySelect');
+            if (select) {
+                select.innerHTML = '<option value="" disabled>Error loading categories</option>';
+            }
+        });
 }
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', loadCategories);
 
 // Add event listener for modal show event
 document.addEventListener('DOMContentLoaded', function() {
@@ -320,38 +367,124 @@ function renderQuestions(questions) {
 
 // Function to import selected questions
 function importSelectedQuestions() {
-    const selectedQuestions = Array.from(
-        document.querySelectorAll('#qbQuestionsList input[type="checkbox"]:checked')
-    ).map(checkbox => JSON.parse(checkbox.getAttribute('data-question')));
-
-    if (selectedQuestions.length === 0) {
-        alert('Please select at least one question to import.');
-        return;
-    }
-
-    selectedQuestions.forEach(question => {
-        console.log('Importing question:', question);
-        addQuestionToExam(question);
-    });
-
-    // Close modal using Bootstrap's hide method
-    const qbModal = document.getElementById('qbModal');
-    const bsModal = bootstrap.Modal.getInstance(qbModal);
-    if (bsModal) {
-        bsModal.hide();
-    }
-
-    // Add event listener for when modal is fully hidden
-    qbModal.addEventListener('hidden.bs.modal', function () {
-        // Remove backdrop and cleanup
-        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.removeProperty('padding-right');
-        document.body.style.removeProperty('overflow');
+    try {
+        console.log('Starting import of selected questions');
         
-        // Reset form and other states
-        resetModalState();
-    }, { once: true }); // Use once: true to ensure the listener is removed after execution
+        // First check if there's a section to add questions to
+        const sectionBlock = document.querySelector('.section-block');
+        if (!sectionBlock) {
+            console.log('No section found, showing warning...');
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Section Found',
+                text: 'Please create a section first before importing questions.',
+                confirmButtonText: 'Create Section',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const addSectionBtn = document.getElementById('add-section-btn');
+                    if (addSectionBtn) {
+                        addSectionBtn.click();
+                    } else {
+                        console.error('Add section button not found');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Could not create section. Please try again.'
+                        });
+                    }
+                }
+            });
+            return;
+        }
+
+        const sectionId = sectionBlock.getAttribute('data-section-id');
+        if (!sectionId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Section',
+                text: 'The selected section appears to be invalid. Please try creating a new section.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Get checked questions
+        const checkedBoxes = document.querySelectorAll('#qbQuestionsList input[type="checkbox"]:checked');
+        
+        if (checkedBoxes.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Questions Selected',
+                text: 'Please select at least one question to import.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Show loading state
+        Swal.fire({
+            title: 'Importing Questions',
+            text: 'Please wait while we import your selected questions...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Process selected questions
+        const selectedQuestions = Array.from(checkedBoxes)
+            .map(checkbox => {
+                try {
+                    const questionData = checkbox.getAttribute('data-question');
+                    return questionData ? JSON.parse(questionData) : null;
+                } catch (e) {
+                    console.error('Error parsing question data:', e);
+                    return null;
+                }
+            })
+            .filter(q => q !== null);
+
+        // Add questions to exam with section ID
+        selectedQuestions.forEach(question => {
+            if (question) {
+                try {
+                    addQuestionToExam(question, sectionId);
+                } catch (e) {
+                    console.error('Error adding question to exam:', e, question);
+                }
+            }
+        });
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('qbModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        // Show success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: `${selectedQuestions.length} questions have been imported successfully.`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+
+    } catch (error) {
+        console.error('Error in importSelectedQuestions:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while importing questions. Please try again.',
+            confirmButtonText: 'OK'
+        });
+    }
 }
 
 // Helper function to safely get text content
@@ -1085,4 +1218,413 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 200); // Small delay to ensure modal hide animation completes
         });
     }
+});
+
+// Add this function to check if SweetAlert2 is loaded
+function checkSweetAlert() {
+    if (typeof Swal === 'undefined') {
+        console.error('SweetAlert2 is not loaded!');
+        return false;
+    }
+    console.log('SweetAlert2 is loaded and ready');
+    return true;
+}
+
+// Add event listener to check SweetAlert2 when document loads
+document.addEventListener('DOMContentLoaded', function() {
+    checkSweetAlert();
+});
+
+// Add this function to handle the auto-generation of questions
+async function generateQuestions() {
+    try {
+        // Get form data
+        const form = document.getElementById('autoGenerateForm');
+        const formData = new FormData(form);
+        
+        // Validate form data
+        const numQuestions = parseInt(formData.get('num_questions'));
+        const questionTypes = formData.getAll('question_types[]');
+        const categories = formData.getAll('categories[]');
+        
+        if (!numQuestions || numQuestions <= 0) {
+            throw new Error('Please enter a valid number of questions');
+        }
+        
+        if (questionTypes.length === 0) {
+            throw new Error('Please select at least one question type');
+        }
+        
+        if (categories.length === 0) {
+            throw new Error('Please select at least one category');
+        }
+
+        // Show loading state
+        Swal.fire({
+            title: 'Generating Questions',
+            text: 'Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Send request to generate questions
+        const response = await fetch('handlers/generate_questions.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to generate questions');
+        }
+
+        // Close the auto-generate modal
+        const autoGenModal = bootstrap.Modal.getInstance(document.getElementById('autoGenerateModal'));
+        if (autoGenModal) {
+            autoGenModal.hide();
+        }
+
+        // Get the current section
+        const currentSection = document.querySelector('.section-block');
+        if (!currentSection) {
+            throw new Error('No section found to add questions to');
+        }
+
+        const sectionId = currentSection.getAttribute('data-section-id');
+        console.log('Current section ID:', sectionId);
+        console.log('Current section:', currentSection);
+
+        // Add each generated question to the section
+        if (data.questions && data.questions.length > 0) {
+            console.log('Questions to add:', data.questions);
+            data.questions.forEach(question => {
+                console.log('Adding question:', question);
+                if (typeof window.addQuestionToExam === 'function') {
+                    window.addQuestionToExam(question, sectionId);
+                } else {
+                    console.error('addQuestionToExam function not found');
+                }
+            });
+        } else {
+            console.log('No questions received from server');
+        }
+
+        // Show success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: `Generated ${data.count} questions successfully`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+
+    } catch (error) {
+        console.error('Error generating questions:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to generate questions'
+        });
+    }
+}
+
+// Add this function to view questions in a category
+async function viewCategoryQuestions(category) {
+    try {
+        const response = await fetch(`handlers/fetch_questions.php?category=${encodeURIComponent(category)}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to load questions');
+        }
+
+        // Create HTML for questions preview
+        const questionsHtml = data.questions.map(q => `
+            <div class="question-preview mb-3">
+                <div class="d-flex justify-content-between">
+                    <span class="badge bg-primary">${q.question_type}</span>
+                    <small class="text-muted">Points: ${q.points}</small>
+                </div>
+                <div class="question-text mt-2">${q.question_text}</div>
+                ${renderQuestionDetails(q)}
+            </div>
+        `).join('');
+
+        // Show modal with questions
+        Swal.fire({
+            title: `Questions in ${category}`,
+            html: `
+                <div class="questions-preview" style="max-height: 400px; overflow-y: auto;">
+                    ${questionsHtml}
+                </div>
+            `,
+            width: '800px',
+            showCloseButton: true,
+            showConfirmButton: false
+        });
+
+    } catch (error) {
+        console.error('Error viewing category questions:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to load category questions'
+        });
+    }
+}
+
+// Add this helper function to render question details
+function renderQuestionDetails(question) {
+    switch (question.question_type) {
+        case 'multiple_choice':
+            return `
+                <div class="options-list mt-2">
+                    ${question.choices.map(choice => `
+                        <div class="option ${choice.is_correct ? 'text-success' : ''}">
+                            ${choice.is_correct ? '✓' : '○'} ${choice.choice_text}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        case 'programming':
+            return `
+                <div class="programming-details mt-2">
+                    <div>Language: ${question.programming_language}</div>
+                    ${question.test_cases ? `
+                        <div class="test-cases mt-1">
+                            <small>Test Cases: ${question.test_cases.length}</small>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        default:
+            return '';
+    }
+}
+
+// Add event listener for auto generate button
+document.addEventListener('DOMContentLoaded', function() {
+    const autoGenerateBtn = document.getElementById('autoGenerateBtn');
+    if (autoGenerateBtn) {
+        autoGenerateBtn.addEventListener('click', showAutoGenerateModal);
+    }
+});
+
+// Function to show auto generate modal
+function showAutoGenerateModal() {
+    // First fetch categories
+    fetch('handlers/get_categories.php')
+        .then(response => response.json())
+        .then(data => {
+            const categories = data.categories || [];
+            
+            Swal.fire({
+                title: 'Auto Generate Questions',
+                html: `
+                    <div class="container">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Number of Questions</label>
+                                <input type="number" id="numQuestions" class="form-control" min="1" value="5">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Categories</label>
+                                <select id="autoGenCategories" class="form-control" multiple>
+                                    ${categories.map(category => `
+                                        <option value="${category}">${category}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Question Types</label>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="question_types[]" value="multiple_choice" id="type_mc" checked>
+                                    <label class="form-check-label" for="type_mc">Multiple Choice</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="question_types[]" value="true_false" id="type_tf">
+                                    <label class="form-check-label" for="type_tf">True/False</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="question_types[]" value="programming" id="type_prog">
+                                    <label class="form-check-label" for="type_prog">Programming</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div id="questionCountInfo" class="text-muted small">
+                                    Available questions: <span id="mcCount">0</span> Multiple Choice, 
+                                    <span id="tfCount">0</span> True/False, 
+                                    <span id="progCount">0</span> Programming
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Generate',
+                didOpen: () => {
+                    // Initialize question counts
+                    updateQuestionCounts();
+                    
+                    // Add event listeners for checkboxes and category select
+                    document.querySelectorAll('input[name="question_types[]"]').forEach(checkbox => {
+                        checkbox.addEventListener('change', updateQuestionCounts);
+                    });
+                    
+                    const categorySelect = document.getElementById('autoGenCategories');
+                    if (categorySelect) {
+                        categorySelect.addEventListener('change', updateQuestionCounts);
+                    }
+                },
+                preConfirm: () => {
+                    const numQuestions = document.getElementById('numQuestions').value;
+                    const selectedCategories = Array.from(document.getElementById('autoGenCategories').selectedOptions)
+                        .map(option => option.value);
+                    const selectedTypes = Array.from(document.querySelectorAll('input[name="question_types[]"]:checked'))
+                        .map(cb => cb.value);
+
+                    // Validation
+                    if (!numQuestions || numQuestions < 1) {
+                        Swal.showValidationMessage('Please enter a valid number of questions');
+                        return false;
+                    }
+
+                    if (selectedCategories.length === 0) {
+                        Swal.showValidationMessage('Please select at least one category');
+                        return false;
+                    }
+
+                    if (selectedTypes.length === 0) {
+                        Swal.showValidationMessage('Please select at least one question type');
+                        return false;
+                    }
+
+                    // Get the exam_id from the URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const examId = urlParams.get('exam_id');
+
+                    // Prepare form data
+                    const formData = new FormData();
+                    formData.append('num_questions', numQuestions);
+                    formData.append('categories', JSON.stringify(selectedCategories));
+                    formData.append('question_types', JSON.stringify(selectedTypes));
+                    if (examId) formData.append('exam_id', examId);
+
+                    // Return the fetch promise
+                    return fetch('handlers/auto_generate_questions.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || 'Failed to generate questions');
+                        }
+                        return data;
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const data = result.value;
+                    if (data.questions && data.questions.length > 0) {
+                        importQuestionsToSection(data.questions);
+                        showSuccess(`Successfully generated and imported ${data.questions.length} questions`);
+                    } else {
+                        showWarning('No questions were generated matching your criteria');
+                    }
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                showError('An error occurred while generating questions');
+            });
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+            showError('Failed to load categories');
+        });
+}
+
+// Add the importQuestionsToSection function
+function importQuestionsToSection(questions) {
+    const sections = document.querySelectorAll('.section-block');
+    if (sections.length === 0) {
+        showError('Please create a section first');
+        return;
+    }
+    
+    const lastSection = sections[sections.length - 1];
+    const sectionId = lastSection.getAttribute('data-section-id');
+    const questionContainer = document.getElementById(`question-container-${sectionId}`);
+    
+    // Keep track of already imported questions
+    const existingQuestionIds = Array.from(questionContainer.querySelectorAll('.question-block'))
+        .map(block => block.getAttribute('data-original-question-id'))
+        .filter(id => id);
+
+    // Filter out already imported questions
+    const newQuestions = questions.filter(question => 
+        !existingQuestionIds.includes(question.question_id.toString())
+    );
+
+    if (newQuestions.length === 0) {
+        showWarning('All selected questions have already been imported to this section');
+        return;
+    }
+
+    newQuestions.forEach(questionData => {
+        addQuestionToExam(questionData);
+    });
+
+    // Close the modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('qbModal'));
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// Add function to update question counts
+function updateQuestionCounts() {
+    const categorySelect = document.getElementById('autoGenCategories');
+    const category = categorySelect ? categorySelect.value : '';
+    const types = Array.from(document.querySelectorAll('input[name="question_types[]"]:checked'))
+        .map(cb => cb.value);
+        
+    fetch(`handlers/get_question_counts.php?${new URLSearchParams({
+        category: category,
+        types: types.join(',')
+    })}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('mcCount').textContent = data.counts.multiple_choice || 0;
+            document.getElementById('tfCount').textContent = data.counts.true_false || 0;
+            document.getElementById('progCount').textContent = data.counts.programming || 0;
+        }
+    })
+    .catch(error => console.error('Error getting question counts:', error));
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Update counts when question types or category changes
+    document.querySelectorAll('input[name="question_types[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateQuestionCounts);
+    });
+    
+    const categorySelect = document.getElementById('qbCategorySelect');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', updateQuestionCounts);
+    }
+    
+    // Initial count update
+    updateQuestionCounts();
 }); 
