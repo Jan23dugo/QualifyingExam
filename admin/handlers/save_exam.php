@@ -63,11 +63,13 @@ try {
         throw new Exception("Execute failed: " . $stmt->error);
     }
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Exam created successfully',
-        'exam_id' => $conn->insert_id
-    ]);
+    $exam_id = $conn->insert_id;
+    
+    // Automatically assign exam to eligible students
+    require_once 'assign_exams.php';
+    assignExamToStudents($exam_id);
+    
+    echo json_encode(['success' => true, 'exam_id' => $exam_id]);
 
 } catch (Exception $e) {
     echo json_encode([

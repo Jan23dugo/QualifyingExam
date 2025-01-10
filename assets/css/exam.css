@@ -1,0 +1,615 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Container styles */
+.exam-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    gap: 20px;
+}
+
+/* Form styles */
+.reference-form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reference-form h1 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.instruction {
+    color: #666;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e1e1;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #357abd;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .exam-container {
+        padding: 15px;
+    }
+    
+    .reference-form {
+        padding: 1.5rem;
+    }
+    
+    .reference-form h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Add these styles to your existing exam.css file */
+
+.exam-start-card {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
+
+.exam-details {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.exam-details p {
+    margin: 0.5rem 0;
+    color: #495057;
+}
+
+.exam-instructions {
+    margin: 1.5rem 0;
+}
+
+.exam-instructions h2 {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.instruction-content {
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.warning-text {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 4px;
+    color: #856404;
+}
+
+.warning-text p {
+    margin: 0.5rem 0;
+}
+
+.start-exam-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.start-exam-btn:hover {
+    background-color: #218838;
+}
+
+.exam-questions {
+    max-width: 1000px;
+    padding: 20px;
+}
+
+.exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.exam-timer {
+    background-color: #f8f9fa;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.question-card {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: #fff;
+    
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.question-number {
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.question-points {
+    color: #28a745;
+}
+
+.question-content {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.coding-area {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.code-editor {
+    width: 100%;
+    font-family: monospace;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+    resize: vertical;
+}
+
+.run-code-btn {
+    margin-top: 1rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.code-output {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+.answer-text {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.exam-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+}
+
+.nav-btn {
+    padding: 0.5rem 1rem;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.nav-btn:disabled {
+    background: #e1e1e1;
+    cursor: not-allowed;
+}
+
+.question-dots {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background: #dee2e6;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.dot.active {
+    background: #4a90e2;
+}
+
+.submit-section {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.submit-exam-btn {
+    padding: 1rem 2rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-exam-btn:hover {
+    background: #218838;
+}
+
+/* Add these new styles */
+.questions-container {
+    flex: 1;
+    max-width: 800px;
+}
+
+.questions-wrapper {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 20px;
+    margin: 20px 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-info {
+    text-align: center;
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.page-number {
+    width: 35px;
+    height: 35px;
+    border: none;
+    background: #f0f0f0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.page-number.active {
+    background: #4a90e2;
+    color: white;
+}
+
+.page-btn {
+    padding: 0.5rem 1rem;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.page-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.question-card {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: #fff;
+}
+
+/* Smooth scrolling for questions */
+.questions-wrapper {
+    scroll-behavior: smooth;
+}
+
+/* Add styles for multiple choice options */
+.options {
+    margin-top: 1rem;
+}
+
+.option {
+    margin: 1rem 0;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.option:hover {
+    background-color: #f8f9fa;
+}
+
+.option input[type="radio"] {
+    margin: 0;
+}
+
+.option label {
+    margin: 0;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Question Status Styles */
+.exam-status {
+    width: 300px;
+    background: #FFFFFF;
+    border: 1px solid #F7F7F7;
+    border-radius: 8px;
+    box-shadow: 0px 0px 1px #171a1f12, 0px 0px 2px #171a1f1F;
+    padding: 20px;
+    position: absolute;
+    right: -100px;
+    top: 0;
+}
+
+/* Status Header */
+.status-header h3 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+/* Status Grid */
+.status-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.status-item {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #E1E1E1;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.status-item:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-item.unanswered {
+    background-color: #fff;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.status-item.answered {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.status-item.review {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+/* Status Legend */
+.status-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #E1E1E1;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.answered {
+    background-color: #28a745;
+}
+
+.status-dot.review {
+    background-color: #ffc107;
+}
+
+.status-dot.unanswered {
+    background-color: #dc3545;
+}
+
+/* Page Info */
+.page-info {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin: 16px 0;
+}
+
+/* Review Button Styles */
+.review-btn {
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.review-btn.marked {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.review-btn:hover {
+    background: #e2e6ea;
+}
+
+.question-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Add some responsive adjustments */
+@media (max-width: 1200px) {
+    .exam-container {
+        flex-direction: column;
+    }
+
+    .exam-status {
+        position: static;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .status-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* Update exam content layout */
+.exam-content {
+    display: flex;
+    gap: 30px;
+    position: relative;
+}
+
+.questions-section {
+    flex: 1;
+    max-width: 800px;
+}
+
+/* Container for the main exam content */
+.exam-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px;
+    position: relative;
+}
+
+/* Questions container */
+.questions-container {
+    width: calc(100% - 280px);
+    position: relative;
+}

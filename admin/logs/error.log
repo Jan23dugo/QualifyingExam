@@ -5018,3 +5018,93 @@ ReferenceError: CKEDITOR is not defined
 
 )
 
+[2025-01-03 11:13:03] debug: Received data: Array
+(
+    [exam_id] => 20
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 20
+                    [title] => dfsaf
+                    [description] => fsfsf
+                    [order] => 0
+                    [questions] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [question_id] => 
+                                    [section_id] => 
+                                    [question_text] => fdfsff
+                                    [question_type] => multiple_choice
+                                    [points] => 1
+                                    [order] => 0
+                                    [options] => Array
+                                        (
+                                            [0] => Array
+                                                (
+                                                    [text] => asf
+                                                    [is_correct] => 0
+                                                    [order] => 0
+                                                )
+
+                                            [1] => Array
+                                                (
+                                                    [text] => asfff
+                                                    [is_correct] => 1
+                                                    [order] => 1
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                    [imported_questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+
+[2025-01-09 07:50:17] debug: Received data: Array
+(
+    [exam_id] => 23
+    [action] => save_sections
+    [sections] => Array
+        (
+            [0] => Array
+                (
+                    [section_id] => 
+                    [exam_id] => 23
+                    [title] => hgdhfjj
+                    [description] => tughvghcgh
+                    [order] => 0
+                    [questions] => Array
+                        (
+                        )
+
+                    [imported_questions] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [deleted_questions] => Array
+        (
+        )
+
+)
+

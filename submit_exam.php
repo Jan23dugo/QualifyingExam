@@ -31,47 +31,32 @@ try {
     $total_score = 0;
     
     // Process each answer
-    foreach ($answers as $question_id => $answer) {
-        // Get question details
-        $q_stmt = $conn->prepare("
-            SELECT question_type, points 
-            FROM questions 
-            WHERE question_id = ?
-        ");
-        $q_stmt->bind_param("i", $question_id);
-        $q_stmt->execute();
-        $question = $q_stmt->get_result()->fetch_assoc();
-        
-        $is_correct = false;
-        $points_earned = 0;
-        
-        if ($question['question_type'] === 'multiple_choice') {
-            // Check if answer is correct for multiple choice
-            $check_stmt = $conn->prepare("
-                SELECT is_correct 
-                FROM multiple_choice_options 
-                WHERE option_id = ? AND question_id = ?
-            ");
-            $check_stmt->bind_param("ii", $answer, $question_id);
-            $check_stmt->execute();
-            $option_result = $check_stmt->get_result()->fetch_assoc();
+    foreach ($answers as $question_id => $code) {
+        // If this is a programming question
+        if (isProgrammingQuestion($question_id)) {
+            // Get test cases for this question
+            $test_cases = getTestCases($question_id);
             
-            if ($option_result && $option_result['is_correct']) {
-                $is_correct = true;
-                $points_earned = $question['points'];
-                $total_score += $points_earned;
+            // For each test case, execute the code using JDoodle
+            foreach ($test_cases as $test) {
+                $result = executeCode($code, $test['language']); // This calls your execute_code.php
+                
+                if ($result['output'] === $test['expected_output']) {
+                    // Test case passed
+                    $points_earned += $test['points'];
+                }
             }
         }
-        
-        // Save student's answer
-        $save_stmt = $conn->prepare("
-            INSERT INTO student_answers 
-            (result_id, question_id, student_answer, is_correct, points_earned) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $save_stmt->bind_param("iisii", $result_id, $question_id, $answer, $is_correct, $points_earned);
-        $save_stmt->execute();
     }
+    
+    // Save student's answer
+    $save_stmt = $conn->prepare("
+        INSERT INTO student_answers 
+        (result_id, question_id, student_answer, is_correct, points_earned) 
+        VALUES (?, ?, ?, ?, ?)
+    ");
+    $save_stmt->bind_param("iisii", $result_id, $question_id, $code, $is_correct, $points_earned);
+    $save_stmt->execute();
     
     // Update exam result
     $update_stmt = $conn->prepare("

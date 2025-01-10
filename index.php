@@ -24,7 +24,6 @@ session_start();
                         <a href="about-exam.php#documents">Required Documents</a>
                     </div>
                 </li>
-                <li><a href=eligibilitychecker.php>ELIGIBILITY CHECKER</a></li>
                 <li><a href=take_exam.php>TAKE AN EXAM</a></li>
             </ul>
         </nav>
