@@ -72,8 +72,8 @@ function getExamStatus($exam) {
 if (isset($_GET['edit'])) {
     $exam_id = (int)$_GET['edit'];
     $sql = "SELECT e.*, 
-            e.exam_type,
-            e.year,
+            e.student_type,
+            e.student_year,
             e.status,
             e.exam_date,
             e.exam_time,
@@ -1004,12 +1004,12 @@ if (isset($_GET['edit'])) {
                                         <h6 class="section-title">Student Type</h6>
                                         <div class="form-check mb-2">
                                             <input class="form-check-input" type="radio" name="student_type" id="techStudents" value="tech" required
-                                                <?php echo (isset($exam) && $exam['exam_type'] === 'tech') ? 'checked' : ''; ?>>
+                                                <?php echo (isset($exam) && $exam['student_type'] === 'tech') ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="techStudents">Tech Students</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="student_type" id="nonTechStudents" value="non-tech"
-                                                <?php echo (isset($exam) && $exam['exam_type'] === 'non-tech') ? 'checked' : ''; ?>>
+                                                <?php echo (isset($exam) && $exam['student_type'] === 'non-tech') ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="nonTechStudents">Non-Tech Students</label>
                                         </div>
                                     </div>
@@ -1024,7 +1024,7 @@ if (isset($_GET['edit'])) {
                                                 $currentYear = date('Y');
                                                 for($i = 0; $i < 4; $i++) {
                                                     $year = $currentYear - $i;
-                                                    $selected = (isset($exam) && $exam['year'] == $year) ? 'selected' : '';
+                                                    $selected = (isset($exam) && $exam['student_year'] == $year) ? 'selected' : '';
                                                     echo "<option value='$year' $selected>$year</option>";
                                                 }
                                                 ?>
@@ -1206,7 +1206,7 @@ if (isset($_GET['edit'])) {
                                             $currentYear = date('Y');
                                             for($i = 0; $i < 4; $i++) {
                                                 $year = $currentYear - $i;
-                                                $selected = (isset($exam) && $exam['year'] == $year) ? 'selected' : '';
+                                                $selected = (isset($exam) && $exam['student_year'] == $year) ? 'selected' : '';
                                                 echo "<option value='$year' $selected>$year</option>";
                                             }
                                             ?>
